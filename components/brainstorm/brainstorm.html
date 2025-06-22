@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brainstorm Canvas - StoryDirector</title>
+    <link rel="stylesheet" href="../../shared/variables.css">
+    <link rel="stylesheet" href="brainstorm.css">
+</head>
+<body>
+    <div class="brainstorm-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">Brainstorm</div>
+                <div class="sidebar-subtitle">Capture ideas, explore connections</div>
+            </div>
+
+            <!-- Quick Capture -->
+            <div class="quick-capture">
+                <textarea 
+                    class="capture-input" 
+                    id="capture-input"
+                    placeholder="What's your idea? A character, scene, world detail, question..."
+                ></textarea>
+                <div class="capture-controls">
+                    <select class="snippet-type-select" id="snippet-type">
+                        <option value="concept">💡 Concept</option>
+                        <option value="character">👤 Character</option>
+                        <option value="scene">🎬 Scene</option>
+                        <option value="world">🌍 World</option>
+                        <option value="dialogue">💬 Dialogue</option>
+                        <option value="theme">🎯 Theme</option>
+                        <option value="question">❓ Question</option>
+                        <option value="mood">🎨 Mood</option>
+                    </select>
+                    <button class="add-snippet-btn" onclick="BrainstormApp.addSnippet()">Add</button>
+                </div>
+            </div>
+
+            <!-- AI Collaboration -->
+            <div class="ai-section">
+                <div class="ai-title">AI Collaborator</div>
+                <div class="ai-suggestions" id="ai-suggestions">
+                    <div class="ai-suggestion">
+                        Add some snippets and I'll help you explore connections, expand ideas, and discover new possibilities!
+                    </div>
+                </div>
+                <div class="ai-controls">
+                    <button class="ai-btn" onclick="BrainstormApp.getAISuggestions('expand')">Expand</button>
+                    <button class="ai-btn" onclick="BrainstormApp.getAISuggestions('connect')">Connect</button>
+                    <button class="ai-btn" onclick="BrainstormApp.getAISuggestions('challenge')">Challenge</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Canvas -->
+        <div class="canvas-area">
+            <div class="canvas-controls">
+                <div class="canvas-control" onclick="BrainstormApp.organizeSnippets()">🔗 Auto-Organize</div>
+                <div class="canvas-control" onclick="BrainstormApp.clearCanvas()">🗑️ Clear</div>
+            </div>
+
+            <div class="canvas" id="canvas">
+                <div class="empty-state" id="empty-state">
+                    <h3>Your Creative Canvas</h3>
+                    <p>Start by adding snippets of ideas in the sidebar. Drag them around to explore connections and let the AI help you develop them further.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="brainstorm.js"></script>
+</body>
+</html>

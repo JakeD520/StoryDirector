@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Outline Editor - StoryDirector</title>
+    <style>
+        :root {
+            --primary: #03dac6;
+            --secondary: #bb86fc;
+            --accent: #ffd700;
+            --bg-dark: #0a0a0f;
+            --bg-panel: #1a1a1a;
+            --bg-lighter: #2a2a2a;
+            --border: #444;
+            --text-light: #e0e0e0;
+            --text-dim: #888;
+            --success: #4caf50;
+            --warning: #ff9800;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .outline-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Main Outline Area */
+        .outline-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .outline-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-panel);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .outline-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .framework-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .framework-select {
+            padding: 8px 12px;
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-light);
+            font-size: 0.9em;
+        }
+
+        .add-beat-btn {
+            background: var(--secondary);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .add-beat-btn:hover {
+            opacity: 0.8;
+        }
+
+        /* Beats Container */
+        .beats-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .beat-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            padding: 20px;
+            transition: all 0.2s;
+            cursor: move;
+        }
+
+        .beat-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(3, 218, 198, 0.1);
+        }
+
+        .beat-card.dragging {
+            opacity: 0.5;
+            transform: rotate(2deg);
+        }
+
+        .beat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .beat-number {
+            background: var(--primary);
+            color: #000;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .beat-title-input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.1em;
+            font-weight: bold;
+            margin: 0 15px;
+            padding: 5px;
+            border-bottom: 1px solid transparent;
+        }
+
+        .beat-title-input:focus {
+            outline: none;
+            border-bottom-color: var(--primary);
+        }
+
+        .beat-actions {
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .beat-card:hover .beat-actions {
+            opacity: 1;
+        }
+
+        .beat-action {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.2s;
+        }
+
+        .beat-action:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .beat-content {
+            margin-bottom: 15px;
+        }
+
+        .beat-description {
+            width: 100%;
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            color: var(--text-light);
+            font-size: 0.9em;
+            min-height: 80px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .beat-description:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .beat-metadata {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .metadata-field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .metadata-label {
+            font-size: 0.8em;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metadata-input {
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 6px 8px;
+            color: var(--text-light);
+            font-size: 0.8em;
+        }
+
+        .metadata-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .beat-ai-chat {
+            border-top: 1px solid var(--border);
+            padding-top: 15px;
+        }
+
+        .ai-input-container {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .ai-input {
+            flex: 1;
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: var(--text-light);
+            font-size: 0.9em;
+            min-height: 36px;
+            max-height: 100px;
+            resize: none;
+        }
+
+        .ai-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        .ai-send-btn {
+            background: var(--secondary);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 0.9em;
+            white-space: nowrap;
+        }
+
+        .ai-send-btn:hover {
+            opacity: 0.8;
+        }
+
+        .ai-response {
+            background: rgba(187, 134, 252, 0.1);
+            border: 1px solid var(--secondary);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        /* AI Sidebar */
+        .ai-sidebar {
+            width: 350px;
+            background: var(--bg-panel);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .ai-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .ai-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .ai-subtitle {
+            font-size: 0.9em;
+            color: var(--text-dim);
+        }
+
+        .ai-insights {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .insight-card {
+            background: rgba(187, 134, 252, 0.1);
+            border: 1px solid var(--secondary);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .insight-type {
+            font-size: 0.8em;
+            color: var(--secondary);
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .global-ai-chat {
+            border-top: 1px solid var(--border);
+            padding: 20px;
+        }
+
+        .global-ai-input {
+            width: 100%;
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px;
+            color: var(--text-light);
+            font-size: 0.9em;
+            min-height: 80px;
+            resize: vertical;
+            margin-bottom: 10px;
+        }
+
+        .global-ai-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        .ai-quick-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .quick-action-btn {
+            background: rgba(187, 134, 252, 0.2);
+            border: 1px solid var(--secondary);
+            color: var(--secondary);
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 0.7em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-action-btn:hover {
+            background: rgba(187, 134, 252, 0.3);
+        }
+
+        /* Drag and Drop */
+        .beat-card.drag-over {
+            border-color: var(--accent);
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .drop-zone {
+            height: 40px;
+            border: 2px dashed var(--border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-dim);
+            font-size: 0.8em;
+            margin: 10px 0;
+            opacity: 0;
+            transition: all 0.2s;
+        }
+
+        .drop-zone.active {
+            opacity: 1;
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <div class="outline-container">
+        <!-- Main Outline Area -->
+        <div class="outline-main">
+            <div class="outline-header">
+                <div class="outline-title">Story Outline</div>
+                <div class="framework-controls">
+                    <select class="framework-select" id="framework-select">
+                        <option value="custom">Custom Structure</option>
+                        <option value="three-act">Three-Act Structure</option>
+                        <option value="save-the-cat">Save the Cat</option>
+                        <option value="heros-journey">Hero's Journey</option>
+                    </select>
+                    <button class="add-beat-btn" onclick="OutlineApp.addBeat()">+ Add Beat</button>
+                </div>
+            </div>
+
+            <div class="beats-container" id="beats-container">
+                <!-- Beats will be dynamically inserted here -->
+            </div>
+        </div>
+
+        <!-- AI Sidebar -->
+        <div class="ai-sidebar">
+            <div class="ai-header">
+                <div class="ai-title">Story Assistant</div>
+                <div class="ai-subtitle">Ask questions about your outline structure</div>
+            </div>
+
+            <div class="ai-insights" id="ai-insights">
+                <div class="insight-card">
+                    <div class="insight-type">Structure Analysis</div>
+                    Start building your outline and I'll provide insights about pacing, character arcs, and story structure.
+                </div>
+            </div>
+
+            <div class="global-ai-chat">
+                <div class="ai-quick-actions">
+                    <button class="quick-action-btn" onclick="OutlineApp.askAI('pacing')">Pacing</button>
+                    <button class="quick-action-btn" onclick="OutlineApp.askAI('structure')">Structure</button>
+                    <button class="quick-action-btn" onclick="OutlineApp.askAI('characters')">Characters</button>
+                </div>
+                <textarea 
+                    class="global-ai-input" 
+                    id="global-ai-input"
+                    placeholder="Ask about your outline: 'Does my structure work?' or 'What should happen next?'"
+                ></textarea>
+                <button class="add-beat-btn" style="width: 100%;" onclick="OutlineApp.askGlobalAI()">Ask AI</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const OutlineApp = {
+            beats: [],
+            nextId: 1,
+            frameworks: {
+                'custom': {
+                    name: 'Custom Structure',
+                    defaultBeats: ['Beat 1']
+                },
+                'three-act': {
+                    name: 'Three-Act Structure',
+                    defaultBeats: ['Setup', 'Inciting Incident', 'Plot Point 1', 'Midpoint', 'Plot Point 2', 'Climax', 'Resolution']
+                },
+                'save-the-cat': {
+                    name: 'Save the Cat',
+                    defaultBeats: ['Opening Image', 'Setup', 'Inciting Incident', 'Debate', 'Break into Two', 'B Story', 'Fun and Games', 'Midpoint', 'Bad Guys Close In', 'All is Lost', 'Dark Night of Soul', 'Break into Three', 'Finale', 'Final Image']
+                },
+                'heros-journey': {
+                    name: "Hero's Journey",
+                    defaultBeats: ['Ordinary World', 'Call to Adventure', 'Refusal of Call', 'Meeting Mentor', 'Crossing Threshold', 'Tests & Allies', 'Approach to Ordeal', 'Ordeal', 'Reward', 'Road Back', 'Resurrection', 'Return with Elixir']
+                }
+            },
+
+            init() {
+                this.setupEventListeners();
+                this.loadDefaultBeats();
+                this.generateAIInsights();
+            },
+
+            setupEventListeners() {
+                document.getElementById('framework-select').addEventListener('change', (e) => {
+                    this.changeFramework(e.target.value);
+                });
+
+                document.getElementById('global-ai-input').addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                        this.askGlobalAI();
+                    }
+                });
+            },
+
+            loadDefaultBeats() {
+                const framework = this.frameworks['custom'];
+                framework.defaultBeats.forEach((title, index) => {
+                    this.addBeat(title);
+                });
+            },
+
+            changeFramework(frameworkKey) {
+                if (this.beats.length > 0 && !confirm('Switch framework? Current beats will be replaced.')) {
+                    document.getElementById('framework-select').value = 'custom';
+                    return;
+                }
+
+                this.beats = [];
+                const framework = this.frameworks[frameworkKey];
+                framework.defaultBeats.forEach((title, index) => {
+                    this.addBeat(title);
+                });
+                this.generateAIInsights();
+            },
+
+            addBeat(title = 'New Beat') {
+                const beat = {
+                    id: this.nextId++,
+                    title: title,
+                    description: '',
+                    characters: '',
+                    purpose: '',
+                    duration: '',
+                    notes: ''
+                };
+
+                this.beats.push(beat);
+                this.renderBeat(beat);
+                this.updateBeatNumbers();
+                this.generateAIInsights();
+            },
+
+            renderBeat(beat) {
+                const container = document.getElementById('beats-container');
+                const beatEl = document.createElement('div');
+                beatEl.className = 'beat-card';
+                beatEl.dataset.id = beat.id;
+                beatEl.draggable = true;
+
+                beatEl.innerHTML = `
+                    <div class="beat-header">
+                        <div class="beat-number">${this.beats.findIndex(b => b.id === beat.id) + 1}</div>
+                        <input type="text" class="beat-title-input" value="${beat.title}" 
+                               onchange="OutlineApp.updateBeat(${beat.id}, 'title', this.value)">
+                        <div class="beat-actions">
+                            <button class="beat-action" onclick="OutlineApp.duplicateBeat(${beat.id})">Copy</button>
+                            <button class="beat-action" onclick="OutlineApp.deleteBeat(${beat.id})">Delete</button>
+                        </div>
+                    </div>
+                    
+                    <div class="beat-content">
+                        <textarea class="beat-description" placeholder="Describe what happens in this beat..." 
+                                  onchange="OutlineApp.updateBeat(${beat.id}, 'description', this.value)">${beat.description}</textarea>
+                    </div>
+
+                    <div class="beat-metadata">
+                        <div class="metadata-field">
+                            <div class="metadata-label">Characters</div>
+                            <input type="text" class="metadata-input" placeholder="Who's involved?" 
+                                   value="${beat.characters}" 
+                                   onchange="OutlineApp.updateBeat(${beat.id}, 'characters', this.value)">
+                        </div>
+                        <div class="metadata-field">
+                            <div class="metadata-label">Purpose</div>
+                            <input type="text" class="metadata-input" placeholder="Why this beat?" 
+                                   value="${beat.purpose}" 
+                                   onchange="OutlineApp.updateBeat(${beat.id}, 'purpose', this.value)">
+                        </div>
+                    </div>
+
+                    <div class="beat-ai-chat">
+                        <div class="ai-input-container">
+                            <textarea class="ai-input" placeholder="Ask AI about this beat..." 
+                                      onkeydown="if(event.key==='Enter'&&(event.ctrlKey||event.metaKey)) OutlineApp.askBeatAI(${beat.id}, this)"></textarea>
+                            <button class="ai-send-btn" onclick="OutlineApp.askBeatAI(${beat.id}, this.previousElementSibling)">Ask</button>
+                        </div>
+                        <div class="ai-responses" id="responses-${beat.id}"></div>
+                    </div>
+                `;
+
+                this.setupBeatDragDrop(beatEl);
+                container.appendChild(beatEl);
+            },
+
+            setupBeatDragDrop(beatEl) {
+                beatEl.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', beatEl.dataset.id);
+                    beatEl.classList.add('dragging');
+                });
+
+                beatEl.addEventListener('dragend', () => {
+                    beatEl.classList.remove('dragging');
+                });
+
+                beatEl.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    beatEl.classList.add('drag-over');
+                });
+
+                beatEl.addEventListener('dragleave', () => {
+                    beatEl.classList.remove('drag-over');
+                });
+
+                beatEl.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const draggedId = parseInt(e.dataTransfer.getData('text/plain'));
+                    const targetId = parseInt(beatEl.dataset.id);
+                    this.reorderBeats(draggedId, targetId);
+                    beatEl.classList.remove('drag-over');
+                });
+            },
+
+            updateBeat(id, field, value) {
+                const beat = this.beats.find(b => b.id === id);
+                if (beat) {
+                    beat[field] = value;
+                    this.generateAIInsights();
+                }
+            },
+
+            deleteBeat(id) {
+                if (confirm('Delete this beat?')) {
+                    this.beats = this.beats.filter(b => b.id !== id);
+                    document.querySelector(`[data-id="${id}"]`).remove();
+                    this.updateBeatNumbers();
+                    this.generateAIInsights();
+                }
+            },
+
+            duplicateBeat(id) {
+                const beat = this.beats.find(b => b.id === id);
+                if (beat) {
+                    const newBeat = {
+                        ...beat,
+                        id: this.nextId++,
+                        title: beat.title + ' (Copy)'
+                    };
+                    const index = this.beats.indexOf(beat);
+                    this.beats.splice(index + 1, 0, newBeat);
+                    this.renderAllBeats();
+                }
+            },
+
+            reorderBeats(draggedId, targetId) {
+                const draggedIndex = this.beats.findIndex(b => b.id === draggedId);
+                const targetIndex = this.beats.findIndex(b => b.id === targetId);
+                
+                const [draggedBeat] = this.beats.splice(draggedIndex, 1);
+                this.beats.splice(targetIndex, 0, draggedBeat);
+                
+                this.renderAllBeats();
+            },
+
+            renderAllBeats() {
+                document.getElementById('beats-container').innerHTML = '';
+                this.beats.forEach(beat => this.renderBeat(beat));
+            },
+
+            updateBeatNumbers() {
+                document.querySelectorAll('.beat-number').forEach((el, index) => {
+                    el.textContent = index + 1;
+                });
+            },
+
+            askBeatAI(beatId, inputEl) {
+                const question = inputEl.value.trim();
+                if (!question) return;
+
+                const beat = this.beats.find(b => b.id === beatId);
+                const responsesContainer = document.getElementById(`responses-${beatId}`);
+                
+                // Simulate AI response
+                const responses = [
+                    `For "${beat.title}": This beat could work well if you establish the stakes more clearly. What does your character risk losing?`,
+                    `Considering your beat sequence, this feels like the right place for a turning point. How does this change your character's journey?`,
+                    `This beat seems to advance the plot effectively. You might consider adding an emotional component to deepen character development.`,
+                    `Looking at your outline structure, this beat provides good pacing. Consider how it sets up the next major conflict.`
+                ];
+
+                const response = responses[Math.floor(Math.random() * responses.length)];
+                
+                const responseEl = document.createElement('div');
+                responseEl.className = 'ai-response';
+                responseEl.textContent = response;
+                responsesContainer.appendChild(responseEl);
+                
+                inputEl.value = '';
+            },
+
+            askGlobalAI() {
+                const input = document.getElementById('global-ai-input');
+                const question = input.value.trim();
+                if (!question) return;
+
+                this.addAIInsight('Your Question', question, 'question');
+                
+                // Simulate AI response based on current outline
+                const responses = [
+                    `Based on your ${this.beats.length} beats, your structure looks solid. Consider developing the character arcs more fully in beats 3-5.`,
+                    `Your outline has good pacing overall. The midpoint around beat ${Math.ceil(this.beats.length/2)} could use more emotional weight.`,
+                    `Looking at your beat progression, you might need a stronger conflict escalation. What obstacles can you add?`,
+                    `Your story structure follows a good pattern. Consider how each beat serves both plot and character development.`
+                ];
+
+                const response = responses[Math.floor(Math.random() * responses.length)];
+                this.addAIInsight('Structure Analysis', response, 'analysis');
+                
+                input.value = '';
+            },
+
+            askAI(type) {
+                const prompts = {
+                    pacing: 'How is the pacing in my outline? Are there any sections that feel rushed or slow?',
+                    structure: 'Does my story structure work well? Are there any missing elements?',
+                    characters: 'How are my character arcs developing through this outline?'
+                };
+
+                document.getElementById('global-ai-input').value = prompts[type];
+                this.askGlobalAI();
+            },
+
+            addAIInsight(type, content, category = 'insight') {
+                const container = document.getElementById('ai-insights');
+                const insightEl = document.createElement('div');
+                insightEl.className = 'insight-card';
+                insightEl.innerHTML = `
+                    <div class="insight-type">${type}</div>
+                    ${content}
+                `;
+                container.appendChild(insightEl);
+                container.scrollTop = container.scrollHeight;
+
+                // Remove old insights to keep manageable
+                const insights = container.querySelectorAll('.insight-card');
+                if (insights.length > 8) {
+                    insights[0].remove();
+                }
+            },
+
+            generateAIInsights() {
+                if (this.beats.length === 0) return;
+
+                const insights = [
+                    `You have ${this.beats.length} beats in your outline. This creates a ${this.beats.length < 8 ? 'focused' : 'detailed'} story structure.`,
+                    `Beat distribution looks good. Consider adding more character development in the middle section.`,
+                    `Your story arc is taking shape. Think about how each beat raises the stakes.`,
+                    `Structure insight: Your turning points seem well-placed for maximum dramatic impact.`
+                ];
+
+                const randomInsight = insights[Math.floor(Math.random() * insights.length)];
+                setTimeout(() => {
+                    this.addAIInsight('Auto Analysis', randomInsight);
+                }, 1000);
+            }
+        };
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            OutlineApp.init();
+        });
+    </script>
+</body>
+</html>

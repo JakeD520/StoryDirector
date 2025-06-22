@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter Writer - StoryDirector</title>
+    <style>
+        :root {
+            --primary: #03dac6;
+            --secondary: #bb86fc;
+            --accent: #ffd700;
+            --bg-dark: #0a0a0f;
+            --bg-panel: #1a1a1a;
+            --bg-lighter: #2a2a2a;
+            --border: #444;
+            --text-light: #e0e0e0;
+            --text-dim: #888;
+            --success: #4caf50;
+            --warning: #ff9800;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .writer-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Generation Controls Sidebar */
+        .generation-controls {
+            width: 350px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .controls-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .controls-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .controls-subtitle {
+            font-size: 0.9em;
+            color: var(--text-dim);
+        }
+
+        .briefing-summary {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .summary-section {
+            margin-bottom: 15px;
+        }
+
+        .summary-label {
+            font-size: 0.8em;
+            color: var(--text-dim);
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .summary-content {
+            font-size: 0.9em;
+            background: var(--bg-lighter);
+            padding: 8px;
+            border-radius: 4px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .beats-overview {
+            font-size: 0.8em;
+            margin-top: 8px;
+        }
+
+        .beat-chip {
+            display: inline-block;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2px 8px;
+            margin: 2px;
+            font-size: 0.7em;
+        }
+
+        .voice-chemistry {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .character-voice {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: var(--bg-lighter);
+            border-radius: 6px;
+        }
+
+        .character-name {
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+
+        .voice-formula {
+            font-family: monospace;
+            font-size: 0.8em;
+            color: var(--accent);
+            margin-bottom: 5px;
+        }
+
+        .voice-description {
+            font-size: 0.7em;
+            color: var(--text-dim);
+        }
+
+        .generation-section {
+            padding: 20px;
+            flex: 1;
+        }
+
+        .generation-progress {
+            background: var(--bg-lighter);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-dark);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.8em;
+            color: var(--text-dim);
+        }
+
+        .generate-btn {
+            width: 100%;
+            background: var(--accent);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 15px;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .generation-options {
+            margin-bottom: 20px;
+        }
+
+        .option-group {
+            margin-bottom: 15px;
+        }
+
+        .option-label {
+            font-size: 0.8em;
+            color: var(--text-dim);
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .option-select, .option-input {
+            width: 100%;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 8px;
+            color: var(--text-light);
+            font-size: 0.9em;
+        }
+
+        .option-select:focus, .option-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Main Chapter Display */
+        .chapter-display {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chapter-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-panel);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chapter-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .chapter-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: var(--secondary);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            opacity: 0.8;
+        }
+
+        .action-btn.primary {
+            background: var(--primary);
+            color: #000;
+        }
+
+        .chapter-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background: var(--bg-dark);
+        }
+
+        .chapter-prose {
+            max-width: 800px;
+            margin: 0 auto;
+            font-family: 'Georgia', serif;
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: var(--text-light);
+        }
+
+        .chapter-prose p {
+            margin-bottom: 1.5em;
+            text-align: justify;
+        }
+
+        .chapter-prose .beat-marker {
+            background: rgba(187, 134, 252, 0.1);
+            border-left: 3px solid var(--secondary);
+            padding: 8px 12px;
+            margin: 20px 0;
+            font-size: 0.8em;
+            color: var(--secondary);
+            font-style: italic;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-dim);
+        }
+
+        .loading-animation {
+            font-size: 2em;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .generation-steps {
+            margin-top: 20px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 0.8em;
+            color: var(--text-dim);
+        }
+
+        .step-indicator {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--bg-dark);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+        }
+
+        .step-indicator.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: #000;
+        }
+
+        .step-indicator.complete {
+            border-color: var(--success);
+            background: var(--success);
+            color: #fff;
+        }
+
+        .voice-preview {
+            background: var(--bg-darker);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 8px;
+            font-style: italic;
+            font-size: 0.8em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            background: var(--bg-dark);
+            border-radius: 4px;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.7em;
+            color: var(--text-dim);
+            margin-bottom: 3px;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-dim);
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: var(--text-light);
+        }
+    </style>
+</head>
+<body>
+    <div class="writer-container">
+        <!-- Generation Controls Sidebar -->
+        <div class="generation-controls">
+            <div class="controls-header">
+                <div class="controls-title">Chapter Generation</div>
+                <div class="controls-subtitle">Transform briefing into full prose</div>
+            </div>
+
+            <!-- Briefing Summary -->
+            <div class="briefing-summary">
+                <div class="summary-section">
+                    <div class="summary-label">Chapter Goal</div>
+                    <div class="summary-content" id="goal-summary">
+                        Sarah confronts her past and makes a decision about her future
+                    </div>
+                </div>
+                
+                <div class="summary-section">
+                    <div class="summary-label">Pacing & Mood</div>
+                    <div class="summary-content">
+                        <strong>Accelerating</strong> • Tense, Emotional, Confrontational
+                    </div>
+                </div>
+                
+                <div class="summary-section">
+                    <div class="summary-label">Beats Overview</div>
+                    <div class="beats-overview">
+                        <div class="beat-chip">1. Arrival</div>
+                        <div class="beat-chip">2. Discovery</div>
+                        <div class="beat-chip">3. Confrontation</div>
+                        <div class="beat-chip">4. Resolution</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Voice Chemistry -->
+            <div class="voice-chemistry">
+                <div class="summary-label">Character Voices</div>
+                
+                <div class="character-voice">
+                    <div class="character-name">Sarah Thompson</div>
+                    <div class="voice-formula">Co₈ + Dx₆ + El₅ + Rg₃</div>
+                    <div class="voice-description">Practical, spatial-aware, compressed speech</div>
+                    <div class="voice-preview">"Need to get there. Fast. Over by the old building."</div>
+                </div>
+                
+                <div class="character-voice">
+                    <div class="character-name">Marcus Chen</div>
+                    <div class="voice-formula">Sb₇ + Mt₆ + Rg₈ + Md₇</div>
+                    <div class="voice-description">Complex, metaphorical, formal, uncertain</div>
+                    <div class="voice-preview">"I find myself contemplating whether this situation might unfold like a house of cards."</div>
+                </div>
+            </div>
+
+            <!-- Generation Options -->
+            <div class="generation-section">
+                <div class="generation-options">
+                    <div class="option-group">
+                        <div class="option-label">Target Length</div>
+                        <select class="option-select" id="target-length">
+                            <option value="2000">~2,000 words (Short chapter)</option>
+                            <option value="3500" selected>~3,500 words (Standard chapter)</option>
+                            <option value="5000">~5,000 words (Long chapter)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="option-group">
+                        <div class="option-label">Prose Style</div>
+                        <select class="option-select" id="prose-style">
+                            <option value="balanced" selected>Balanced (dialogue + description)</option>
+                            <option value="dialogue-heavy">Dialogue Heavy</option>
+                            <option value="descriptive">Descriptive Focus</option>
+                            <option value="action-oriented">Action Oriented</option>
+                        </select>
+                    </div>
+                    
+                    <div class="option-group">
+                        <div class="option-label">Point of View</div>
+                        <select class="option-select" id="pov-select">
+                            <option value="third-limited-sarah">Third Limited (Sarah)</option>
+                            <option value="third-limited-marcus">Third Limited (Marcus)</option>
+                            <option value="third-omniscient">Third Omniscient</option>
+                            <option value="alternating">Alternating POV</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="generate-btn" onclick="ChapterWriter.generateChapter()" id="generate-btn">
+                    🎭 Generate Full Chapter
+                </button>
+
+                <div class="generation-progress" id="generation-progress" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <div class="progress-text" id="progress-text">Preparing generation...</div>
+                </div>
+
+                <div class="generation-steps" id="generation-steps" style="display: none;">
+                    <div class="step-item">
+                        <div class="step-indicator" id="step-1">1</div>
+                        <span>Building context from briefing</span>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-indicator" id="step-2">2</div>
+                        <span>Applying voice chemistry formulas</span>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-indicator" id="step-3">3</div>
+                        <span>Generating prose with beat structure</span>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-indicator" id="step-4">4</div>
+                        <span>Ensuring narrative continuity</span>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-indicator" id="step-5">5</div>
+                        <span>Final polish and formatting</span>
+                    </div>
+                </div>
+
+                <div class="stats-grid" id="chapter-stats" style="display: none;">
+                    <div class="stat-item">
+                        <div class="stat-label">Word Count</div>
+                        <div class="stat-value" id="word-count">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Reading Time</div>
+                        <div class="stat-value" id="reading-time">0 min</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Dialogue %</div>
+                        <div class="stat-value" id="dialogue-percent">0%</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Voice Accuracy</div>
+                        <div class="stat-value" id="voice-accuracy">0%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chapter Display -->
+        <div class="chapter-display">
+            <div class="chapter-header">
+                <div class="chapter-title">Chapter 3: The Confrontation</div>
+                <div class="chapter-actions">
+                    <button class="action-btn" onclick="ChapterWriter.exportChapter()">📄 Export</button>
+                    <button class="action-btn" onclick="ChapterWriter.openRevisionTool()">✏️ Revise</button>
+                    <button class="action-btn primary" onclick="ChapterWriter.regenerateChapter()">🔄 Regenerate</button>
+                </div>
+            </div>
+
+            <div class="chapter-content">
+                <div id="chapter-prose" class="chapter-prose">
+                    <div class="empty-state">
+                        <h3>Ready to Generate</h3>
+                        <p>Your chapter briefing is loaded and voice chemistry is configured. Click "Generate Full Chapter" to create your prose.</p>
+                        <p style="margin-top: 15px; font-size: 0.9em;">The AI will use your detailed beat breakdown and character voice formulas to generate a complete, contextually-aware chapter draft.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ChapterWriter = {
+            briefingData: {
+                goal: "Sarah confronts her past and makes a decision about her future",
+                pacing: "accelerating",
+                moods: ["tense", "emotional", "confrontational"],
+                beats: [
+                    {
+                        title: "Arrival at the old house",
+                        startCondition: "Sarah approaches the house",
+                        endCondition: "She enters reluctantly",
+                        keyElements: "Memories flood back, hesitation, the key still works",
+                        conflicts: ["internal"]
+                    },
+                    {
+                        title: "Discovery of the letter",
+                        startCondition: "Sarah explores the house",
+                        endCondition: "She finds the hidden letter",
+                        keyElements: "Searching through old belongings, finding the letter from Marcus",
+                        conflicts: ["internal", "interpersonal"]
+                    },
+                    {
+                        title: "Marcus arrives unexpectedly",
+                        startCondition: "Sarah reading the letter",
+                        endCondition: "Face-to-face confrontation begins",
+                        keyElements: "Marcus's surprise arrival, initial awkwardness, unresolved tension",
+                        conflicts: ["interpersonal"]
+                    },
+                    {
+                        title: "The confrontation and resolution",
+                        startCondition: "Both characters present",
+                        endCondition: "Sarah makes her decision",
+                        keyElements: "Truth revealed, emotional exchange, Sarah's choice about the future",
+                        conflicts: ["internal", "interpersonal"]
+                    }
+                ]
+            },
+            
+            characters: {
+                sarah: {
+                    name: "Sarah Thompson",
+                    voiceFormula: "Co₈ + Dx₆ + El₅ + Rg₃",
+                    traits: ["practical", "spatial-aware", "compressed-speech"]
+                },
+                marcus: {
+                    name: "Marcus Chen", 
+                    voiceFormula: "Sb₇ + Mt₆ + Rg₈ + Md₇",
+                    traits: ["complex", "metaphorical", "formal", "uncertain"]
+                }
+            },
+
+            init() {
+                this.updateBriefingSummary();
+            },
+
+            updateBriefingSummary() {
+                document.getElementById('goal-summary').textContent = this.briefingData.goal;
+            },
+
+            async generateChapter() {
+                const generateBtn = document.getElementById('generate-btn');
+                const progressSection = document.getElementById('generation-progress');
+                const stepsSection = document.getElementById('generation-steps');
+                const chapterContent = document.getElementById('chapter-prose');
+
+                // Show progress UI
+                generateBtn.disabled = true;
+                generateBtn.textContent = 'Generating...';
+                progressSection.style.display = 'block';
+                stepsSection.style.display = 'block';
+                
+                // Simulate generation process
+                await this.simulateGenerationProcess();
+                
+                // Generate actual chapter content
+                const chapterText = this.generateChapterProse();
+                chapterContent.innerHTML = chapterText;
+                
+                // Show stats
+                this.updateChapterStats(chapterText);
+                document.getElementById('chapter-stats').style.display = 'grid';
+                
+                // Reset UI
+                generateBtn.disabled = false;
+                generateBtn.textContent = '🎭 Generate Full Chapter';
+                progressSection.style.display = 'none';
+                stepsSection.style.display = 'none';
+            },
+
+            async simulateGenerationProcess() {
+                const steps = [
+                    { id: 'step-1', text: 'Building comprehensive context...', progress: 20 },
+                    { id: 'step-2', text: 'Applying voice chemistry formulas...', progress: 40 },
+                    { id: 'step-3', text: 'Generating prose with beat structure...', progress: 70 },
+                    { id: 'step-4', text: 'Ensuring narrative continuity...', progress: 90 },
+                    { id: 'step-5', text: 'Final polish and formatting...', progress: 100 }
+                ];
+
+                for (let i = 0; i < steps.length; i++) {
+                    const step = steps[i];
+                    
+                    // Update progress
+                    document.getElementById('progress-fill').style.width = `${step.progress}%`;
+                    document.getElementById('progress-text').textContent = step.text;
+                    
+                    // Mark step as active
+                    document.getElementById(step.id).classList.add('active');
+                    
+                    // Wait
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    
+                    // Mark step as complete
+                    document.getElementById(step.id).classList.remove('active');
+                    document.getElementById(step.id).classList.add('complete');
+                    document.getElementById(step.id).textContent = '✓';
+                }
+            },
+
+            generateChapterProse() {
+                // This simulates the AI-generated prose based on the briefing
+                return `
+                    <div class="beat-marker">Beat 1: Arrival at the old house</div>
+                    
+                    <p>The key still fit. Sarah stood there, hand trembling and breath caught and heart pounding against her ribs. Five years. Five years since she'd last seen this door, this house, this place where everything changed.</p>
+                    
+                    <p>"Just get inside. Fast. Before someone sees you here," she muttered to herself, the words clipped and urgent. The street behind her was empty, but memories had eyes.</p>
+                    
+                    <p>The door opened with the same creak she remembered. Inside, dust motes danced in afternoon light streaming through windows she used to sit beside. Everything smaller than memory made it. Everything sadder.</p>
+                    
+                    <div class="beat-marker">Beat 2: Discovery of the letter</div>
+                    
+                    <p>Her feet knew where to go. Up the stairs, second door on the right, the room that used to be hers. The floorboard by the window still squeaked. Some things never changed.</p>
+                    
+                    <p>The box was exactly where she'd left it, tucked behind the loose baseboard near the closet. Her fingers found the edge and pulled. Letters, photos, the debris of a life interrupted. And there, at the bottom, an envelope she'd never seen before. Her name written in Marcus's careful handwriting.</p>
+                    
+                    <p>"What the hell?" The words escaped before she could stop them. When had he been here? When had he—</p>
+                    
+                    <p>The letter trembled as she opened it. <em>Sarah, if you're reading this, you came back. I hoped you would. I need to explain what really happened that night...</em></p>
+                    
+                    <div class="beat-marker">Beat 3: Marcus arrives unexpectedly</div>
+                    
+                    <p>Footsteps on the stairs. Heavy, deliberate, familiar. Sarah's head snapped up from the letter, every muscle tensing.</p>
+                    
+                    <p>"I wondered if you'd find that," Marcus said from the doorway. He looked older, wearier, like someone who'd been carrying weight too long. "I've been checking this house periodically, hoping that perhaps, someday, circumstances might align in such a way that—"</p>
+                    
+                    <p>"Cut the fancy talk." Sarah's voice was sharp, compressed. "What are you doing here?"</p>
+                    
+                    <p>He stepped into the room, hands raised in a gesture that might have been surrender or supplication. "I saw your car outside. I thought this moment might arrive eventually, though I confess I'm uncertain about how to proceed."</p>
+                    
+                    <div class="beat-marker">Beat 4: The confrontation and resolution</div>
+                    
+                    <p>"Proceed?" Sarah stood, the letter crumpling in her fist. "You want to know how to proceed? Start with the truth. Real truth. Not whatever elaborate construction you've built in your head."</p>
+                    
+                    <p>Marcus moved closer, his movements careful, measured. "The truth is a complex edifice, Sarah. That night was like a storm that scattered pieces of our lives, and I've spent years attempting to reassemble them into something resembling coherence."</p>
+                    
+                    <p>"There you go again." But her anger was shifting, changing. Five years of hurt crystallizing into something sharper, cleaner. "Just say it. Say what you did."</p>
+                    
+                    <p>The silence stretched between them, heavy with unspoken history. When Marcus finally spoke, his voice was smaller, more human. "I was afraid. And my fear made me choose myself over you. Over us."</p>
+                    
+                    <p>Sarah felt something break loose inside her chest. Not forgiveness—not yet—but the beginning of an ending. "Okay," she said. Simple. Clean. "Okay."</p>
+                    
+                    <p>She looked around the room one last time, seeing it clearly now. Not a shrine to the past, but evidence of survival. Evidence of growth. She folded the letter carefully and slipped it into her pocket.</p>
+                    
+                    <p>"I'm leaving now," she told Marcus. "Don't follow me. Don't write more letters. Don't check this house anymore."</p>
+                    
+                    <p>He nodded, understanding finally settling in his eyes like dust. "Will you be all right?"</p>
+                    
+                    <p>Sarah almost smiled. "Yeah. Better than all right."</p>
+                    
+                    <p>She walked past him, down the stairs, through the door that had started it all. Behind her, the house held its breath. Ahead, the street waited to take her somewhere new.</p>
+                `;
+            },
+
+            updateChapterStats(chapterText) {
+                // Calculate basic stats from the generated text
+                const words = chapterText.replace(/<[^>]*>/g, '').split(/\s+/).filter(w => w.length > 0).length;
+                const readingTime = Math.round(words / 250); // Average reading speed
+                
+                // Rough estimate of dialogue percentage
+                const dialogueMatches = chapterText.match(/[""].*?[""]|".*?"/g) || [];
+                const dialogueWords = dialogueMatches.join(' ').split(/\s+/).length;
+                const dialoguePercent = Math.round((dialogueWords / words) * 100);
+                
+                document.getElementById('word-count').textContent = words.toLocaleString();
+                document.getElementById('reading-time').textContent = `${readingTime} min`;
+                document.getElementById('dialogue-percent').textContent = `${dialoguePercent}%`;
+                document.getElementById('voice-accuracy').textContent = '94%'; // Simulated accuracy score
+            },
+
+            regenerateChapter() {
+                if (confirm('Regenerate the entire chapter? This will replace the current version.')) {
+                    this.generateChapter();
+                }
+            },
+
+            exportChapter() {
+                const chapterText = document.getElementById('chapter-prose').innerText;
+                const blob = new Blob([chapterText], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'chapter_3_the_confrontation.txt';
+                a.click();
+                URL.revokeObjectURL(url);
+            },
+
+            openRevisionTool() {
+                alert('Opening Chapter Revision Tool...\n\nThis would load the chapter into a dedicated editing environment with AI-powered polish suggestions and micro-level regeneration tools.');
+            }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            ChapterWriter.init();
+        });
+    </script>
+</body>
+</html>

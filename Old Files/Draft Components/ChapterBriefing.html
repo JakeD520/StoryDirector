@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter Briefing - StoryDirector</title>
+    <style>
+        :root {
+            --primary: #03dac6;
+            --secondary: #bb86fc;
+            --accent: #ffd700;
+            --bg-dark: #0a0a0f;
+            --bg-panel: #1a1a1a;
+            --bg-lighter: #2a2a2a;
+            --border: #444;
+            --text-light: #e0e0e0;
+            --text-dim: #888;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .briefing-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Main Briefing Area */
+        .briefing-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .briefing-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-panel);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .briefing-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .briefing-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .chapter-progress {
+            background: var(--bg-lighter);
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 0.8em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .progress-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-dim);
+        }
+
+        .progress-dot.complete {
+            background: var(--success);
+        }
+
+        .generate-chapter-btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+
+        .generate-chapter-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+        }
+
+        .generate-chapter-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Chapter Overview Panel */
+        .chapter-overview {
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border);
+            padding: 20px;
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        .overview-section {
+            background: var(--bg-lighter);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .section-title {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px;
+            color: var(--text-light);
+            font-size: 0.9em;
+        }
+
+        .form-textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .mood-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .mood-tag {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 4px 12px;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mood-tag.active {
+            border-color: var(--secondary);
+            background: rgba(187, 134, 252, 0.1);
+            color: var(--secondary);
+        }
+
+        /* Beats Timeline */
+        .beats-timeline {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .timeline-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+
+        .add-beat-btn {
+            background: var(--secondary);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+
+        .beats-container {
+            position: relative;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .beat-item {
+            position: relative;
+            margin-bottom: 20px;
+            margin-left: 50px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.2s;
+        }
+
+        .beat-item:hover {
+            border-color: var(--primary);
+        }
+
+        .beat-item.expanded {
+            border-color: var(--secondary);
+            background: rgba(187, 134, 252, 0.05);
+        }
+
+        .beat-marker {
+            position: absolute;
+            left: -35px;
+            top: 15px;
+            width: 12px;
+            height: 12px;
+            background: var(--primary);
+            border: 2px solid var(--bg-dark);
+            border-radius: 50%;
+        }
+
+        .beat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .beat-number {
+            font-size: 0.8em;
+            color: var(--text-dim);
+            font-weight: bold;
+        }
+
+        .beat-title {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1em;
+            font-weight: bold;
+            margin: 0 10px;
+            outline: none;
+        }
+
+        .beat-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .beat-action {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            transition: all 0.2s;
+        }
+
+        .beat-action:hover {
+            color: var(--text-light);
+            background: var(--bg-lighter);
+        }
+
+        .beat-content {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+
+        .beat-content.expanded {
+            display: block;
+        }
+
+        .beat-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .field-label {
+            font-size: 0.8em;
+            color: var(--text-dim);
+            font-weight: bold;
+        }
+
+        .conflicts-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .conflict-tag {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 0.7em;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .conflict-tag.active {
+            border-color: var(--error);
+            background: rgba(244, 67, 54, 0.1);
+            color: var(--error);
+        }
+
+        .character-arcs {
+            margin-top: 10px;
+        }
+
+        .arc-item {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px;
+            margin-bottom: 8px;
+            font-size: 0.8em;
+        }
+
+        .arc-character {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 3px;
+        }
+
+        /* AI Assistant Sidebar */
+        .ai-assistant {
+            width: 350px;
+            background: var(--bg-panel);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .ai-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .ai-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .ai-subtitle {
+            font-size: 0.9em;
+            color: var(--text-dim);
+        }
+
+        .ai-insights {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .ai-insight {
+            background: rgba(187, 134, 252, 0.1);
+            border: 1px solid var(--secondary);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .insight-type {
+            font-size: 0.8em;
+            color: var(--secondary);
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .ai-chat {
+            border-top: 1px solid var(--border);
+            padding: 20px;
+        }
+
+        .quick-analysis {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .analysis-btn {
+            background: rgba(187, 134, 252, 0.2);
+            border: 1px solid var(--secondary);
+            color: var(--secondary);
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-size: 0.7em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .analysis-btn:hover {
+            background: rgba(187, 134, 252, 0.3);
+        }
+
+        .ai-input {
+            width: 100%;
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px;
+            color: var(--text-light);
+            font-size: 0.9em;
+            min-height: 60px;
+            resize: vertical;
+            margin-bottom: 10px;
+        }
+
+        .ai-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        .readiness-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8em;
+            margin-right: 15px;
+        }
+
+        .readiness-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-dim);
+        }
+
+        .readiness-dot.ready {
+            background: var(--success);
+        }
+
+        .drag-handle {
+            cursor: grab;
+            color: var(--text-dim);
+            padding: 2px 4px;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .beat-reorder {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .reorder-btn {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            padding: 1px 3px;
+            font-size: 0.7em;
+            border-radius: 2px;
+            transition: all 0.2s;
+        }
+
+        .reorder-btn:hover {
+            color: var(--text-light);
+            background: var(--bg-lighter);
+        }
+    </style>
+</head>
+<body>
+    <div class="briefing-container">
+        <!-- Main Briefing Area -->
+        <div class="briefing-main">
+            <div class="briefing-header">
+                <div class="briefing-title">Chapter Briefing - The Huddle</div>
+                <div class="briefing-controls">
+                    <div class="readiness-indicator">
+                        <div class="readiness-dot" id="readiness-dot"></div>
+                        <span id="readiness-text">Setting up chapter...</span>
+                    </div>
+                    <div class="chapter-progress">
+                        <div class="progress-dot complete"></div>
+                        <div class="progress-dot complete"></div>
+                        <div class="progress-dot" id="briefing-dot"></div>
+                        <div class="progress-dot"></div>
+                        <span>3/4 Briefing</span>
+                    </div>
+                    <button class="generate-chapter-btn" id="generate-btn" disabled>
+                        🎬 Generate Chapter
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chapter Overview -->
+            <div class="chapter-overview">
+                <div class="overview-grid">
+                    <div class="overview-section">
+                        <div class="section-title">Chapter Goal & Purpose</div>
+                        <textarea class="form-textarea" id="chapter-goal" placeholder="What is this chapter trying to accomplish? What changes by the end?"></textarea>
+                    </div>
+                    
+                    <div class="overview-section">
+                        <div class="section-title">Overall Mood & Pacing</div>
+                        <select class="form-select" id="chapter-pacing">
+                            <option value="">Select pacing...</option>
+                            <option value="slow-build">Slow Build</option>
+                            <option value="steady">Steady</option>
+                            <option value="accelerating">Accelerating</option>
+                            <option value="intense">Intense</option>
+                            <option value="climactic">Climactic</option>
+                        </select>
+                        <div class="mood-tags">
+                            <div class="mood-tag" data-mood="tense">Tense</div>
+                            <div class="mood-tag" data-mood="emotional">Emotional</div>
+                            <div class="mood-tag" data-mood="mysterious">Mysterious</div>
+                            <div class="mood-tag" data-mood="action">Action</div>
+                            <div class="mood-tag" data-mood="intimate">Intimate</div>
+                            <div class="mood-tag" data-mood="confrontational">Confrontational</div>
+                        </div>
+                    </div>
+                    
+                    <div class="overview-section">
+                        <div class="section-title">Chapter Context</div>
+                        <input type="text" class="form-input" id="chapter-location" placeholder="Primary setting/location" style="margin-bottom: 8px;">
+                        <input type="text" class="form-input" id="chapter-timeframe" placeholder="Time span (e.g., 'one evening')">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Beats Timeline -->
+            <div class="beats-timeline">
+                <div class="timeline-header">
+                    <div class="timeline-title">Beat-by-Beat Breakdown</div>
+                    <button class="add-beat-btn" onclick="BriefingApp.addBeat()">+ Add Beat</button>
+                </div>
+                
+                <div class="beats-container">
+                    <div class="timeline-line"></div>
+                    <div id="beats-list">
+                        <!-- Beats will be dynamically added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Assistant Sidebar -->
+        <div class="ai-assistant">
+            <div class="ai-header">
+                <div class="ai-title">Chapter Director AI</div>
+                <div class="ai-subtitle">Structural guidance & continuity checking</div>
+            </div>
+
+            <div class="ai-insights" id="ai-insights">
+                <div class="ai-insight">
+                    <div class="insight-type">Getting Started</div>
+                    Define your chapter goal and add beats to see AI suggestions for structure, pacing, and thematic coherence.
+                </div>
+            </div>
+
+            <div class="ai-chat">
+                <div class="quick-analysis">
+                    <button class="analysis-btn" onclick="BriefingApp.analyzeStructure()">Structure</button>
+                    <button class="analysis-btn" onclick="BriefingApp.analyzePacing()">Pacing</button>
+                    <button class="analysis-btn" onclick="BriefingApp.analyzeConflicts()">Conflicts</button>
+                    <button class="analysis-btn" onclick="BriefingApp.analyzeThemes()">Themes</button>
+                </div>
+                <textarea 
+                    class="ai-input" 
+                    id="ai-input"
+                    placeholder="Ask about chapter structure: 'Does this beat progression make sense?' or 'What conflicts am I missing?'"
+                ></textarea>
+                <button class="add-beat-btn" style="width: 100%;" onclick="BriefingApp.askCustomAI()">Analyze Chapter Plan</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BriefingApp = {
+            beats: [],
+            nextBeatId: 1,
+            selectedMoods: [],
+
+            init() {
+                this.setupEventListeners();
+                this.addInitialBeats();
+                this.checkReadiness();
+            },
+
+            setupEventListeners() {
+                // Mood tag selection
+                document.querySelectorAll('.mood-tag').forEach(tag => {
+                    tag.addEventListener('click', () => this.toggleMood(tag));
+                });
+
+                // Chapter inputs
+                document.getElementById('chapter-goal').addEventListener('input', this.checkReadiness.bind(this));
+                document.getElementById('chapter-pacing').addEventListener('change', this.checkReadiness.bind(this));
+
+                // AI input
+                document.getElementById('ai-input').addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                        this.askCustomAI();
+                    }
+                });
+            },
+
+            toggleMood(tag) {
+                const mood = tag.dataset.mood;
+                tag.classList.toggle('active');
+                
+                if (this.selectedMoods.includes(mood)) {
+                    this.selectedMoods = this.selectedMoods.filter(m => m !== mood);
+                } else {
+                    this.selectedMoods.push(mood);
+                }
+                
+                this.checkReadiness();
+            },
+
+            addInitialBeats() {
+                // Add some example beats
+                this.addBeat('Opening - Set the scene');
+                this.addBeat('Inciting incident');
+                this.addBeat('Character reaction');
+                this.addBeat('Resolution/transition');
+            },
+
+            addBeat(title = '') {
+                const beat = {
+                    id: this.nextBeatId++,
+                    title: title || `Beat ${this.beats.length + 1}`,
+                    startCondition: '',
+                    endCondition: '',
+                    keyElements: '',
+                    conflicts: [],
+                    characterArcs: [],
+                    expanded: false
+                };
+                
+                this.beats.push(beat);
+                this.renderBeats();
+                this.checkReadiness();
+            },
+
+            removeBeat(beatId) {
+                this.beats = this.beats.filter(b => b.id !== beatId);
+                this.renderBeats();
+                this.checkReadiness();
+            },
+
+            moveBeat(beatId, direction) {
+                const index = this.beats.findIndex(b => b.id === beatId);
+                if (index === -1) return;
+                
+                const newIndex = direction === 'up' ? index - 1 : index + 1;
+                if (newIndex < 0 || newIndex >= this.beats.length) return;
+                
+                // Swap beats
+                [this.beats[index], this.beats[newIndex]] = [this.beats[newIndex], this.beats[index]];
+                this.renderBeats();
+            },
+
+            toggleBeatExpanded(beatId) {
+                const beat = this.beats.find(b => b.id === beatId);
+                if (beat) {
+                    beat.expanded = !beat.expanded;
+                    this.renderBeats();
+                }
+            },
+
+            updateBeat(beatId, field, value) {
+                const beat = this.beats.find(b => b.id === beatId);
+                if (beat) {
+                    beat[field] = value;
+                    this.checkReadiness();
+                }
+            },
+
+            toggleConflict(beatId, conflict) {
+                const beat = this.beats.find(b => b.id === beatId);
+                if (beat) {
+                    if (beat.conflicts.includes(conflict)) {
+                        beat.conflicts = beat.conflicts.filter(c => c !== conflict);
+                    } else {
+                        beat.conflicts.push(conflict);
+                    }
+                    this.renderBeats();
+                }
+            },
+
+            renderBeats() {
+                const container = document.getElementById('beats-list');
+                container.innerHTML = '';
+                
+                this.beats.forEach((beat, index) => {
+                    const beatEl = document.createElement('div');
+                    beatEl.className = `beat-item ${beat.expanded ? 'expanded' : ''}`;
+                    
+                    beatEl.innerHTML = `
+                        <div class="beat-marker"></div>
+                        <div class="beat-header">
+                            <div class="beat-number">BEAT ${index + 1}</div>
+                            <input 
+                                type="text" 
+                                class="beat-title" 
+                                value="${beat.title}"
+                                onchange="BriefingApp.updateBeat(${beat.id}, 'title', this.value)"
+                                placeholder="Beat title..."
+                            >
+                            <div class="beat-actions">
+                                <div class="beat-reorder">
+                                    <button class="reorder-btn" onclick="BriefingApp.moveBeat(${beat.id}, 'up')" title="Move up">▲</button>
+                                    <button class="reorder-btn" onclick="BriefingApp.moveBeat(${beat.id}, 'down')" title="Move down">▼</button>
+                                </div>
+                                <button class="beat-action" onclick="BriefingApp.toggleBeatExpanded(${beat.id})" title="Expand">
+                                    ${beat.expanded ? '▼' : '▶'}
+                                </button>
+                                <button class="beat-action" onclick="BriefingApp.removeBeat(${beat.id})" title="Delete">✕</button>
+                            </div>
+                        </div>
+                        
+                        <div class="beat-content ${beat.expanded ? 'expanded' : ''}">
+                            <div class="beat-fields">
+                                <div class="field-group">
+                                    <div class="field-label">Beat Start</div>
+                                    <input 
+                                        type="text" 
+                                        class="form-input" 
+                                        value="${beat.startCondition}"
+                                        onchange="BriefingApp.updateBeat(${beat.id}, 'startCondition', this.value)"
+                                        placeholder="What triggers this beat?"
+                                    >
+                                </div>
+                                <div class="field-group">
+                                    <div class="field-label">Beat End</div>
+                                    <input 
+                                        type="text" 
+                                        class="form-input" 
+                                        value="${beat.endCondition}"
+                                        onchange="BriefingApp.updateBeat(${beat.id}, 'endCondition', this.value)"
+                                        placeholder="How does this beat conclude?"
+                                    >
+                                </div>
+                            </div>
+                            
+                            <div class="field-group">
+                                <div class="field-label">Key Elements to Include</div>
+                                <textarea 
+                                    class="form-textarea" 
+                                    onchange="BriefingApp.updateBeat(${beat.id}, 'keyElements', this.value)"
+                                    placeholder="Specific plot points, dialogue, actions that must happen in this beat..."
+                                >${beat.keyElements}</textarea>
+                            </div>
+                            
+                            <div class="field-group">
+                                <div class="field-label">Required Conflicts</div>
+                                <div class="conflicts-grid">
+                                    <div class="conflict-tag ${beat.conflicts.includes('internal') ? 'active' : ''}" 
+                                         onclick="BriefingApp.toggleConflict(${beat.id}, 'internal')">Internal</div>
+                                    <div class="conflict-tag ${beat.conflicts.includes('interpersonal') ? 'active' : ''}" 
+                                         onclick="BriefingApp.toggleConflict(${beat.id}, 'interpersonal')">Interpersonal</div>
+                                    <div class="conflict-tag ${beat.conflicts.includes('external') ? 'active' : ''}" 
+                                         onclick="BriefingApp.toggleConflict(${beat.id}, 'external')">External</div>
+                                </div>
+                            </div>
+                            
+                            <div class="field-group">
+                                <div class="field-label">Character Arcs/Emotional Shifts</div>
+                                <div class="character-arcs" id="arcs-${beat.id}">
+                                    <div class="arc-item">
+                                        <div class="arc-character">Sarah</div>
+                                        <input type="text" class="form-input" placeholder="How does Sarah change in this beat?" style="margin-top: 5px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    container.appendChild(beatEl);
+                });
+            },
+
+            checkReadiness() {
+                const goal = document.getElementById('chapter-goal').value.trim();
+                const pacing = document.getElementById('chapter-pacing').value;
+                const hasBeats = this.beats.length >= 3;
+                const beatsHaveContent = this.beats.some(b => b.title && b.keyElements);
+                
+                const isReady = goal && pacing && hasBeats && beatsHaveContent;
+                
+                const readinessItems = [
+                    { condition: goal, text: 'Chapter goal defined' },
+                    { condition: pacing, text: 'Pacing selected' },
+                    { condition: hasBeats, text: 'Sufficient beats (3+)' },
+                    { condition: beatsHaveContent, text: 'Beats have detail' }
+                ];
+                
+                const completedItems = readinessItems.filter(item => item.condition).length;
+                
+                document.getElementById('readiness-dot').classList.toggle('ready', isReady);
+                document.getElementById('readiness-text').textContent = 
+                    isReady ? 'Ready to generate!' : `${completedItems}/4 items complete`;
+                document.getElementById('briefing-dot').classList.toggle('complete', isReady);
+                document.getElementById('generate-btn').disabled = !isReady;
+                
+                if (isReady && completedItems === 4) {
+                    this.addAIInsight('Readiness Check', 
+                        'Chapter briefing is complete! Your beats have clear progression and the AI has enough context to generate a cohesive chapter. Click "Generate Chapter" when ready.');
+                }
+            },
+
+            // AI Analysis Functions
+            analyzeStructure() {
+                const insights = [
+                    'Your beat progression follows a classic structure: setup → incident → reaction → resolution. This creates good narrative flow.',
+                    'Consider if Beat 2 needs more buildup - jumping directly to the incident might feel rushed.',
+                    'The emotional arc across beats shows good variation. Make sure each beat advances both plot and character development.'
+                ];
+                
+                const insight = insights[Math.floor(Math.random() * insights.length)];
+                this.addAIInsight('Structure Analysis', insight);
+            },
+
+            analyzePacing() {
+                const pacing = document.getElementById('chapter-pacing').value;
+                const pacingAdvice = {
+                    'slow-build': 'Slow build pacing works well for character development. Make sure each beat deepens our understanding rather than just advancing plot.',
+                    'accelerating': 'Accelerating pacing requires careful beat timing. Your early beats should be longer, with each subsequent beat getting tighter and more focused.',
+                    'intense': 'Intense pacing means every beat must drive forward momentum. Cut any exposition that doesn\'t serve immediate tension.',
+                    'climactic': 'Climactic pacing demands that each beat escalates stakes. Make sure conflicts compound rather than resolve prematurely.'
+                };
+                
+                const advice = pacingAdvice[pacing] || 'Define your chapter pacing to get specific structural advice.';
+                this.addAIInsight('Pacing Analysis', advice);
+            },
+
+            analyzeConflicts() {
+                const conflictCounts = {
+                    internal: 0,
+                    interpersonal: 0,
+                    external: 0
+                };
+                
+                this.beats.forEach(beat => {
+                    beat.conflicts.forEach(conflict => {
+                        conflictCounts[conflict]++;
+                    });
+                });
+                
+                const totalConflicts = Object.values(conflictCounts).reduce((a, b) => a + b, 0);
+                
+                if (totalConflicts === 0) {
+                    this.addAIInsight('Conflict Analysis', 'No conflicts defined yet. Every beat should have at least one type of conflict to maintain tension and reader engagement.');
+                } else {
+                    const dominant = Object.entries(conflictCounts).reduce((a, b) => conflictCounts[a[0]] > conflictCounts[b[0]] ? a : b)[0];
+                    this.addAIInsight('Conflict Analysis', 
+                        `Your chapter emphasizes ${dominant} conflict. For richer storytelling, consider balancing with other conflict types across your beats.`);
+                }
+            },
+
+            analyzeThemes() {
+                const goal = document.getElementById('chapter-goal').value;
+                const moods = this.selectedMoods;
+                
+                if (!goal) {
+                    this.addAIInsight('Theme Analysis', 'Define your chapter goal to get thematic guidance.');
+                    return;
+                }
+                
+                const themeAdvice = [
+                    'Your chapter goal suggests themes of transformation. Make sure each beat shows incremental character change.',
+                    'The selected moods create thematic undertones. Consider how mood shifts across beats can reinforce your core theme.',
+                    'Look for opportunities to weave symbolic elements through your beats that echo the chapter\'s deeper meaning.'
+                ];
+                
+                const advice = themeAdvice[Math.floor(Math.random() * themeAdvice.length)];
+                this.addAIInsight('Theme Analysis', advice);
+            },
+
+            askCustomAI() {
+                const input = document.getElementById('ai-input');
+                const question = input.value.trim();
+                if (!question) return;
+
+                // Simulate AI analysis based on current briefing state
+                const responses = this.generateAIResponse(question);
+                this.addAIInsight('Custom Analysis', responses);
+                input.value = '';
+            },
+
+            generateAIResponse(question) {
+                const lowerQ = question.toLowerCase();
+                
+                if (lowerQ.includes('structure') || lowerQ.includes('flow')) {
+                    return `Your beat structure shows good progression. Each beat should end with a "yes, but..." or "no, and..." to maintain forward momentum while creating complications.`;
+                }
+                
+                if (lowerQ.includes('pacing') || lowerQ.includes('rhythm')) {
+                    return `Pacing feels appropriate for your chapter goal. Consider varying sentence length and scene complexity across beats to create natural reading rhythm.`;
+                }
+                
+                if (lowerQ.includes('conflict') || lowerQ.includes('tension')) {
+                    return `Ensure each beat escalates or complicates the central conflict. Even quiet character moments should have underlying tension driving toward resolution.`;
+                }
+                
+                if (lowerQ.includes('character') || lowerQ.includes('arc')) {
+                    return `Character development should be visible across beats. Show internal change through external actions and dialogue rather than exposition.`;
+                }
+                
+                return `Based on your current briefing, the chapter has strong potential. Focus on ensuring each beat serves both plot advancement and character development.`;
+            },
+
+            addAIInsight(type, content) {
+                const container = document.getElementById('ai-insights');
+                const insightEl = document.createElement('div');
+                insightEl.className = 'ai-insight';
+                insightEl.innerHTML = `
+                    <div class="insight-type">${type}</div>
+                    ${content}
+                `;
+                container.appendChild(insightEl);
+                container.scrollTop = container.scrollHeight;
+
+                // Remove old insights to keep manageable
+                const insights = container.querySelectorAll('.ai-insight');
+                if (insights.length > 6) {
+                    insights[0].remove();
+                }
+            },
+
+            // Generate Chapter (this would connect to the actual Chapter Writer)
+            generateChapter() {
+                const chapterData = {
+                    goal: document.getElementById('chapter-goal').value,
+                    pacing: document.getElementById('chapter-pacing').value,
+                    location: document.getElementById('chapter-location').value,
+                    timeframe: document.getElementById('chapter-timeframe').value,
+                    moods: this.selectedMoods,
+                    beats: this.beats
+                };
+                
+                console.log('Generating chapter with briefing data:', chapterData);
+                
+                // In the full app, this would pass the briefing data to the Chapter Writer
+                alert('Chapter briefing complete! This data would now be passed to the Chapter Writer for prose generation.');
+            }
+        };
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            BriefingApp.init();
+            
+            // Connect generate button
+            document.getElementById('generate-btn').addEventListener('click', () => {
+                BriefingApp.generateChapter();
+            });
+        });

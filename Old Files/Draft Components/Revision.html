@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter Revision Tool - StoryDirector</title>
+    <style>
+        :root {
+            --primary: #03dac6;
+            --secondary: #bb86fc;
+            --accent: #ffd700;
+            --bg-dark: #0a0a0f;
+            --bg-panel: #1a1a1a;
+            --bg-lighter: #2a2a2a;
+            --border: #444;
+            --text-light: #e0e0e0;
+            --text-dim: #888;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .revision-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Main Editor Area */
+        .editor-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-panel);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .editor-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .editor-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .control-btn {
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            color: var(--text-light);
+            border-radius: 6px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            border-color: var(--primary);
+        }
+
+        .control-btn.active {
+            background: var(--primary);
+            color: #000;
+        }
+
+        /* Editor Content */
+        .editor-content {
+            flex: 1;
+            display: flex;
+            position: relative;
+        }
+
+        .chapter-editor {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background: var(--bg-dark);
+            position: relative;
+        }
+
+        .chapter-text {
+            max-width: 700px;
+            margin: 0 auto;
+            font-family: 'Georgia', serif;
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: var(--text-light);
+        }
+
+        .chapter-text p {
+            margin-bottom: 1.5em;
+            position: relative;
+        }
+
+        .chapter-text p:hover {
+            background: rgba(3, 218, 198, 0.05);
+            border-radius: 4px;
+            padding: 5px;
+            margin: -5px 0 1em -5px;
+        }
+
+        /* Selection and Highlighting */
+        .selected-text {
+            background: rgba(3, 218, 198, 0.2);
+            border-radius: 3px;
+            padding: 2px 4px;
+            margin: -2px;
+            cursor: pointer;
+        }
+
+        .suggestion-highlight {
+            background: rgba(255, 215, 0, 0.15);
+            border-bottom: 2px dotted var(--accent);
+            cursor: pointer;
+        }
+
+        /* Quick Action Menu */
+        .quick-menu {
+            position: absolute;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 100;
+            display: none;
+        }
+
+        .quick-menu.active {
+            display: block;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            margin-bottom: 8px;
+        }
+
+        .quick-action {
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 0.7em;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .quick-action:hover {
+            border-color: var(--primary);
+            background: rgba(3, 218, 198, 0.1);
+        }
+
+        .custom-prompt {
+            width: 100%;
+            background: var(--bg-darker);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 6px;
+            color: var(--text-light);
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+
+        .custom-prompt:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Suggestions Sidebar */
+        .suggestions-panel {
+            width: 400px;
+            background: var(--bg-panel);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .suggestions-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .suggestions-title {
+            font-size: 1em;
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+
+        .selected-context {
+            font-size: 0.8em;
+            color: var(--text-dim);
+            font-style: italic;
+        }
+
+        .suggestions-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .suggestion-group {
+            margin-bottom: 25px;
+        }
+
+        .suggestion-label {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .suggestion-option {
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .suggestion-option:hover {
+            border-color: var(--primary);
+            background: rgba(3, 218, 198, 0.05);
+        }
+
+        .suggestion-option.selected {
+            border-color: var(--primary);
+            background: rgba(3, 218, 198, 0.1);
+        }
+
+        .suggestion-text {
+            font-family: 'Georgia', serif;
+            font-size: 0.95em;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .suggestion-meta {
+            font-size: 0.7em;
+            color: var(--text-dim);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .suggestion-type {
+            color: var(--secondary);
+        }
+
+        .suggestion-confidence {
+            color: var(--accent);
+        }
+
+        /* Action Buttons */
+        .suggestion-actions {
+            padding: 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .btn-apply {
+            background: var(--primary);
+            color: #000;
+        }
+
+        .btn-more {
+            background: var(--secondary);
+            color: #fff;
+        }
+
+        .btn-cancel {
+            background: var(--bg-lighter);
+            color: var(--text-light);
+            border: 1px solid var(--border);
+        }
+
+        /* Learning Insights */
+        .learning-panel {
+            background: rgba(187, 134, 252, 0.1);
+            border: 1px solid var(--secondary);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 20px;
+        }
+
+        .learning-title {
+            font-size: 0.8em;
+            color: var(--secondary);
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .learning-insight {
+            font-size: 0.8em;
+            color: var(--text-light);
+            line-height: 1.4;
+        }
+
+        /* Empty State */
+        .empty-suggestions {
+            text-align: center;
+            color: var(--text-dim);
+            padding: 40px 20px;
+        }
+
+        .empty-suggestions h3 {
+            margin-bottom: 10px;
+            color: var(--text-light);
+        }
+
+        /* Status Bar */
+        .status-bar {
+            padding: 8px 20px;
+            background: var(--bg-panel);
+            border-top: 1px solid var(--border);
+            font-size: 0.8em;
+            color: var(--text-dim);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .beat-marker {
+            background: rgba(187, 134, 252, 0.1);
+            border-left: 3px solid var(--secondary);
+            padding: 8px 12px;
+            margin: 20px 0;
+            font-size: 0.8em;
+            color: var(--secondary);
+            font-style: italic;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .voice-indicator {
+            position: absolute;
+            right: -10px;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            border-radius: 2px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .sarah-voice {
+            background: var(--primary);
+        }
+
+        .marcus-voice {
+            background: var(--secondary);
+        }
+
+        p:hover .voice-indicator {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="revision-container">
+        <!-- Main Editor Area -->
+        <div class="editor-main">
+            <div class="editor-header">
+                <div class="editor-title">Chapter 3: The Confrontation - Revision</div>
+                <div class="editor-controls">
+                    <button class="control-btn active" onclick="RevisionTool.toggleMode('suggest')">Suggest</button>
+                    <button class="control-btn" onclick="RevisionTool.toggleMode('polish')">Polish</button>
+                    <button class="control-btn" onclick="RevisionTool.toggleMode('voice')">Voice</button>
+                    <button class="control-btn" onclick="RevisionTool.saveChapter()">💾 Save</button>
+                    <button class="control-btn" onclick="RevisionTool.exportChapter()">📤 Export</button>
+                </div>
+            </div>
+
+            <div class="editor-content">
+                <div class="chapter-editor">
+                    <div class="chapter-text" id="chapter-text">
+                        <div class="beat-marker">Beat 1: Arrival at the old house</div>
+                        
+                        <p onclick="RevisionTool.selectText(this)">The key still fit. Sarah stood there, hand trembling and breath caught and heart pounding against her ribs. Five years. Five years since she'd last seen this door, this house, this place where everything changed.
+                            <div class="voice-indicator sarah-voice"></div>
+                        </p>
+                        
+                        <p onclick="RevisionTool.selectText(this)">"Just get inside. Fast. Before someone sees you here," she muttered to herself, the words clipped and urgent. The street behind her was empty, but memories had eyes.
+                            <div class="voice-indicator sarah-voice"></div>
+                        </p>
+                        
+                        <p onclick="RevisionTool.selectText(this)">The door opened with the same creak she remembered. Inside, dust motes danced in afternoon light streaming through windows she used to sit beside. Everything smaller than memory made it. Everything sadder.
+                            <div class="voice-indicator"></div>
+                        </p>
+                        
+                        <div class="beat-marker">Beat 2: Discovery of the letter</div>
+                        
+                        <p onclick="RevisionTool.selectText(this)">Her feet knew where to go. Up the stairs, second door on the right, the room that used to be hers. The floorboard by the window still squeaked. Some things never changed.
+                            <div class="voice-indicator"></div>
+                        </p>
+                        
+                        <p onclick="RevisionTool.selectText(this)" class="suggestion-highlight">The box was exactly where she'd left it, tucked behind the loose baseboard near the closet. Her fingers found the edge and pulled. Letters, photos, the debris of a life interrupted. And there, at the bottom, an envelope she'd never seen before. Her name written in Marcus's careful handwriting.
+                            <div class="voice-indicator"></div>
+                        </p>
+                        
+                        <p onclick="RevisionTool.selectText(this)">"What the hell?" The words escaped before she could stop them. When had he been here? When had he—
+                            <div class="voice-indicator sarah-voice"></div>
+                        </p>
+                        
+                        <div class="beat-marker">Beat 3: Marcus arrives unexpectedly</div>
+                        
+                        <p onclick="RevisionTool.selectText(this)">Footsteps on the stairs. Heavy, deliberate, familiar. Sarah's head snapped up from the letter, every muscle tensing.
+                            <div class="voice-indicator"></div>
+                        </p>
+                        
+                        <p onclick="RevisionTool.selectText(this)" class="suggestion-highlight">"I wondered if you'd find that," Marcus said from the doorway. He looked older, wearier, like someone who'd been carrying weight too long. "I've been checking this house periodically, hoping that perhaps, someday, circumstances might align in such a way that—"
+                            <div class="voice-indicator marcus-voice"></div>
+                        </p>
+                        
+                        <p onclick="RevisionTool.selectText(this)">"Cut the fancy talk." Sarah's voice was sharp, compressed. "What are you doing here?"
+                            <div class="voice-indicator sarah-voice"></div>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Quick Action Menu (Hidden by default) -->
+                <div class="quick-menu" id="quick-menu">
+                    <div class="quick-actions">
+                        <div class="quick-action" onclick="RevisionTool.quickSuggest('emotional')">🎭 More Emotional</div>
+                        <div class="quick-action" onclick="RevisionTool.quickSuggest('formal')">📝 Adjust Formality</div>
+                        <div class="quick-action" onclick="RevisionTool.quickSuggest('urgent')">⚡ Add Urgency</div>
+                        <div class="quick-action" onclick="RevisionTool.quickSuggest('descriptive')">🎨 More Descriptive</div>
+                        <div class="quick-action" onclick="RevisionTool.quickSuggest('dialogue')">💬 Improve Dialogue</div>
+                        <div class="quick-action" onclick="RevisionTool.quickSuggest('flow')">🌊 Better Flow</div>
+                    </div>
+                    <input type="text" class="custom-prompt" placeholder="Custom instruction: 'make this sadder'" onkeypress="RevisionTool.handleCustomPrompt(event)">
+                </div>
+            </div>
+        </div>
+
+        <!-- Suggestions Sidebar -->
+        <div class="suggestions-panel">
+            <div class="suggestions-header">
+                <div class="suggestions-title">Revision Suggestions</div>
+                <div class="selected-context" id="selected-context">Select text to see suggestions</div>
+            </div>
+
+            <div class="suggestions-content" id="suggestions-content">
+                <div class="empty-suggestions">
+                    <h3>Select text to revise</h3>
+                    <p>Click on any paragraph or select specific text to see AI-powered revision suggestions. The AI will offer multiple options while preserving what works.</p>
+                </div>
+            </div>
+
+            <div class="suggestion-actions" id="suggestion-actions" style="display: none;">
+                <button class="action-btn btn-cancel" onclick="RevisionTool.cancelSelection()">Cancel</button>
+                <button class="action-btn btn-more" onclick="RevisionTool.getMoreOptions()">More Options</button>
+                <button class="action-btn btn-apply" onclick="RevisionTool.applySuggestion()">Apply Selected</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <span>Chapter: 2,847 words • Last saved: 2 minutes ago</span>
+        <span>Voice consistency: Sarah 94% • Marcus 91%</span>
+    </div>
+
+    <script>
+        const RevisionTool = {
+            selectedElement: null,
+            selectedText: '',
+            currentSuggestions: [],
+            selectedSuggestion: null,
+            userLearning: {
+                emotional: 'shorter sentences, hesitation',
+                formal: 'reduce complexity, simpler words',
+                urgent: 'fragments, action verbs'
+            },
+
+            init() {
+                this.setupEventListeners();
+                this.showInitialLearning();
+            },
+
+            setupEventListeners() {
+                document.addEventListener('mouseup', () => {
+                    const selection = window.getSelection();
+                    if (selection.toString().length > 0) {
+                        this.handleTextSelection(selection);
+                    }
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.quick-menu') && !e.target.closest('.chapter-text')) {
+                        this.hideQuickMenu();
+                    }
+                });
+            },
+
+            selectText(element) {
+                // Clear previous selections
+                document.querySelectorAll('.selected-text').forEach(el => {
+                    el.classList.remove('selected-text');
+                });
+
+                element.classList.add('selected-text');
+                this.selectedElement = element;
+                this.selectedText = element.textContent.trim();
+
+                // Show quick menu
+                this.showQuickMenu(element);
+
+                // Generate suggestions for entire paragraph
+                this.generateSuggestions('general', this.selectedText);
+            },
+
+            handleTextSelection(selection) {
+                const selectedText = selection.toString().trim();
+                if (selectedText.length > 5) {
+                    this.selectedText = selectedText;
+                    this.generateSuggestions('selection', selectedText);
+                }
+            },
+
+            showQuickMenu(element) {
+                const menu = document.getElementById('quick-menu');
+                const rect = element.getBoundingClientRect();
+                
+                menu.style.left = `${rect.right + 10}px`;
+                menu.style.top = `${rect.top}px`;
+                menu.classList.add('active');
+            },
+
+            hideQuickMenu() {
+                document.getElementById('quick-menu').classList.remove('active');
+            },
+
+            quickSuggest(type) {
+                this.generateSuggestions(type, this.selectedText);
+                this.hideQuickMenu();
+            },
+
+            handleCustomPrompt(event) {
+                if (event.key === 'Enter') {
+                    const prompt = event.target.value.trim();
+                    if (prompt) {
+                        this.generateSuggestions('custom', this.selectedText, prompt);
+                        event.target.value = '';
+                        this.hideQuickMenu();
+                    }
+                }
+            },
+
+            generateSuggestions(type, text, customPrompt = '') {
+                // Update context display
+                document.getElementById('selected-context').textContent = 
+                    `"${text.substring(0, 50)}${text.length > 50 ? '...' : '"}`;
+
+                // Show action buttons
+                document.getElementById('suggestion-actions').style.display = 'flex';
+
+                // Generate different suggestions based on type and user learning
+                const suggestions = this.createSuggestions(type, text, customPrompt);
+                this.displaySuggestions(suggestions);
+            },
+
+            createSuggestions(type, text, customPrompt) {
+                const suggestions = [];
+
+                if (type === 'emotional' || customPrompt.includes('sad')) {
+                    // Use learned patterns for emotional suggestions
+                    suggestions.push({
+                        text: this.applyEmotionalPattern(text, 'sadder'),
+                        type: 'Sadder tone',
+                        confidence: '94%',
+                        reason: 'Based on your preference for shorter sentences and hesitation'
+                    });
+                    
+                    suggestions.push({
+                        text: this.applyEmotionalPattern(text, 'desperate'),
+                        type: 'More desperate',
+                        confidence: '87%',
+                        reason: 'Alternative emotional approach'
+                    });
+                }
+
+                if (type === 'formal') {
+                    suggestions.push({
+                        text: this.adjustFormality(text, -2),
+                        type: 'Less formal',
+                        confidence: '91%',
+                        reason: 'Reducing complexity based on your preferences'
+                    });
+                }
+
+                if (type === 'urgent') {
+                    suggestions.push({
+                        text: this.addUrgency(text),
+                        type: 'More urgent',
+                        confidence: '89%',
+                        reason: 'Adding fragments and action verbs'
+                    });
+                }
+
+                // Always include original as option
+                suggestions.push({
+                    text: text,
+                    type: 'Keep original',
+                    confidence: '100%',
+                    reason: 'No changes'
+                });
+
+                return suggestions;
+            },
+
+            applyEmotionalPattern(text, emotionType) {
+                // Simulate applying learned emotional patterns
+                if (emotionType === 'sadder') {
+                    // User has learned they like shorter sentences and hesitation for sadness
+                    return text.replace(/\. /g, '. [pause] ').replace(/,/g, '... ').substring(0, text.length * 0.8) + '...';
+                }
+                if (emotionType === 'desperate') {
+                    return text.replace(/\./g, '!').replace(/said/g, 'whispered').replace(/\b(I|she|he)\b/g, match => match + ' could barely');
+                }
+                return text;
+            },
+
+            adjustFormality(text, adjustment) {
+                // Simulate formality adjustment based on user learning
+                if (adjustment < 0) {
+                    return text.replace(/perhaps/g, 'maybe').replace(/circumstances/g, 'things').replace(/articulate/g, 'say');
+                }
+                return text;
+            },
+
+            addUrgency(text) {
+                // Apply learned urgency patterns
+                return text.replace(/\. /g, '. Quick. ').replace(/\band\b/g, ' and—');
+            },
+
+            displaySuggestions(suggestions) {
+                const container = document.getElementById('suggestions-content');
+                
+                // Show learning insight
+                const learningHtml = `
+                    <div class="learning-panel">
+                        <div class="learning-title">🧠 AI Learning</div>
+                        <div class="learning-insight">
+                            I notice you typically prefer shorter sentences for emotional scenes. 
+                            Applying your learned style preferences...
+                        </div>
+                    </div>
+                `;
+
+                // Generate suggestions HTML
+                const suggestionsHtml = suggestions.map((suggestion, index) => `
+                    <div class="suggestion-option" onclick="RevisionTool.selectSuggestion(${index})" data-index="${index}">
+                        <div class="suggestion-text">${suggestion.text}</div>
+                        <div class="suggestion-meta">
+                            <span class="suggestion-type">${suggestion.type}</span>
+                            <span class="suggestion-confidence">${suggestion.confidence}</span>
+                        </div>
+                    </div>
+                `).join('');
+
+                container.innerHTML = learningHtml + '<div class="suggestion-label">Choose an option:</div>' + suggestionsHtml;
+                this.currentSuggestions = suggestions;
+            },
+
+            selectSuggestion(index) {
+                // Clear previous selections
+                document.querySelectorAll('.suggestion-option').forEach(el => {
+                    el.classList.remove('selected');
+                });
+
+                // Select new option
+                document.querySelector(`[data-index="${index}"]`).classList.add('selected');
+                this.selectedSuggestion = index;
+            },
+
+            applySuggestion() {
+                if (this.selectedSuggestion !== null && this.selectedElement) {
+                    const suggestion = this.currentSuggestions[this.selectedSuggestion];
+                    
+                    // Update the text
+                    const textNode = this.selectedElement.childNodes[0];
+                    if (textNode) {
+                        textNode.textContent = suggestion.text;
+                    }
+
+                    // Learn from user choice
+                    this.recordLearning(suggestion);
+
+                    // Clear selection
+                    this.cancelSelection();
+
+                    // Show success feedback
+                    this.showFeedback('Applied: ' + suggestion.type);
+                }
+            },
+
+            recordLearning(appliedSuggestion) {
+                // Simulate learning from user choices
+                console.log('Learning: User chose', appliedSuggestion.type);
+                // In real implementation, this would update the AI's understanding
+                // of what the user means by various style instructions
+            },
+
+            getMoreOptions() {
+                // Generate additional suggestions
+                const additionalSuggestions = [
+                    {
+                        text: this.selectedText.replace(/\./g, '...').toLowerCase(),
+                        type: 'Trailing off',
+                        confidence: '82%',
+                        reason: 'Alternative emotional approach'
+                    },
+                    {
+                        text: this.selectedText + ' Her voice cracked.',
+                        type: 'Add emotion cue',
+                        confidence: '88%',
+                        reason: 'External emotional indicator'
+                    }
+                ];
+
+                this.currentSuggestions = [...this.currentSuggestions, ...additionalSuggestions];
+                this.displaySuggestions(this.currentSuggestions);
+            },
+
+            cancelSelection() {
+                this.selectedElement?.classList.remove('selected-text');
+                this.selectedElement = null;
+                this.selectedText = '';
+                this.selectedSuggestion = null;
+                this.currentSuggestions = [];
+
+                document.getElementById('suggestions-content').innerHTML = `
+                    <div class="empty-suggestions">
+                        <h3>Select text to revise</h3>
+                        <p>Click on any paragraph or select specific text to see AI-powered revision suggestions.</p>
+                    </div>
+                `;
+                document.getElementById('suggestion-actions').style.display = 'none';
+                document.getElementById('selected-context').textContent = 'Select text to see suggestions';
+            },
+
+            showInitialLearning() {
+                // Show that AI has learned user preferences
+                setTimeout(() => {
+                    if (document.getElementById('suggestions-content').innerHTML.includes('empty-suggestions')) {
+                        document.getElementById('suggestions-content').innerHTML = `
+                            <div class="learning-panel">
+                                <div class="learning-title">🧠 Your Style Profile</div>
+                                <div class="learning-insight">
+                                    I've learned from your previous 3 projects:<br>
+                                    • "Emotional" = shorter sentences, more hesitation<br>
+                                    • "Urgent" = sentence fragments, active verbs<br>
+                                    • You prefer subtle dialogue tags<br>
+                                    • You avoid overly complex descriptions
+                                </div>
+                            </div>
+                            <div class="empty-suggestions">
+                                <h3>Ready to revise</h3>
+                                <p>Select any text to see personalized suggestions based on your learned style preferences.</p>
+                            </div>
+                        `;
+                    }
+                }, 2000);
+            },
+
+            showFeedback(message) {
+                // Simple feedback system
+                const statusBar = document.querySelector('.status-bar span');
+                const originalText = statusBar.textContent;
+                statusBar.textContent = message;
+                statusBar.style.color = var(--success);
+
+                setTimeout(() => {
+                    statusBar.textContent = originalText;
+                    statusBar.style.color = '';
+                }, 3000);
+            },
+
+            saveChapter() {
+                this.showFeedback('Chapter saved successfully');
+            },
+
+            exportChapter() {
+                this.showFeedback('Exporting chapter...');
+            },
+
+            toggleMode(mode) {
+                document.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+                
+                if (mode === 'voice') {
+                    document.querySelectorAll('.voice-indicator').forEach(indicator => {
+                        indicator.style.opacity = '1';
+                    });
+                } else {
+                    document.querySelectorAll('.voice-indicator').forEach(indicator => {
+                        indicator.style.opacity = '';
+                    });
+                }
+            }
+        };
+
+        // Initialize the revision tool
+        document.addEventListener('DOMContentLoaded', () => {
+            RevisionTool.init();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StoryDirector - Development Workspace</title>
+    <style>
+        :root {
+            --primary: #03dac6;
+            --secondary: #bb86fc;
+            --accent: #ffd700;
+            --bg-dark: #0a0a0f;
+            --bg-panel: #1a1a1a;
+            --bg-lighter: #2a2a2a;
+            --border: #444;
+            --text-light: #e0e0e0;
+            --text-dim: #888;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Header Bar */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(90deg, var(--bg-panel), #16213e);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.2em;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .project-name {
+            margin-left: 20px;
+            color: var(--text-dim);
+            font-size: 0.9em;
+        }
+
+        /* File Tree Sidebar */
+        .file-tree {
+            width: 280px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            margin-top: 60px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .tree-section {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tree-header {
+            padding: 15px 20px 10px;
+            font-size: 0.9em;
+            font-weight: bold;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .tree-header:hover {
+            color: var(--primary);
+        }
+
+        .tree-header.active {
+            color: var(--primary);
+        }
+
+        .tree-items {
+            padding-bottom: 10px;
+        }
+
+        .tree-item {
+            padding: 8px 35px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+
+        .tree-item:hover {
+            background: var(--bg-lighter);
+        }
+
+        .tree-item.active {
+            background: rgba(3, 218, 198, 0.1);
+            border-right: 3px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .tree-item.add-new {
+            color: var(--text-dim);
+            font-style: italic;
+        }
+
+        .tree-item.add-new:hover {
+            color: var(--primary);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            margin-top: 60px;
+            background: var(--bg-dark);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-panel);
+        }
+
+        .content-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .content-subtitle {
+            color: var(--text-dim);
+            font-size: 0.9em;
+        }
+
+        .content-body {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        /* Character Creation Interface */
+        .character-creator {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .creator-section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--secondary);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            color: var(--text-dim);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-light);
+            font-size: 1em;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(3, 218, 198, 0.2);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* Voice Chemistry Preview */
+        .voice-preview {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .formula-display {
+            font-family: monospace;
+            font-size: 1.1em;
+            color: var(--secondary);
+            text-align: center;
+            padding: 15px;
+            background: rgba(187, 134, 252, 0.1);
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .voice-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .voice-element {
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .voice-element:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .voice-element.active {
+            border-color: var(--primary);
+            background: rgba(3, 218, 198, 0.1);
+        }
+
+        .element-symbol {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .element-name {
+            font-size: 0.8em;
+            color: var(--text-dim);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9em;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(3, 218, 198, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(187, 134, 252, 0.3);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-dim);
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: var(--text-light);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--bg-panel);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            width: 90%;
+            max-width: 1000px;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: var(--secondary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--text-light);
+            background: var(--bg-lighter);
+        }
+
+        .modal-body {
+            padding: 30px;
+            overflow-y: auto;
+            max-height: calc(90vh - 80px);
+        }
+        .voice-elements-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .voice-element-key {
+            aspect-ratio: 1;
+            background: var(--bg-lighter);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            padding: 8px;
+        }
+
+        .voice-element-key:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .voice-element-key.active {
+            border-color: var(--primary);
+            background: rgba(3, 218, 198, 0.1);
+        }
+
+        .voice-element-key[data-group="phonological"] { border-top-color: #03dac6; }
+        .voice-element-key[data-group="lexical"] { border-top-color: #673ab7; }
+        .voice-element-key[data-group="syntactic"] { border-top-color: #e91e63; }
+        .voice-element-key[data-group="discourse"] { border-top-color: #ff9800; }
+        .voice-element-key[data-group="stylistic"] { border-top-color: #4caf50; }
+        .voice-element-key[data-group="pragmatic"] { border-top-color: #ffeb3b; }
+        .voice-element-key[data-group="metalinguistic"] { border-top-color: #2196f3; }
+
+        .voice-element-key .element-symbol {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .voice-element-key .element-name {
+            font-size: 0.7em;
+            color: var(--text-dim);
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .voice-element-key .element-level {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: var(--primary);
+            color: #000;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .voice-element-key.active .element-level {
+            opacity: 1;
+        }
+
+        .v2p-formula-display {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            font-family: monospace;
+            font-size: 1.1em;
+            color: var(--secondary);
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">StoryDirector</div>
+            <div class="project-name">• My Epic Fantasy Novel</div>
+        </div>
+
+        <!-- File Tree Sidebar -->
+        <div class="file-tree">
+            <div class="tree-section">
+                <div class="tree-header" data-section="project">
+                    <span>📁</span>
+                    <span>Project</span>
+                </div>
+                <div class="tree-items">
+                    <div class="tree-item" data-type="project-info" data-id="info">
+                        <span>📝</span>
+                        <span>Project Settings</span>
+                    </div>
+                    <div class="tree-item" data-type="project-action" data-id="save">
+                        <span>💾</span>
+                        <span>Save Project</span>
+                    </div>
+                    <div class="tree-item" data-type="project-action" data-id="export">
+                        <span>📤</span>
+                        <span>Export Story</span>
+                    </div>
+                    <div class="tree-item add-new" data-action="new-project">
+                        <span>➕</span>
+                        <span>New Project</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tree-section">
+            <div class="tree-section">
+                <div class="tree-header" data-section="characters">
+                    <span>👥</span>
+                    <span>Characters</span>
+                </div>
+                <div class="tree-items">
+                    <div class="tree-item" data-type="character" data-id="wizard">
+                        <span>🧙‍♂️</span>
+                        <span>Wizard Aldric</span>
+                    </div>
+                    <div class="tree-item" data-type="character" data-id="princess">
+                        <span>👸</span>
+                        <span>Princess Lyra</span>
+                    </div>
+                    <div class="tree-item add-new" data-action="new-character">
+                        <span>➕</span>
+                        <span>New Character</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tree-section">
+                <div class="tree-header" data-section="settings">
+                    <span>🏰</span>
+                    <span>Settings</span>
+                </div>
+                <div class="tree-items">
+                    <div class="tree-item add-new" data-action="new-setting">
+                        <span>➕</span>
+                        <span>New Setting</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tree-section">
+                <div class="tree-header" data-section="worldbuilding">
+                    <span>🌍</span>
+                    <span>Worldbuilding</span>
+                </div>
+                <div class="tree-items">
+                    <div class="tree-item add-new" data-action="new-world-element">
+                        <span>➕</span>
+                        <span>New Element</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tree-section">
+                <div class="tree-header" data-section="outline">
+                    <span>📋</span>
+                    <span>Outline</span>
+                </div>
+                <div class="tree-items">
+                    <div class="tree-item add-new" data-action="new-outline">
+                        <span>➕</span>
+                        <span>Create Outline</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tree-section">
+                <div class="tree-header" data-section="chapters">
+                    <span>📚</span>
+                    <span>Chapters</span>
+                </div>
+                <div class="tree-items">
+                    <div class="tree-item add-new" data-action="new-chapter">
+                        <span>➕</span>
+                        <span>New Chapter</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="content-header">
+                <div class="content-title" id="content-title">Characters</div>
+                <div class="content-subtitle" id="content-subtitle">Create and manage your story's characters</div>
+            </div>
+            <div class="content-body" id="content-body">
+                
+                <!-- Default Characters List -->
+                <div id="characters-overview" class="content-view">
+                    <div class="empty-state">
+                        <h3>Character Workshop</h3>
+                        <p>Create characters with unique voices using V2P EQ chemistry. Click on a character to edit, or create a new one.</p>
+                        <br>
+                        <button class="btn btn-primary" onclick="App.createNewCharacter()">
+                            ✨ Create New Character
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Character Creator -->
+                <div id="character-creator" class="content-view" style="display: none;">
+                    <div class="character-creator">
+                        <div class="creator-section">
+                            <div class="section-title">Basic Information</div>
+                            <div class="form-group">
+                                <label class="form-label">Character Name</label>
+                                <input type="text" class="form-input" id="char-name" placeholder="Enter character name...">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Role / Archetype</label>
+                                <input type="text" class="form-input" id="char-role" placeholder="Hero, Mentor, Villain, Sidekick...">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Character Description</label>
+                                <textarea class="form-input form-textarea" id="char-description" placeholder="Describe your character's personality, background, and motivations..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="creator-section">
+                            <div class="section-title">Voice Chemistry</div>
+                            <div class="voice-preview">
+                                <div class="formula-display" id="formula-display">
+                                    No voice formula assigned
+                                </div>
+                                
+                                <div style="margin-top: 20px; text-align: center;">
+                                    <button class="btn btn-secondary" onclick="App.openVoiceDesigner()">
+                                        🧪 Open Voice Designer
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 30px;">
+                            <button class="btn btn-secondary" onclick="App.showCharactersOverview()">
+                                ← Back to Characters
+                            </button>
+                            <button class="btn btn-primary" style="margin-left: 15px;" onclick="App.saveCharacter()">
+                                💾 Save Character
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- V2P Voice Designer Modal/Overlay -->
+                <div id="voice-designer-modal" class="modal-overlay" style="display: none;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>Voice Chemistry Designer</h2>
+                            <button class="modal-close" onclick="App.closeVoiceDesigner()">✕</button>
+                        </div>
+                        <div class="modal-body">
+                            <div style="display: flex; gap: 30px; height: 500px;">
+                                <!-- Element Keyboard -->
+                                <div style="flex: 1;">
+                                    <div class="section-title">Element Keyboard</div>
+                                    <div class="voice-elements-grid">
+                                        <div class="voice-element-key" data-element="rhythm" data-group="phonological">
+                                            <div class="element-symbol">Rh</div>
+                                            <div class="element-name">Rhythm</div>
+                                            <div class="element-level">0</div>
+                                        </div>
+                                        <div class="voice-element-key" data-element="frequency" data-group="lexical">
+                                            <div class="element-symbol">Fr</div>
+                                            <div class="element-name">Frequency</div>
+                                            <div class="element-level">0</div>
+                                        </div>
+                                        <div class="voice-element-key" data-element="coordination" data-group="syntactic">
+                                            <div class="element-symbol">Co</div>
+                                            <div class="element-name">Coordination</div>
+                                            <div class="element-level">0</div>
+                                        </div>
+                                        <div class="voice-element-key" data-element="cohesion" data-group="discourse">
+                                            <div class="element-symbol">Ch</div>
+                                            <div class="element-name">Cohesion</div>
+                                            <div class="element-level">0</div>
+                                        </div>
+                                        <div class="voice-element-key" data-element="repetition" data-group="stylistic">
+                                            <div class="element-symbol">Rp</div>
+                                            <div class="element-name">Repetition</div>
+                                            <div class="element-level">0</div>
+                                        </div>
+                                        <div class="voice-element-key" data-element="deixis" data-group="pragmatic">
+                                            <div class="element-symbol">Dx</div>
+                                            <div class="element-name">Deixis</div>
+                                            <div class="element-level">0</div>
+                                        </div>
+                                        <div class="voice-element-key" data-element="register" data-group="metalinguistic">
+                                            <div class="element-symbol">Rg</div>
+                                            <div class="element-name">Register</div>
+                                            <div class="element-level">0</div>
+                                        </div>
+                                        <div class="voice-element-key" data-element="alliteration" data-group="phonological">
+                                            <div class="element-symbol">Al</div>
+                                            <div class="element-name">Alliteration</div>
+                                            <div class="element-level">0</div>
+                                        </div>
+                                        <div class="voice-element-key" data-element="derivation" data-group="lexical">
+                                            <div class="element-symbol">Dr</div>
+                                            <div class="element-name">Derivation</div>
+                                            <div class="element-level">0</div>
+                                        </div>
+                                        <div class="voice-element-key" data-element="subordination" data-group="syntactic">
+                                            <div class="element-symbol">Sb</div>
+                                            <div class="element-name">Subordination</div>
+                                            <div class="element-level">0</div>
+                                        </div>
+                                        <div class="voice-element-key" data-element="anaphora" data-group="discourse">
+                                            <div class="element-symbol">An</div>
+                                            <div class="element-name">Anaphora</div>
+                                            <div class="element-level">0</div>
+                                        </div>
+                                        <div class="voice-element-key" data-element="metaphor" data-group="stylistic">
+                                            <div class="element-symbol">Mt</div>
+                                            <div class="element-name">Metaphor</div>
+                                            <div class="element-level">0</div>
+                                        </div>
+                                        <div class="voice-element-key" data-element="implicature" data-group="pragmatic">
+                                            <div class="element-symbol">Im</div>
+                                            <div class="element-name">Implicature</div>
+                                            <div class="element-level">0</div>
+                                        </div>
+                                        <div class="voice-element-key" data-element="modality" data-group="metalinguistic">
+                                            <div class="element-symbol">Md</div>
+                                            <div class="element-name">Modality</div>
+                                            <div class="element-level">0</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Formula Display & Controls -->
+                                <div style="width: 300px;">
+                                    <div class="section-title">Current Formula</div>
+                                    <div class="v2p-formula-display" id="modal-formula-display">
+                                        Click elements to build formula
+                                    </div>
+                                    
+                                    <div style="margin-top: 20px;">
+                                        <div class="section-title">Voice Test</div>
+                                        <textarea class="form-input form-textarea" id="modal-voice-test" 
+                                            placeholder="Enter text to test..." 
+                                            style="min-height: 100px;"></textarea>
+                                        <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="App.testModalVoice()">
+                                            🎭 Transform Text
+                                        </button>
+                                    </div>
+                                    
+                                    <div style="margin-top: 20px; text-align: center;">
+                                        <button class="btn btn-primary" onclick="App.applyVoiceFormula()">
+                                            ✅ Apply to Character
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project Settings -->
+                <div id="project-settings" class="content-view" style="display: none;">
+                    <div style="max-width: 600px; margin: 0 auto;">
+                        <div class="creator-section">
+                            <div class="section-title">Project Information</div>
+                            <div class="form-group">
+                                <label class="form-label">Project Title</label>
+                                <input type="text" class="form-input" id="project-title" value="My Epic Fantasy Novel">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Genre</label>
+                                <select class="form-input" id="project-genre">
+                                    <option value="fantasy">Fantasy</option>
+                                    <option value="sci-fi">Science Fiction</option>
+                                    <option value="mystery">Mystery</option>
+                                    <option value="romance">Romance</option>
+                                    <option value="thriller">Thriller</option>
+                                    <option value="literary">Literary Fiction</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Target Length</label>
+                                <select class="form-input" id="project-length">
+                                    <option value="short-story">Short Story (1,000-7,500 words)</option>
+                                    <option value="novella">Novella (17,500-40,000 words)</option>
+                                    <option value="novel" selected>Novel (50,000+ words)</option>
+                                    <option value="series">Series/Multiple Books</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Project Description</label>
+                                <textarea class="form-input form-textarea" id="project-description" 
+                                    placeholder="Describe your story concept, themes, and goals...">An epic fantasy adventure following a reluctant hero's journey to save the realm from ancient darkness.</textarea>
+                            </div>
+                        </div>
+
+                        <div class="creator-section">
+                            <div class="section-title">Project Statistics</div>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                                <div class="stat-card">
+                                    <div class="stat-number">2</div>
+                                    <div class="stat-label">Characters</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">0</div>
+                                    <div class="stat-label">Settings</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">0</div>
+                                    <div class="stat-label">Chapters</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-number">0</div>
+                                    <div class="stat-label">Words Written</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 30px;">
+                            <button class="btn btn-primary" onclick="App.saveProjectSettings()">
+                                💾 Save Project Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div id="placeholder-content" class="content-view" style="display: none;">
+                    <div class="placeholder-content">
+                        <h2 id="placeholder-title">Coming Soon</h2>
+                        <p id="placeholder-text">This section is under development. Focus on character creation and voice chemistry for now!</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple App State and Navigation
+        const App = {
+            state: {
+                currentSection: 'characters',
+                currentView: 'overview',
+                characters: [],
+                voiceFormula: {},
+                v2pFormula: {},
+                savedFormulas: {
+                    'noble-knight': { register: 8, modality: 7, coordination: 2 },
+                    'wise-mentor': { subordination: 7, metaphor: 6, register: 7 }
+                }
+            },
+
+            init() {
+                this.setupNavigation();
+                this.setupVoiceControls();
+                this.setupV2PControls();
+                this.showCharactersOverview();
+            },
+
+            setupNavigation() {
+                // Tree section headers
+                document.querySelectorAll('.tree-header').forEach(header => {
+                    header.addEventListener('click', () => {
+                        const section = header.dataset.section;
+                        this.navigateToSection(section);
+                    });
+                });
+
+                // Tree items
+                document.querySelectorAll('.tree-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        if (item.dataset.action) {
+                            this.handleAction(item.dataset.action);
+                        } else if (item.dataset.type === 'character') {
+                            this.editCharacter(item.dataset.id);
+                        } else if (item.dataset.type === 'project-info') {
+                            this.showProjectSettings();
+                        } else if (item.dataset.type === 'project-action') {
+                            this.handleProjectAction(item.dataset.id);
+                        }
+                    });
+                });
+            },
+
+            navigateToSection(section) {
+                this.state.currentSection = section;
+                
+                // Update active tree header
+                document.querySelectorAll('.tree-header').forEach(h => h.classList.remove('active'));
+                document.querySelector(`[data-section="${section}"]`).classList.add('active');
+
+                // Update content
+                if (section === 'characters') {
+                    this.showCharactersOverview();
+                } else if (section === 'project') {
+                    this.showProjectSettings();
+                } else {
+                    this.showPlaceholder(section);
+                }
+            },
+
+            showProjectSettings() {
+                document.getElementById('content-title').textContent = 'Project Settings';
+                document.getElementById('content-subtitle').textContent = 'Configure your story project and view progress';
+                
+                this.hideAllViews();
+                document.getElementById('project-settings').style.display = 'block';
+            },
+
+            handleProjectAction(actionId) {
+                switch(actionId) {
+                    case 'save':
+                        alert('Project saved! (In a real app, this would save to file/cloud)');
+                        break;
+                    case 'export':
+                        alert('Export options:\n• PDF\n• Word Document\n• Plain Text\n(Coming soon!)');
+                        break;
+                    default:
+                        alert(`${actionId} - Coming soon!`);
+                }
+            },
+
+            saveProjectSettings() {
+                const title = document.getElementById('project-title').value;
+                const genre = document.getElementById('project-genre').value;
+                const length = document.getElementById('project-length').value;
+                const description = document.getElementById('project-description').value;
+
+                // Update header
+                document.querySelector('.project-name').textContent = `• ${title}`;
+                
+                alert('Project settings saved!');
+            },
+
+            setupV2PControls() {
+                document.querySelectorAll('.voice-element-key').forEach(element => {
+                    element.addEventListener('click', () => {
+                        const elementType = element.dataset.element;
+                        this.adjustV2PElement(elementType, element);
+                    });
+                });
+            },
+
+            openVoiceDesigner() {
+                document.getElementById('voice-designer-modal').style.display = 'flex';
+                // Copy current formula to modal
+                this.syncModalFormula();
+            },
+
+            closeVoiceDesigner() {
+                document.getElementById('voice-designer-modal').style.display = 'none';
+            },
+
+            syncModalFormula() {
+                // Copy current character voice formula to modal
+                Object.keys(this.state.voiceFormula).forEach(element => {
+                    const level = this.state.voiceFormula[element];
+                    const modalElement = document.querySelector(`#voice-designer-modal .voice-element-key[data-element="${element}"]`);
+                    if (modalElement) {
+                        modalElement.classList.toggle('active', level > 0);
+                        modalElement.querySelector('.element-level').textContent = level;
+                    }
+                });
+                this.updateModalFormulaDisplay();
+            },
+
+            applyVoiceFormula() {
+                // Copy modal formula back to character
+                const modalElements = document.querySelectorAll('#voice-designer-modal .voice-element-key.active');
+                this.state.voiceFormula = {};
+                
+                modalElements.forEach(el => {
+                    const element = el.dataset.element;
+                    const level = parseInt(el.querySelector('.element-level').textContent);
+                    this.state.voiceFormula[element] = level;
+                });
+
+                // Update character creation display
+                this.updateFormulaDisplay();
+                this.closeVoiceDesigner();
+                alert('Voice formula applied to character!');
+            },
+
+            updateModalFormulaDisplay() {
+                const display = document.getElementById('modal-formula-display');
+                const modalElements = document.querySelectorAll('#voice-designer-modal .voice-element-key.active');
+                
+                if (modalElements.length === 0) {
+                    display.textContent = 'Click elements to build formula';
+                    return;
+                }
+
+                const symbolMap = {
+                    rhythm: 'Rh', alliteration: 'Al', frequency: 'Fr', derivation: 'Dr',
+                    coordination: 'Co', subordination: 'Sb', cohesion: 'Ch', anaphora: 'An',
+                    repetition: 'Rp', metaphor: 'Mt', deixis: 'Dx', implicature: 'Im',
+                    register: 'Rg', modality: 'Md'
+                };
+
+                const formula = Array.from(modalElements)
+                    .map(el => {
+                        const element = el.dataset.element;
+                        const level = el.querySelector('.element-level').textContent;
+                        return `${symbolMap[element]}₍${level}₎`;
+                    })
+                    .join(' + ');
+                
+                display.textContent = formula;
+            },
+
+            testModalVoice() {
+                const inputText = document.getElementById('modal-voice-test').value;
+                if (!inputText) {
+                    alert('Enter some text to transform first!');
+                    return;
+                }
+
+                // Simple transformation demo
+                let transformed = inputText;
+                const activeElements = document.querySelectorAll('#voice-designer-modal .voice-element-key.active');
+                
+                activeElements.forEach(el => {
+                    const element = el.dataset.element;
+                    const level = parseInt(el.querySelector('.element-level').textContent);
+                    
+                    if (element === 'coordination' && level > 5) {
+                        transformed = transformed.replace(/\. /g, ', and ');
+                    }
+                    if (element === 'register' && level > 7) {
+                        transformed = transformed.replace(/said/g, 'articulated')
+                                               .replace(/went/g, 'proceeded');
+                    }
+                });
+                
+                alert(`Transformed text:\n\n${transformed}`);
+            },
+
+            adjustV2PElement(elementType, elementEl) {
+                let currentLevel = parseInt(elementEl.querySelector('.element-level').textContent) || 0;
+                
+                // Cycle through levels 0 -> 5 -> 10 -> 0
+                if (currentLevel === 0) {
+                    currentLevel = 5;
+                } else if (currentLevel === 5) {
+                    currentLevel = 10;
+                } else {
+                    currentLevel = 0;
+                }
+
+                elementEl.classList.toggle('active', currentLevel > 0);
+                elementEl.querySelector('.element-level').textContent = currentLevel;
+                this.updateModalFormulaDisplay();
+            },
+
+            updateV2PFormulaDisplay() {
+                const display = document.getElementById('v2p-formula-display');
+                const elements = Object.entries(this.state.v2pFormula);
+                
+                if (elements.length === 0) {
+                    display.textContent = 'Click elements to build formula';
+                    return;
+                }
+
+                const symbolMap = {
+                    rhythm: 'Rh', alliteration: 'Al', frequency: 'Fr', derivation: 'Dr',
+                    coordination: 'Co', subordination: 'Sb', cohesion: 'Ch', anaphora: 'An',
+                    repetition: 'Rp', metaphor: 'Mt', deixis: 'Dx', implicature: 'Im',
+                    register: 'Rg', modality: 'Md'
+                };
+
+                const formula = elements
+                    .map(([element, level]) => `${symbolMap[element]}₍${level}₎`)
+                    .join(' + ');
+                
+                display.textContent = formula;
+            },
+
+            loadFormula(formulaId) {
+                if (formulaId === 'current') {
+                    // Just switch to voice chemistry view
+                    this.navigateToSection('voice-chemistry');
+                    return;
+                }
+
+                const formula = this.state.savedFormulas[formulaId];
+                if (formula) {
+                    this.state.v2pFormula = { ...formula };
+                    this.navigateToSection('voice-chemistry');
+                    
+                    // Update the UI
+                    document.querySelectorAll('.voice-element-key').forEach(el => {
+                        const element = el.dataset.element;
+                        const level = formula[element] || 0;
+                        
+                        if (level > 0) {
+                            el.classList.add('active');
+                            el.querySelector('.element-level').textContent = level;
+                        } else {
+                            el.classList.remove('active');
+                            el.querySelector('.element-level').textContent = '0';
+                        }
+                    });
+                    
+                    this.updateV2PFormulaDisplay();
+                }
+            },
+
+            testVoice() {
+                const inputText = document.getElementById('voice-test-input').value;
+                if (!inputText) {
+                    alert('Enter some text to transform first!');
+                    return;
+                }
+
+                // Simple transformation demo based on current formula
+                let transformed = inputText;
+                
+                if (this.state.v2pFormula.coordination > 5) {
+                    transformed = transformed.replace(/\. /g, ', and ');
+                }
+                if (this.state.v2pFormula.register > 7) {
+                    transformed = transformed.replace(/said/g, 'articulated')
+                                           .replace(/went/g, 'proceeded')
+                                           .replace(/got/g, 'acquired');
+                }
+                
+                alert(`Transformed text:\n\n${transformed}`);
+            },
+
+            saveFormula() {
+                const name = document.getElementById('formula-name-input').value;
+                if (!name) {
+                    alert('Enter a formula name first!');
+                    return;
+                }
+
+                if (Object.keys(this.state.v2pFormula).length === 0) {
+                    alert('Create a formula first by clicking elements!');
+                    return;
+                }
+
+                this.state.savedFormulas[name] = { ...this.state.v2pFormula };
+                document.getElementById('formula-name-input').value = '';
+                alert(`Formula "${name}" saved!`);
+            },
+
+            showCharactersOverview() {
+                document.getElementById('content-title').textContent = 'Characters';
+                document.getElementById('content-subtitle').textContent = 'Create and manage your story\'s characters';
+                
+                this.hideAllViews();
+                document.getElementById('characters-overview').style.display = 'block';
+            },
+
+            createNewCharacter() {
+                document.getElementById('content-title').textContent = 'Create New Character';
+                document.getElementById('content-subtitle').textContent = 'Design a character with unique voice chemistry';
+                
+                this.hideAllViews();
+                document.getElementById('character-creator').style.display = 'block';
+                
+                // Clear form
+                document.getElementById('char-name').value = '';
+                document.getElementById('char-role').value = '';
+                document.getElementById('char-description').value = '';
+                this.state.voiceFormula = {};
+                this.updateFormulaDisplay();
+            },
+
+            editCharacter(characterId) {
+                // For demo, just show the creator
+                this.createNewCharacter();
+                document.getElementById('content-title').textContent = 'Edit Character';
+                
+                // Pre-fill with demo data
+                if (characterId === 'wizard') {
+                    document.getElementById('char-name').value = 'Wizard Aldric';
+                    document.getElementById('char-role').value = 'Wise Mentor';
+                    document.getElementById('char-description').value = 'An ancient wizard with a mysterious past...';
+                }
+            },
+
+            showPlaceholder(section) {
+                const titles = {
+                    settings: 'Settings & Locations',
+                    worldbuilding: 'Worldbuilding',
+                    outline: 'Story Outline',
+                    chapters: 'Chapters & Scenes'
+                };
+                
+                const descriptions = {
+                    settings: 'Create immersive locations and environments for your story.',
+                    worldbuilding: 'Build the rules, history, and culture of your story world.',
+                    outline: 'Structure your narrative with acts, beats, and plot progression.',
+                    chapters: 'Write and organize your story chapter by chapter.'
+                };
+
+                document.getElementById('content-title').textContent = titles[section];
+                document.getElementById('content-subtitle').textContent = descriptions[section];
+                
+                document.getElementById('placeholder-title').textContent = titles[section];
+                document.getElementById('placeholder-text').textContent = descriptions[section];
+                
+                this.hideAllViews();
+                document.getElementById('placeholder-content').style.display = 'block';
+            },
+
+            hideAllViews() {
+                document.querySelectorAll('.content-view').forEach(view => {
+                    view.style.display = 'none';
+                });
+            },
+
+            handleAction(action) {
+                switch(action) {
+                    case 'new-character':
+                        this.createNewCharacter();
+                        break;
+                    default:
+                        alert(`${action} - Coming soon!`);
+                }
+            },
+
+            setupVoiceControls() {
+                document.querySelectorAll('.voice-element').forEach(element => {
+                    element.addEventListener('click', () => {
+                        const elementType = element.dataset.element;
+                        this.toggleVoiceElement(elementType, element);
+                    });
+                });
+            },
+
+            toggleVoiceElement(elementType, elementEl) {
+                if (this.state.voiceFormula[elementType]) {
+                    // Remove element
+                    delete this.state.voiceFormula[elementType];
+                    elementEl.classList.remove('active');
+                } else {
+                    // Add element with level 5 (medium intensity)
+                    this.state.voiceFormula[elementType] = 5;
+                    elementEl.classList.add('active');
+                }
+                
+                this.updateFormulaDisplay();
+            },
+
+            updateFormulaDisplay() {
+                const display = document.getElementById('formula-display');
+                const elements = Object.entries(this.state.voiceFormula);
+                
+                if (elements.length === 0) {
+                    display.textContent = 'Click elements below to build voice formula';
+                    return;
+                }
+
+                const symbolMap = {
+                    coordination: 'Co',
+                    deixis: 'Dx',
+                    ellipsis: 'El',
+                    register: 'Rg',
+                    metaphor: 'Mt',
+                    rhythm: 'Rh',
+                    subordination: 'Sb',
+                    repetition: 'Rp'
+                };
+
+                const formula = elements
+                    .map(([element, level]) => `${symbolMap[element]}₍${level}₎`)
+                    .join(' + ');
+                
+                display.textContent = formula;
+            },
+
+            saveCharacter() {
+                const name = document.getElementById('char-name').value;
+                const role = document.getElementById('char-role').value;
+                
+                if (!name) {
+                    alert('Please enter a character name');
+                    return;
+                }
+
+                // Save character (in real app, this would persist)
+                const character = {
+                    name,
+                    role,
+                    description: document.getElementById('char-description').value,
+                    voiceFormula: { ...this.state.voiceFormula }
+                };
+
+                alert(`Character "${name}" saved!`);
+                this.showCharactersOverview();
+            }
+        };
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            App.init();
+        });
+    </script>
+</body>
+</html>

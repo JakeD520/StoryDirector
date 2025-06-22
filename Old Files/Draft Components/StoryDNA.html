@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story DNA Dashboard - StoryDirector</title>
+    <style>
+        :root {
+            --primary: #03dac6;
+            --secondary: #bb86fc;
+            --accent: #ffd700;
+            --bg-dark: #0a0a0f;
+            --bg-panel: #1a1a1a;
+            --bg-lighter: #2a2a2a;
+            --border: #444;
+            --text-light: #e0e0e0;
+            --text-dim: #888;
+            
+            --theme-color: #03dac6;
+            --relationship-color: #bb86fc;
+            --question-color: #ffd700;
+            --conflict-color: #f44336;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .dashboard-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Main DNA Area */
+        .dna-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dna-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-panel);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dna-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .dna-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .view-toggle {
+            display: flex;
+            background: var(--bg-lighter);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .view-btn {
+            padding: 8px 16px;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .view-btn.active {
+            background: var(--primary);
+            color: #000;
+        }
+
+        .add-btn {
+            background: var(--secondary);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .dna-panel {
+            background: var(--bg-panel);
+            border: 2px solid;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-theme { border-color: var(--theme-color); }
+        .panel-relationships { border-color: var(--relationship-color); }
+        .panel-questions { border-color: var(--question-color); }
+        .panel-conflicts { border-color: var(--conflict-color); }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* Theme Panel */
+        .theme-core {
+            background: rgba(3, 218, 198, 0.1);
+            border: 1px solid var(--theme-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .theme-input {
+            width: 100%;
+            background: none;
+            border: none;
+            color: var(--theme-color);
+            font-size: 1.2em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .theme-input:focus {
+            outline: none;
+        }
+
+        .theme-description {
+            width: 100%;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 0.9em;
+            resize: none;
+            min-height: 60px;
+        }
+
+        .sub-themes {
+            margin-top: 10px;
+        }
+
+        .sub-theme-item {
+            background: var(--bg-lighter);
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+
+        .remove-btn:hover {
+            color: #f44336;
+        }
+
+        /* Relationships Panel */
+        .relationships-web {
+            position: relative;
+            height: 200px;
+            background: rgba(187, 134, 252, 0.05);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .relationship-node {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: var(--relationship-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            font-weight: bold;
+            color: #000;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .relationship-node:hover {
+            transform: scale(1.1);
+        }
+
+        .relationship-line {
+            position: absolute;
+            height: 2px;
+            background: var(--relationship-color);
+            opacity: 0.6;
+            transform-origin: left center;
+        }
+
+        .relationships-list {
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .relationship-item {
+            background: var(--bg-lighter);
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .relationship-dynamic {
+            color: var(--relationship-color);
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .relationship-description {
+            color: var(--text-dim);
+            font-size: 0.8em;
+        }
+
+        /* Questions Panel */
+        .question-item {
+            background: var(--bg-lighter);
+            border-left: 3px solid var(--question-color);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .question-text {
+            color: var(--question-color);
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .question-exploration {
+            color: var(--text-dim);
+            font-size: 0.8em;
+        }
+
+        .question-actions {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .question-item:hover .question-actions {
+            opacity: 1;
+        }
+
+        /* Conflicts Panel */
+        .conflict-item {
+            background: var(--bg-lighter);
+            border-left: 3px solid var(--conflict-color);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .conflict-type {
+            color: var(--conflict-color);
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .conflict-description {
+            color: var(--text-dim);
+            font-size: 0.8em;
+        }
+
+        .conflict-actions {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .conflict-item:hover .conflict-actions {
+            opacity: 1;
+        }
+
+        /* Relationship Web View */
+        .web-view {
+            display: none;
+            flex: 1;
+            position: relative;
+            background: radial-gradient(circle at center, rgba(187, 134, 252, 0.1), transparent);
+            border-radius: 12px;
+            margin: 20px;
+        }
+
+        .web-view.active {
+            display: block;
+        }
+
+        .web-character {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: var(--bg-panel);
+            border: 3px solid var(--relationship-color);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .web-character:hover {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+
+        .web-character-name {
+            font-size: 0.8em;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .web-connection {
+            position: absolute;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--relationship-color), transparent);
+            transform-origin: left center;
+            opacity: 0.7;
+            z-index: 1;
+        }
+
+        .web-connection.highlighted {
+            background: var(--accent);
+            height: 4px;
+            opacity: 1;
+        }
+
+        /* AI Sidebar */
+        .ai-sidebar {
+            width: 350px;
+            background: var(--bg-panel);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .ai-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .ai-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .ai-subtitle {
+            font-size: 0.9em;
+            color: var(--text-dim);
+        }
+
+        .dna-insights {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .dna-insight {
+            background: rgba(187, 134, 252, 0.1);
+            border: 1px solid var(--secondary);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .insight-type {
+            font-size: 0.8em;
+            color: var(--secondary);
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .ai-chat-area {
+            border-top: 1px solid var(--border);
+            padding: 20px;
+        }
+
+        .ai-input {
+            width: 100%;
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px;
+            color: var(--text-light);
+            font-size: 0.9em;
+            min-height: 80px;
+            resize: vertical;
+            margin-bottom: 10px;
+        }
+
+        .ai-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .quick-btn {
+            background: rgba(187, 134, 252, 0.2);
+            border: 1px solid var(--secondary);
+            color: var(--secondary);
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 0.7em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-btn:hover {
+            background: rgba(187, 134, 252, 0.3);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-panel);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+        }
+
+        .modal-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            color: var(--text-dim);
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px;
+            color: var(--text-light);
+            font-size: 0.9em;
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #000;
+        }
+
+        .btn-secondary {
+            background: var(--bg-lighter);
+            color: var(--text-light);
+            border: 1px solid var(--border);
+        }
+
+        .item-action {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 0.8em;
+            padding: 2px 4px;
+            border-radius: 3px;
+            transition: all 0.2s;
+        }
+
+        .item-action:hover {
+            color: var(--text-light);
+            background: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Main DNA Area -->
+        <div class="dna-main">
+            <div class="dna-header">
+                <div class="dna-title">Story DNA</div>
+                <div class="dna-controls">
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="dashboard">Dashboard</button>
+                        <button class="view-btn" data-view="web">Relationship Web</button>
+                    </div>
+                    <button class="add-btn" onclick="DNAApp.showAddMenu()">+ Add Element</button>
+                </div>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid" id="dashboard-view">
+                <!-- Theme Panel -->
+                <div class="dna-panel panel-theme">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <span>🎯</span>
+                            <span>Core Theme</span>
+                        </div>
+                    </div>
+                    <div class="panel-content">
+                        <div class="theme-core">
+                            <input type="text" class="theme-input" id="core-theme" placeholder="What is your story really about?" value="Transformation">
+                            <textarea class="theme-description" id="theme-description" placeholder="Expand on your theme...">The journey from resistance to acceptance, from stagnation to growth, from isolation to connection.</textarea>
+                        </div>
+                        <div class="sub-themes" id="sub-themes">
+                            <div class="sub-theme-item">
+                                Personal vs. External Change 
+                                <button class="remove-btn" onclick="DNAApp.removeSubTheme(0)">✕</button>
+                            </div>
+                            <div class="sub-theme-item">
+                                Cost of Growth 
+                                <button class="remove-btn" onclick="DNAApp.removeSubTheme(1)">✕</button>
+                            </div>
+                            <div class="sub-theme-item">
+                                Identity Through Crisis 
+                                <button class="remove-btn" onclick="DNAApp.removeSubTheme(2)">✕</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Relationships Panel -->
+                <div class="dna-panel panel-relationships">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <span>💫</span>
+                            <span>Character Dynamics</span>
+                        </div>
+                    </div>
+                    <div class="panel-content">
+                        <div class="relationships-web" id="mini-web">
+                            <!-- Mini relationship visualization -->
+                        </div>
+                        <div class="relationships-list" id="relationships-list">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thematic Questions Panel -->
+                <div class="dna-panel panel-questions">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <span>❓</span>
+                            <span>Story Questions</span>
+                        </div>
+                    </div>
+                    <div class="panel-content" id="questions-list">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Story Conflicts Panel -->
+                <div class="dna-panel panel-conflicts">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <span>⚔️</span>
+                            <span>Core Conflicts</span>
+                        </div>
+                    </div>
+                    <div class="panel-content" id="conflicts-list">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Relationship Web View -->
+            <div class="web-view" id="web-view">
+                <div class="web-character" style="left: 30%; top: 20%;" data-character="Sarah">
+                    <div class="web-character-name">Sarah</div>
+                </div>
+                <div class="web-character" style="left: 60%; top: 30%;" data-character="Marcus">
+                    <div class="web-character-name">Marcus</div>
+                </div>
+                <div class="web-character" style="left: 20%; top: 60%;" data-character="Elena">
+                    <div class="web-character-name">Elena</div>
+                </div>
+                <div class="web-character" style="left: 70%; top: 70%;" data-character="David">
+                    <div class="web-character-name">David</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Sidebar -->
+        <div class="ai-sidebar">
+            <div class="ai-header">
+                <div class="ai-title">Story DNA Consultant</div>
+                <div class="ai-subtitle">Analyze your story's core elements</div>
+            </div>
+
+            <div class="dna-insights" id="dna-insights">
+                <div class="dna-insight">
+                    <div class="insight-type">Getting Started</div>
+                    Add your story elements and I'll help you analyze how they work together to create a coherent narrative DNA.
+                </div>
+            </div>
+
+            <div class="ai-chat-area">
+                <div class="quick-actions">
+                    <button class="quick-btn" onclick="DNAApp.askAI('theme')">Theme Check</button>
+                    <button class="quick-btn" onclick="DNAApp.askAI('relationships')">Relationships</button>
+                    <button class="quick-btn" onclick="DNAApp.askAI('conflicts')">Conflicts</button>
+                </div>
+                <textarea 
+                    class="ai-input" 
+                    id="dna-ai-input"
+                    placeholder="Ask about your story DNA: 'How do my relationships serve my theme?' or 'What conflicts am I missing?'"
+                ></textarea>
+                <button class="add-btn" style="width: 100%;" onclick="DNAApp.askCustomAI()">Analyze Story DNA</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Element Modal -->
+    <div class="modal-overlay" id="add-modal">
+        <div class="modal-content">
+            <div class="modal-title">Add Story Element</div>
+            <div class="form-group">
+                <label class="form-label">Element Type</label>
+                <select class="form-input" id="element-type">
+                    <option value="sub-theme">Sub-theme</option>
+                    <option value="relationship">Character Relationship</option>
+                    <option value="question">Thematic Question</option>
+                    <option value="conflict">Core Conflict</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Title/Summary</label>
+                <input type="text" class="form-input" id="element-title" placeholder="Brief description...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Details</label>
+                <textarea class="form-textarea" id="element-details" placeholder="Expand on this element..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="DNAApp.closeAddModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="DNAApp.addElement()">Add Element</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const DNAApp = {
+            currentView: 'dashboard',
+            storyDNA: {
+                theme: {
+                    core: "Transformation",
+                    description: "The journey from resistance to acceptance, from stagnation to growth, from isolation to connection.",
+                    subThemes: ["Personal vs. External Change", "Cost of Growth", "Identity Through Crisis"]
+                },
+                relationships: [
+                    { 
+                        characters: ["Sarah", "Marcus"], 
+                        dynamic: "Sibling Rivalry", 
+                        description: "Competing for father's approval, shared trauma, evolving toward alliance" 
+                    },
+                    { 
+                        characters: ["Elena", "David"], 
+                        dynamic: "Secret Romance", 
+                        description: "Hidden relationship, class differences, discovery threatens everything" 
+                    }
+                ],
+                questions: [
+                    { question: "What does transformation cost?", exploration: "Exploring sacrifice, loss of identity, painful growth" },
+                    { question: "Can people really change?", exploration: "Nature vs. nurture, deep patterns vs. conscious choice" },
+                    { question: "When is change worth the risk?", exploration: "Safety vs. growth, known vs. unknown futures" }
+                ],
+                conflicts: [
+                    { type: "Internal: Fear vs. Growth", description: "Character's desire to change blocked by fear of unknown" },
+                    { type: "Interpersonal: Trust vs. Betrayal", description: "Relationships tested by secrets and changing loyalties" },
+                    { type: "Societal: Individual vs. System", description: "Personal transformation threatens established order" }
+                ]
+            },
+
+            init() {
+                this.setupEventListeners();
+                this.renderAllElements();
+                this.generateInitialInsights();
+            },
+
+            setupEventListeners() {
+                // View toggle
+                document.querySelectorAll('.view-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.switchView(btn.dataset.view);
+                    });
+                });
+
+                // AI input
+                document.getElementById('dna-ai-input').addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                        this.askCustomAI();
+                    }
+                });
+
+                // Theme inputs
+                document.getElementById('core-theme').addEventListener('input', this.updateTheme.bind(this));
+                document.getElementById('theme-description').addEventListener('input', this.updateTheme.bind(this));
+
+                // Character nodes in web view
+                document.querySelectorAll('.web-character').forEach(char => {
+                    char.addEventListener('click', () => {
+                        this.highlightCharacterConnections(char.dataset.character);
+                    });
+                });
+            },
+
+            switchView(viewType) {
+                this.currentView = viewType;
+                
+                // Update buttons
+                document.querySelectorAll('.view-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.view === viewType);
+                });
+
+                // Show/hide views
+                document.getElementById('dashboard-view').style.display = 
+                    viewType === 'dashboard' ? 'grid' : 'none';
+                document.getElementById('web-view').classList.toggle('active', viewType === 'web');
+
+                if (viewType === 'web') {
+                    this.renderFullWeb();
+                }
+            },
+
+            renderAllElements() {
+                this.renderRelationships();
+                this.renderQuestions();
+                this.renderConflicts();
+                this.renderMiniWeb();
+            },
+
+            renderRelationships() {
+                const container = document.getElementById('relationships-list');
+                container.innerHTML = '';
+                
+                this.storyDNA.relationships.forEach((rel, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'relationship-item';
+                    div.innerHTML = `
+                        <div class="relationship-dynamic">
+                            ${rel.characters.join(' ↔ ')}: ${rel.dynamic}
+                            <button class="item-action" onclick="DNAApp.removeRelationship(${index})" style="float: right;">✕</button>
+                        </div>
+                        <div class="relationship-description">${rel.description}</div>
+                    `;
+                    container.appendChild(div);
+                });
+            },
+
+            renderQuestions() {
+                const container = document.getElementById('questions-list');
+                container.innerHTML = '';
+                
+                this.storyDNA.questions.forEach((q, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'question-item';
+                    div.innerHTML = `
+                        <div class="question-actions">
+                            <button class="item-action" onclick="DNAApp.removeQuestion(${index})">✕</button>
+                        </div>
+                        <div class="question-text">${q.question}</div>
+                        <div class="question-exploration">${q.exploration}</div>
+                    `;
+                    container.appendChild(div);
+                });
+            },
+
+            renderConflicts() {
+                const container = document.getElementById('conflicts-list');
+                container.innerHTML = '';
+                
+                this.storyDNA.conflicts.forEach((c, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'conflict-item';
+                    div.innerHTML = `
+                        <div class="conflict-actions">
+                            <button class="item-action" onclick="DNAApp.removeConflict(${index})">✕</button>
+                        </div>
+                        <div class="conflict-type">${c.type}</div>
+                        <div class="conflict-description">${c.description}</div>
+                    `;
+                    container.appendChild(div);
+                });
+            },
+
+            renderMiniWeb() {
+                const miniWeb = document.getElementById('mini-web');
+                miniWeb.innerHTML = '';
+                
+                // Simple visualization with positioned dots
+                const relationships = this.storyDNA.relationships;
+                relationships.forEach((rel, index) => {
+                    const x = 30 + (index * 80);
+                    const y = 80;
+                    
+                    if (x + 60 < miniWeb.offsetWidth) {
+                        const node = document.createElement('div');
+                        node.className = 'relationship-node';
+                        node.style.left = `${x}px`;
+                        node.style.top = `${y}px`;
+                        node.style.transform = 'scale(0.8)';
+                        node.textContent = rel.characters[0].charAt(0) + rel.characters[1].charAt(0);
+                        miniWeb.appendChild(node);
+                    }
+                });
+            },
+
+            renderFullWeb() {
+                // Clear existing connections
+                document.querySelectorAll('.web-connection').forEach(el => el.remove());
+                
+                const webView = document.getElementById('web-view');
+                const characters = document.querySelectorAll('.web-character');
+                
+                // Draw connections based on relationships
+                this.storyDNA.relationships.forEach(rel => {
+                    const char1El = Array.from(characters).find(el => 
+                        el.querySelector('.web-character-name').textContent.trim() === rel.characters[0]);
+                    const char2El = Array.from(characters).find(el => 
+                        el.querySelector('.web-character-name').textContent.trim() === rel.characters[1]);
+                    
+                    if (char1El && char2El) {
+                        this.createConnectionLine(webView, char1El, char2El);
+                    }
+                });
+            },
+
+            createConnectionLine(container, node1, node2) {
+                const rect1 = node1.getBoundingClientRect();
+                const rect2 = node2.getBoundingClientRect();
+                const containerRect = container.getBoundingClientRect();
+
+                const x1 = rect1.left - containerRect.left + rect1.width / 2;
+                const y1 = rect1.top - containerRect.top + rect1.height / 2;
+                const x2 = rect2.left - containerRect.left + rect2.width / 2;
+                const y2 = rect2.top - containerRect.top + rect2.height / 2;
+
+                const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+                const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+
+                const line = document.createElement('div');
+                line.className = 'web-connection';
+                line.style.width = `${length}px`;
+                line.style.left = `${x1}px`;
+                line.style.top = `${y1}px`;
+                line.style.transform = `rotate(${angle}deg)`;
+                
+                container.appendChild(line);
+            },
+
+            highlightCharacterConnections(characterName) {
+                // Remove previous highlights
+                document.querySelectorAll('.web-connection').forEach(line => {
+                    line.classList.remove('highlighted');
+                });
+
+                // Find and highlight connections for this character
+                this.storyDNA.relationships.forEach(rel => {
+                    if (rel.characters.includes(characterName)) {
+                        // In a full implementation, you'd track which lines connect which characters
+                        // For now, just highlight all connections briefly
+                        setTimeout(() => {
+                            document.querySelectorAll('.web-connection').forEach(line => {
+                                line.classList.add('highlighted');
+                            });
+                        }, 100);
+                    }
+                });
+
+                // Show character-specific insights
+                this.showCharacterInsights(characterName);
+            },
+
+            showCharacterInsights(characterName) {
+                const relatedRelationships = this.storyDNA.relationships.filter(rel => 
+                    rel.characters.includes(characterName));
+                
+                if (relatedRelationships.length > 0) {
+                    const insight = `${characterName} is connected to ${relatedRelationships.length} key relationship(s). These connections drive the story's emotional core and thematic development.`;
+                    this.addDNAInsight('Character Analysis', insight);
+                }
+            },
+
+            updateTheme() {
+                this.storyDNA.theme.core = document.getElementById('core-theme').value;
+                this.storyDNA.theme.description = document.getElementById('theme-description').value;
+                this.analyzeThemeImpact();
+            },
+
+            analyzeThemeImpact() {
+                // Simulate AI analysis of how theme change affects other elements
+                setTimeout(() => {
+                    this.addDNAInsight('Theme Update', 
+                        `Theme change detected: "${this.storyDNA.theme.core}" now influences how your relationships and conflicts should develop. Consider how each story element serves this theme.`);
+                }, 500);
+            },
+
+            // Modal and Element Management
+            showAddMenu() {
+                document.getElementById('add-modal').classList.add('active');
+                document.getElementById('element-title').focus();
+            },
+
+            closeAddModal() {
+                document.getElementById('add-modal').classList.remove('active');
+                // Clear form
+                document.getElementById('element-title').value = '';
+                document.getElementById('element-details').value = '';
+                document.getElementById('element-type').value = 'sub-theme';
+            },
+
+            addElement() {
+                const type = document.getElementById('element-type').value;
+                const title = document.getElementById('element-title').value.trim();
+                const details = document.getElementById('element-details').value.trim();
+
+                if (!title) {
+                    alert('Please enter a title');
+                    return;
+                }
+
+                switch(type) {
+                    case 'sub-theme':
+                        this.storyDNA.theme.subThemes.push(title);
+                        this.renderSubThemes();
+                        break;
+                    case 'relationship':
+                        // Parse characters from title (expect "Character1 and Character2")
+                        const chars = title.split(' and ').map(c => c.trim());
+                        if (chars.length >= 2) {
+                            this.storyDNA.relationships.push({
+                                characters: [chars[0], chars[1]],
+                                dynamic: chars.slice(2).join(' ') || 'New Dynamic',
+                                description: details
+                            });
+                            this.renderRelationships();
+                            this.renderMiniWeb();
+                        }
+                        break;
+                    case 'question':
+                        this.storyDNA.questions.push({
+                            question: title,
+                            exploration: details
+                        });
+                        this.renderQuestions();
+                        break;
+                    case 'conflict':
+                        this.storyDNA.conflicts.push({
+                            type: title,
+                            description: details
+                        });
+                        this.renderConflicts();
+                        break;
+                }
+
+                this.closeAddModal();
+                this.analyzeNewElement(type, title);
+            },
+
+            renderSubThemes() {
+                const container = document.getElementById('sub-themes');
+                container.innerHTML = '';
+                
+                this.storyDNA.theme.subThemes.forEach((theme, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'sub-theme-item';
+                    div.innerHTML = `
+                        ${theme} 
+                        <button class="remove-btn" onclick="DNAApp.removeSubTheme(${index})">✕</button>
+                    `;
+                    container.appendChild(div);
+                });
+            },
+
+            analyzeNewElement(type, title) {
+                const analyses = {
+                    'sub-theme': `New sub-theme "${title}" added. Consider how this connects to your main theme and influences character development.`,
+                    'relationship': `New relationship "${title}" could create interesting dynamics. How does this relationship serve your theme and drive conflict?`,
+                    'question': `New question "${title}" deepens your thematic exploration. This question should be answered through character actions and plot events.`,
+                    'conflict': `New conflict "${title}" adds tension. Make sure this conflict connects to your theme and creates meaningful character growth.`
+                };
+
+                const analysis = analyses[type] || `New ${type} element added to your story DNA.`;
+                this.addDNAInsight('Element Analysis', analysis);
+            },
+
+            // Remove functions
+            removeSubTheme(index) {
+                this.storyDNA.theme.subThemes.splice(index, 1);
+                this.renderSubThemes();
+            },
+
+            removeRelationship(index) {
+                this.storyDNA.relationships.splice(index, 1);
+                this.renderRelationships();
+                this.renderMiniWeb();
+            },
+
+            removeQuestion(index) {
+                this.storyDNA.questions.splice(index, 1);
+                this.renderQuestions();
+            },
+
+            removeConflict(index) {
+                this.storyDNA.conflicts.splice(index, 1);
+                this.renderConflicts();
+            },
+
+            // AI Analysis Functions
+            askAI(type) {
+                const prompts = {
+                    theme: 'How well do my story elements serve my core theme? What thematic connections am I missing?',
+                    relationships: 'Do my character relationships create meaningful conflict and support my theme?',
+                    conflicts: 'Are my conflicts diverse enough? Do they operate on different levels (internal, interpersonal, societal)?'
+                };
+
+                document.getElementById('dna-ai-input').value = prompts[type];
+                this.askCustomAI();
+            },
+
+            askCustomAI() {
+                const input = document.getElementById('dna-ai-input');
+                const question = input.value.trim();
+                if (!question) return;
+
+                // Simulate AI analysis based on current story DNA
+                const responses = this.generateAIResponse(question);
+                this.addDNAInsight('AI Analysis', responses);
+                input.value = '';
+            },
+
+            generateAIResponse(question) {
+                const lowerQ = question.toLowerCase();
+                
+                // Theme-related responses
+                if (lowerQ.includes('theme')) {
+                    return `Your transformation theme is well-supported by your current elements. The fear vs. growth conflict directly embodies transformation, and your sibling rivalry relationship shows transformation in relationships. Consider adding more external conflicts that force transformation.`;
+                }
+                
+                // Relationship responses
+                if (lowerQ.includes('relationship')) {
+                    return `Your relationships show good variety - family (siblings) and romantic (secret love). Both create tension and opportunities for character growth. Consider how each relationship will transform by the story's end.`;
+                }
+                
+                // Conflict responses
+                if (lowerQ.includes('conflict')) {
+                    return `You have good conflict diversity across internal, interpersonal, and societal levels. Each conflict type can force different aspects of transformation. Make sure conflicts escalate and interconnect as the story progresses.`;
+                }
+                
+                // General analysis
+                return `Your story DNA shows strong thematic coherence around transformation. Your elements work together to explore this theme from multiple angles. Consider how each element will evolve throughout your story to reinforce the theme.`;
+            },
+
+            addDNAInsight(type, content) {
+                const container = document.getElementById('dna-insights');
+                const insightEl = document.createElement('div');
+                insightEl.className = 'dna-insight';
+                insightEl.innerHTML = `
+                    <div class="insight-type">${type}</div>
+                    ${content}
+                `;
+                container.appendChild(insightEl);
+                container.scrollTop = container.scrollHeight;
+
+                // Remove old insights to keep manageable
+                const insights = container.querySelectorAll('.dna-insight');
+                if (insights.length > 8) {
+                    insights[0].remove();
+                }
+            },
+
+            generateInitialInsights() {
+                setTimeout(() => {
+                    this.addDNAInsight('Welcome', 'Story DNA analyzes the core elements that make your story work. Start by refining your theme, then ensure all other elements serve that theme.');
+                }, 1000);
+
+                setTimeout(() => {
+                    this.addDNAInsight('Theme Analysis', 'Your transformation theme is beautifully fractal - it appears in your character relationships (rivalry to alliance), conflicts (fear vs. growth), and questions (cost of change). This creates strong thematic coherence.');
+                }, 2500);
+
+                setTimeout(() => {
+                    this.addDNAInsight('Relationship Dynamics', 'Sarah and Marcus\'s sibling rivalry mirrors your core theme perfectly. Their evolution from competition to cooperation could be a microcosm of the entire story\'s transformation arc.');
+                }, 4000);
+            }
+        };
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            DNAApp.init();
+        });
