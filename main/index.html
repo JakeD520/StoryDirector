@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StoryDirector - Complete Story Development Platform</title>
+    <style>
+        :root {
+            --primary: #03dac6;
+            --secondary: #bb86fc;
+            --accent: #ffd700;
+            --bg-dark: #0a0a0f;
+            --bg-panel: #1a1a1a;
+            --bg-lighter: #2a2a2a;
+            --border: #444;
+            --text-light: #e0e0e0;
+            --text-dim: #888;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+            
+            /* Character role colors */
+            --protagonist-color: #03dac6;
+            --antagonist-color: #f44336;
+            --supporting-color: #bb86fc;
+            --narrator-color: #ffd700;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Header Bar */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(90deg, var(--bg-panel), #16213e);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.2em;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .project-name {
+            margin-left: 20px;
+            color: var(--text-dim);
+            font-size: 0.9em;
+        }
+
+        /* File Tree Sidebar */
+        .file-tree {
+            width: 280px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            margin-top: 60px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .tree-section {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tree-header {
+            padding: 15px 20px 10px;
+            font-size: 0.9em;
+            font-weight: bold;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .tree-header:hover {
+            color: var(--primary);
+        }
+
+        .tree-header.active {
+            color: var(--primary);
+        }
+
+        .tree-items {
+            padding-bottom: 10px;
+        }
+
+        .tree-item {
+            padding: 8px 35px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+
+        .tree-item:hover {
+            background: var(--bg-lighter);
+        }
+
+        .tree-item.active {
+            background: rgba(3, 218, 198, 0.1);
+            border-right: 3px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .tree-item.add-new {
+            color: var(--text-dim);
+            font-style: italic;
+        }
+
+        .tree-item.add-new:hover {
+            color: var(--primary);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            margin-top: 60px;
+            background: var(--bg-dark);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-panel);
+        }
+
+        .content-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .content-subtitle {
+            color: var(--text-dim);
+            font-size: 0.9em;
+        }
+
+        .content-body {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-dim);
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: var(--text-light);
+        }
+
+        .welcome-message {
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .feature-highlight {
+            background: var(--bg-panel);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 3px solid var(--primary);
+        }
+
+        .btn {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 24px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.2s;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(3, 218, 198, 0.3);
+        }
+
+        /* Component Loading State */
+        .loading-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: var(--text-dim);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--bg-lighter);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Character Component Styles */
+        .characters-overview {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .overview-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--bg-panel);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-dim);
+            font-size: 0.9em;
+        }
+
+        .characters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .character-card {
+            background: var(--bg-panel);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .character-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .character-card.protagonist { border-color: var(--protagonist-color); }
+        .character-card.antagonist { border-color: var(--antagonist-color); }
+        .character-card.supporting { border-color: var(--supporting-color); }
+        .character-card.narrator { border-color: var(--narrator-color); }
+
+        .character-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .character-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .character-avatar.protagonist { background: var(--protagonist-color); }
+        .character-avatar.antagonist { background: var(--antagonist-color); }
+        .character-avatar.supporting { background: var(--supporting-color); }
+        .character-avatar.narrator { background: var(--narrator-color); }
+
+        .character-info {
+            flex: 1;
+        }
+
+        .character-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .character-role {
+            font-size: 0.8em;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .voice-formula {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-family: monospace;
+            font-size: 0.9em;
+            color: var(--accent);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .voice-preview {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            padding: 10px;
+            font-style: italic;
+            font-size: 0.9em;
+            color: var(--text-dim);
+            border-left: 3px solid;
+            margin-bottom: 10px;
+        }
+
+        .character-card.protagonist .voice-preview { border-left-color: var(--protagonist-color); }
+        .character-card.antagonist .voice-preview { border-left-color: var(--antagonist-color); }
+        .character-card.supporting .voice-preview { border-left-color: var(--supporting-color); }
+        .character-card.narrator .voice-preview { border-left-color: var(--narrator-color); }
+
+        .character-traits {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .trait-tag {
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 3px 8px;
+            font-size: 0.7em;
+            color: var(--text-dim);
+        }
+
+        /* Relationships Section */
+        .relationships-section {
+            background: var(--bg-panel);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            margin-top: 30px;
+        }
+
+        .section-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .relationships-web {
+            position: relative;
+            height: 200px;
+            background: rgba(187, 134, 252, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .relationship-node {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid;
+            color: #fff;
+        }
+
+        .relationship-node:hover {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+
+        .relationship-node.protagonist {
+            background: var(--protagonist-color);
+            border-color: var(--protagonist-color);
+        }
+
+        .relationship-node.supporting {
+            background: var(--supporting-color);
+            border-color: var(--supporting-color);
+        }
+
+        .relationship-node.narrator {
+            background: var(--narrator-color);
+            border-color: var(--narrator-color);
+            color: #000;
+        }
+
+        .relationship-line {
+            position: absolute;
+            height: 2px;
+            background: var(--secondary);
+            opacity: 0.6;
+            transform-origin: left center;
+            z-index: 1;
+        }
+
+        .relationships-list {
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .relationship-item {
+            background: var(--bg-lighter);
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .relationship-dynamic {
+            color: var(--secondary);
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .relationship-description {
+            color: var(--text-dim);
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <div class="logo">StoryDirector</div>
+            <div class="project-name">• My Epic Story Project</div>
+        </div>
+
+        <div class="file-tree">
+            <div class="tree-section">
+                <div class="tree-header" data-section="project">
+                    <span>📁</span>
+                    <span>Project</span>
+                </div>
+                <div class="tree-items">
+                    <div class="tree-item" data-component="project" data-view="settings">
+                        <span>⚙️</span>
+                        <span>Project Settings</span>
+                    </div>
+                    <div class="tree-item" data-component="project" data-view="export">
+                        <span>📤</span>
+                        <span>Export Story</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tree-section">
+                <div class="tree-header" data-section="development">
+                    <span>✍️</span>
+                    <span>Development</span>
+                </div>
+                <div class="tree-items">
+                    <div class="tree-item" data-component="brainstorm">
+                        <span>💡</span>
+                        <span>Brainstorm</span>
+                    </div>
+                    <div class="tree-item" data-component="story-dna">
+                        <span>🧬</span>
+                        <span>Story DNA</span>
+                    </div>
+                    <div class="tree-item" data-component="outline">
+                        <span>📋</span>
+                        <span>Outline</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tree-section">
+                <div class="tree-header" data-section="entities">
+                    <span>🎭</span>
+                    <span>Story Elements</span>
+                </div>
+                <div class="tree-items">
+                    <div class="tree-item active" data-component="characters">
+                        <span>👥</span>
+                        <span>Characters</span>
+                    </div>
+                    <div class="tree-item" data-component="settings">
+                        <span>🏰</span>
+                        <span>Settings</span>
+                    </div>
+                    <div class="tree-item" data-component="worldbuilding">
+                        <span>🌍</span>
+                        <span>Worldbuilding</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tree-section">
+                <div class="tree-header" data-section="writing">
+                    <span>📝</span>
+                    <span>Writing</span>
+                </div>
+                <div class="tree-items">
+                    <div class="tree-item" data-component="chapter-briefing">
+                        <span>📋</span>
+                        <span>Chapter Briefing</span>
+                    </div>
+                    <div class="tree-item" data-component="chapter-writer">
+                        <span>✍️</span>
+                        <span>Chapter Writer</span>
+                    </div>
+                    <div class="tree-item add-new" data-action="new-chapter">
+                        <span>➕</span>
+                        <span>New Chapter</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tree-section">
+                <div class="tree-header" data-section="tools">
+                    <span>🧪</span>
+                    <span>Tools</span>
+                </div>
+                <div class="tree-items">
+                    <div class="tree-item" data-component="voice-analyzer">
+                        <span>🔬</span>
+                        <span>Voice Analyzer</span>
+                    </div>
+                    <div class="tree-item" data-component="v2p-designer">
+                        <span>⚗️</span>
+                        <span>V2P Designer</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="content-header">
+                <div class="content-title" id="content-title">Welcome to StoryDirector</div>
+                <div class="content-subtitle" id="content-subtitle">Your complete story development platform</div>
+            </div>
+            <div class="content-body" id="content-body">
+                
+                <div class="empty-state" id="welcome-screen">
+                    <h3>🎬 StoryDirector</h3>
+                    <div class="welcome-message">
+                        <p>Transform your storytelling with the world's first <strong>Voice Chemistry Platform</strong>. Create characters with mathematically precise voices, build immersive settings with atmospheric chemistry, and generate professional prose through directorial control.</p>
+                        
+                        <div class="feature-highlight">
+                            <strong>🧪 Voice Chemistry (V2P EQ)</strong><br>
+                            Create characters with precise voice formulas like <code>Co₈ + Dx₆ + El₅ + Rg₃</code> for consistent, unique character voices across your entire story.
+                        </div>
+
+                        <div class="feature-highlight">
+                            <strong>🎭 Directorial Storytelling</strong><br>
+                            Be the director, not just the writer. Design scenes, manage character voices, and let AI generate prose that matches your exact creative vision.
+                        </div>
+
+                        <button class="btn" onclick="StoryDirectorApp.loadComponent('characters')">
+                            🚀 Start with Characters
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple StoryDirector App Controller
+        const StoryDirectorApp = {
+            currentComponent: null,
+            
+            init() {
+                this.setupNavigation();
+                this.showWelcomeScreen();
+            },
+
+            setupNavigation() {
+                // File tree navigation
+                document.querySelectorAll('.tree-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        if (item.dataset.component) {
+                            this.loadComponent(item.dataset.component);
+                            this.updateActiveItem(item);
+                        } else if (item.dataset.action) {
+                            this.handleAction(item.dataset.action);
+                        }
+                    });
+                });
+            },
+
+            updateActiveItem(activeItem) {
+                document.querySelectorAll('.tree-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                activeItem.classList.add('active');
+            },
+
+            showWelcomeScreen() {
+                document.getElementById('content-title').textContent = 'Welcome to StoryDirector';
+                document.getElementById('content-subtitle').textContent = 'Your complete story development platform';
+                document.getElementById('content-body').innerHTML = `
+                    <div class="empty-state">
+                        <h3>🎬 StoryDirector</h3>
+                        <div class="welcome-message">
+                            <p>Transform your storytelling with the world's first <strong>Voice Chemistry Platform</strong>. Create characters with mathematically precise voices, build immersive settings with atmospheric chemistry, and generate professional prose through directorial control.</p>
+                            
+                            <div class="feature-highlight">
+                                <strong>🧪 Voice Chemistry (V2P EQ)</strong><br>
+                                Create characters with precise voice formulas like <code>Co₈ + Dx₆ + El₅ + Rg₃</code> for consistent, unique character voices across your entire story.
+                            </div>
+
+                            <div class="feature-highlight">
+                                <strong>🎭 Directorial Storytelling</strong><br>
+                                Be the director, not just the writer. Design scenes, manage character voices, and let AI generate prose that matches your exact creative vision.
+                            </div>
+
+                            <button class="btn" onclick="StoryDirectorApp.loadComponent('characters')">
+                                🚀 Start with Characters
+                            </button>
+                        </div>
+                    </div>
+                `;
+            },
+
+            async loadComponent(componentName) {
+                console.log(`Loading component: ${componentName}`);
+                this.currentComponent = componentName;
+                
+                // Show loading state
+                document.getElementById('content-body').innerHTML = `
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <span>Loading ${componentName}...</span>
+                    </div>
+                `;
+
+                // Update header
+                const componentTitles = {
+                    'characters': 'Characters',
+                    'settings': 'Settings', 
+                    'worldbuilding': 'Worldbuilding',
+                    'brainstorm': 'Brainstorm',
+                    'story-dna': 'Story DNA',
+                    'outline': 'Outline',
+                    'chapter-briefing': 'Chapter Briefing',
+                    'chapter-writer': 'Chapter Writer',
+                    'voice-analyzer': 'Voice Analyzer',
+                    'v2p-designer': 'V2P Designer'
+                };
+
+                const componentSubtitles = {
+                    'characters': 'Voice chemistry & character development',
+                    'settings': 'Atmospheric chemistry & environments',
+                    'worldbuilding': 'Rules, systems & world logic',
+                    'brainstorm': 'Idea capture & creative exploration',
+                    'story-dna': 'Core themes, conflicts & relationships',
+                    'outline': 'Story structure & beat development',
+                    'chapter-briefing': 'Scene planning & preparation',
+                    'chapter-writer': 'Prose generation & editing',
+                    'voice-analyzer': 'Text analysis & voice detection',
+                    'v2p-designer': 'Voice chemistry formula builder'
+                };
+
+                document.getElementById('content-title').textContent = componentTitles[componentName] || componentName;
+                document.getElementById('content-subtitle').textContent = componentSubtitles[componentName] || 'StoryDirector component';
+
+                // Load the Characters component
+                if (componentName === 'characters') {
+                    try {
+                        // First load the template
+                        const response = await fetch('templates/characters.html');
+                        if (!response.ok) {
+                            throw new Error(`Template not found: ${response.status}`);
+                        }
+                        
+                        const html = await response.text();
+                        document.getElementById('content-body').innerHTML = html;
+                        
+                        // Then load and execute the script
+                        const script = document.createElement('script');
+                        script.src = 'components/character.js';
+                        script.onload = () => {
+                            console.log('Character script loaded successfully');
+                            // Initialize the component if it has an init function
+                            if (typeof CharactersComponent !== 'undefined' && CharactersComponent.init) {
+                                CharactersComponent.init();
+                            }
+                        };
+                        script.onerror = (error) => {
+                            console.error('Script loading failed:', error);
+                            this.showCharactersFallback();
+                        };
+                        document.head.appendChild(script);
+                        
+                    } catch (error) {
+                        console.error('Error loading characters component:', error);
+                        this.showCharactersFallback();
+                    }
+                } else {
+                    // Simulate loading and show placeholder for other components
+                    setTimeout(() => {
+                        this.showComponentPlaceholder(componentName);
+                    }, 800);
+                }
+            },
+
+            showCharactersFallback() {
+                // Fallback inline Characters component with full relationships
+                document.getElementById('content-body').innerHTML = `
+                    <div class="characters-overview">
+                        <div class="overview-stats">
+                            <div class="stat-card">
+                                <div class="stat-number">3</div>
+                                <div class="stat-label">Total Characters</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">1</div>
+                                <div class="stat-label">Protagonists</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">2</div>
+                                <div class="stat-label">Relationships</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">1</div>
+                                <div class="stat-label">Narrator</div>
+                            </div>
+                        </div>
+
+                        <div class="characters-grid">
+                            <div class="character-card protagonist">
+                                <div class="character-header">
+                                    <div class="character-avatar protagonist">S</div>
+                                    <div class="character-info">
+                                        <div class="character-name">Sarah Thompson</div>
+                                        <div class="character-role">protagonist</div>
+                                    </div>
+                                </div>
+                                <div class="voice-formula">Co₈ + Dx₆ + El₅ + Rg₃</div>
+                                <div class="voice-preview">"Need to get there. Fast. Over by the rocks."</div>
+                                <div class="character-traits">
+                                    <div class="trait-tag">Practical</div>
+                                    <div class="trait-tag">Direct</div>
+                                    <div class="trait-tag">Spatial-aware</div>
+                                </div>
+                            </div>
+
+                            <div class="character-card supporting">
+                                <div class="character-header">
+                                    <div class="character-avatar supporting">M</div>
+                                    <div class="character-info">
+                                        <div class="character-name">Marcus Chen</div>
+                                        <div class="character-role">supporting</div>
+                                    </div>
+                                </div>
+                                <div class="voice-formula">Sb₇ + Mt₆ + Rg₈ + Md₇</div>
+                                <div class="voice-preview">"I find myself contemplating whether this situation might unfold like a house of cards."</div>
+                                <div class="character-traits">
+                                    <div class="trait-tag">Intellectual</div>
+                                    <div class="trait-tag">Formal</div>
+                                    <div class="trait-tag">Uncertain</div>
+                                </div>
+                            </div>
+
+                            <div class="character-card narrator">
+                                <div class="character-header">
+                                    <div class="character-avatar narrator">📖</div>
+                                    <div class="character-info">
+                                        <div class="character-name">The Narrator</div>
+                                        <div class="character-role">narrator</div>
+                                    </div>
+                                </div>
+                                <div class="voice-formula">Sb₆ + Mt₅ + Im₆ + Ps₅</div>
+                                <div class="voice-preview">"Time, as Sarah would later understand, had a way of folding back on itself."</div>
+                                <div class="character-traits">
+                                    <div class="trait-tag">Philosophical</div>
+                                    <div class="trait-tag">Observant</div>
+                                    <div class="trait-tag">Poetic</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relationships-section">
+                            <div class="section-title">
+                                <span>💫</span>
+                                <span>Character Relationships</span>
+                            </div>
+                            <div class="relationships-web" id="relationships-web">
+                                <!-- Relationship nodes will be rendered here -->
+                            </div>
+                            <div class="relationships-list">
+                                <div class="relationship-item">
+                                    <div class="relationship-dynamic">Sarah ↔ Marcus: Former Friends</div>
+                                    <div class="relationship-description">Complicated history with unresolved tension from their shared past</div>
+                                </div>
+                                <div class="relationship-item">
+                                    <div class="relationship-dynamic">Sarah ↔ Narrator: Observer/Subject</div>
+                                    <div class="relationship-description">The narrator follows Sarah's journey with philosophical distance</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 30px;">
+                            <button class="btn" onclick="alert('Character creation would open the voice chemistry designer!')">
+                                + Create New Character
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // Initialize the relationships web visualization
+                setTimeout(() => this.renderRelationshipsWeb(), 100);
+            },
+
+            renderRelationshipsWeb() {
+                const container = document.getElementById('relationships-web');
+                if (!container) return;
+
+                container.innerHTML = '';
+
+                // Character data for visualization
+                const characters = [
+                    { id: 'sarah', name: 'Sarah', role: 'protagonist' },
+                    { id: 'marcus', name: 'Marcus', role: 'supporting' },
+                    { id: 'narrator', name: 'Narrator', role: 'narrator' }
+                ];
+
+                const relationships = [
+                    { from: 'sarah', to: 'marcus' },
+                    { from: 'sarah', to: 'narrator' }
+                ];
+
+                // Position characters in a circle
+                const centerX = container.offsetWidth / 2;
+                const centerY = container.offsetHeight / 2;
+                const radius = Math.min(centerX, centerY) - 40;
+
+                characters.forEach((character, index) => {
+                    const angle = (index / characters.length) * 2 * Math.PI;
+                    const x = centerX + radius * Math.cos(angle) - 30;
+                    const y = centerY + radius * Math.sin(angle) - 30;
+
+                    const node = document.createElement('div');
+                    node.className = `relationship-node ${character.role}`;
+                    node.style.left = `${x}px`;
+                    node.style.top = `${y}px`;
+                    node.textContent = character.name.charAt(0);
+                    node.title = character.name;
+
+                    node.addEventListener('click', () => {
+                        alert(`Clicked on ${character.name} - this would show detailed character info!`);
+                    });
+
+                    container.appendChild(node);
+                });
+
+                // Draw relationship lines
+                relationships.forEach(rel => {
+                    const fromIndex = characters.findIndex(c => c.id === rel.from);
+                    const toIndex = characters.findIndex(c => c.id === rel.to);
+
+                    if (fromIndex !== -1 && toIndex !== -1) {
+                        this.drawRelationshipLine(container, fromIndex, toIndex, characters.length, centerX, centerY, radius);
+                    }
+                });
+            },
+
+            drawRelationshipLine(container, fromIndex, toIndex, totalChars, centerX, centerY, radius) {
+                const angle1 = (fromIndex / totalChars) * 2 * Math.PI;
+                const angle2 = (toIndex / totalChars) * 2 * Math.PI;
+
+                const x1 = centerX + radius * Math.cos(angle1);
+                const y1 = centerY + radius * Math.sin(angle1);
+                const x2 = centerX + radius * Math.cos(angle2);
+                const y2 = centerY + radius * Math.sin(angle2);
+
+                const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+                const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+
+                const line = document.createElement('div');
+                line.className = 'relationship-line';
+                line.style.width = `${length}px`;
+                line.style.left = `${x1}px`;
+                line.style.top = `${y1}px`;
+                line.style.transform = `rotate(${angle}deg)`;
+
+                container.appendChild(line);
+            },
+
+            showComponentPlaceholder(componentName) {
+                const placeholders = {
+                    'settings': `
+                        <div class="empty-state">
+                            <h3>🏰 Settings Component</h3>
+                            <p>This will load the Settings component with atmospheric chemistry tools and environmental design.</p>
+                            <div class="feature-highlight">
+                                Features: Location creation, atmospheric formulas, sensory details, setting connections
+                            </div>
+                        </div>
+                    `,
+                    'worldbuilding': `
+                        <div class="empty-state">
+                            <h3>🌍 Worldbuilding Component</h3>
+                            <p>This will load the Worldbuilding system for creating consistent world rules and systems.</p>
+                            <div class="feature-highlight">
+                                Features: Rule categories, system interconnections, consistency checking, AI analysis
+                            </div>
+                        </div>
+                    `,
+                    'brainstorm': `
+                        <div class="empty-state">
+                            <h3>💡 Brainstorm Component</h3>
+                            <p>This will load the Brainstorm canvas for capturing and organizing creative ideas.</p>
+                            <div class="feature-highlight">
+                                Features: Idea snippets, visual organization, AI collaboration, connection discovery
+                            </div>
+                        </div>
+                    `,
+                    'story-dna': `
+                        <div class="empty-state">
+                            <h3>🧬 Story DNA Component</h3>
+                            <p>This will load the Story DNA dashboard for managing core themes and story elements.</p>
+                            <div class="feature-highlight">
+                                Features: Theme management, character relationships, story questions, conflict analysis
+                            </div>
+                        </div>
+                    `,
+                    'outline': `
+                        <div class="empty-state">
+                            <h3>📋 Outline Component</h3>
+                            <p>This will load the Outline editor with beat-by-beat story development tools.</p>
+                            <div class="feature-highlight">
+                                Features: Multiple frameworks, beat management, AI assistance, character arc tracking
+                            </div>
+                        </div>
+                    `
+                };
+
+                document.getElementById('content-body').innerHTML = placeholders[componentName] || `
+                    <div class="empty-state">
+                        <h3>🚧 ${componentName}</h3>
+                        <p>This component is ready to be implemented!</p>
+                    </div>
+                `;
+            },
+
+            handleAction(actionName) {
+                switch(actionName) {
+                    case 'new-chapter':
+                        alert('New Chapter creation - this would open the chapter creation workflow!');
+                        break;
+                    default:
+                        alert(`Action: ${actionName} - Ready to implement!`);
+                }
+            }
+        };
+
+        // Initialize app when DOM loads
+        document.addEventListener('DOMContentLoaded', () => {
+            StoryDirectorApp.init();
+        });
+    </script>
+</body>
+</html>

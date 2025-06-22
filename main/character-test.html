@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Characters Component Test - StoryDirector</title>
+    <style>
+        :root {
+            --primary: #03dac6;
+            --secondary: #bb86fc;
+            --accent: #ffd700;
+            --bg-dark: #0a0a0f;
+            --bg-panel: #1a1a1a;
+            --bg-lighter: #2a2a2a;
+            --border: #444;
+            --text-light: #e0e0e0;
+            --text-dim: #888;
+            
+            --protagonist-color: #03dac6;
+            --antagonist-color: #f44336;
+            --supporting-color: #bb86fc;
+            --narrator-color: #ffd700;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            padding: 20px;
+        }
+
+        .debug-header {
+            background: var(--bg-panel);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .debug-title {
+            color: var(--primary);
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .characters-container {
+            background: var(--bg-panel);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .characters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .character-card {
+            background: var(--bg-lighter);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .character-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .character-card.protagonist { border-color: var(--protagonist-color); }
+        .character-card.supporting { border-color: var(--supporting-color); }
+        .character-card.narrator { border-color: var(--narrator-color); }
+
+        .character-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .character-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .character-avatar.protagonist { background: var(--protagonist-color); }
+        .character-avatar.supporting { background: var(--supporting-color); }
+        .character-avatar.narrator { background: var(--narrator-color); }
+
+        .character-info {
+            flex: 1;
+        }
+
+        .character-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .character-role {
+            font-size: 0.8em;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        .voice-formula {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-family: monospace;
+            font-size: 0.9em;
+            color: var(--accent);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .voice-preview {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            padding: 10px;
+            font-style: italic;
+            font-size: 0.9em;
+            color: var(--text-dim);
+            border-left: 3px solid;
+        }
+
+        .character-card.protagonist .voice-preview { border-left-color: var(--protagonist-color); }
+        .character-card.supporting .voice-preview { border-left-color: var(--supporting-color); }
+        .character-card.narrator .voice-preview { border-left-color: var(--narrator-color); }
+
+        .test-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .test-btn {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+
+        .status.success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4caf50;
+            color: #4caf50;
+        }
+
+        .status.error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid #f44336;
+            color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-header">
+        <div class="debug-title">Characters Component Debug Test</div>
+        <div>Testing the Characters component functionality independently</div>
+        <div class="status" id="status">Initializing...</div>
+    </div>
+
+    <div class="characters-container">
+        <h2 style="color: var(--primary); margin-bottom: 10px;">Character Overview</h2>
+        <div>This is a standalone test of the Characters component functionality.</div>
+        
+        <div class="test-buttons">
+            <button class="test-btn" onclick="CharactersDebug.loadTestData()">Load Test Characters</button>
+            <button class="test-btn" onclick="CharactersDebug.clearCharacters()">Clear Characters</button>
+            <button class="test-btn" onclick="CharactersDebug.addRandomCharacter()">Add Random Character</button>
+        </div>
+
+        <div class="characters-grid" id="characters-grid">
+            <!-- Characters will be populated here -->
+        </div>
+    </div>
+
+    <script>
+        const CharactersDebug = {
+            characters: [],
+            
+            init() {
+                console.log('Initializing Characters Debug Test...');
+                this.updateStatus('Ready - click "Load Test Characters" to begin', 'success');
+            },
+
+            updateStatus(message, type = 'success') {
+                const statusEl = document.getElementById('status');
+                statusEl.textContent = message;
+                statusEl.className = `status ${type}`;
+                console.log('Status:', message);
+            },
+
+            loadTestData() {
+                this.characters = [
+                    {
+                        id: 'sarah',
+                        name: 'Sarah Thompson',
+                        role: 'protagonist',
+                        voiceFormula: 'Co₈ + Dx₆ + El₅ + Rg₃',
+                        voiceSample: '"Need to get there. Fast. Over by the rocks."',
+                        traits: ['Practical', 'Direct', 'Spatial-aware']
+                    },
+                    {
+                        id: 'marcus',
+                        name: 'Marcus Chen',
+                        role: 'supporting',
+                        voiceFormula: 'Sb₇ + Mt₆ + Rg₈ + Md₇',
+                        voiceSample: '"I find myself contemplating whether this situation might unfold like a house of cards."',
+                        traits: ['Intellectual', 'Formal', 'Uncertain']
+                    },
+                    {
+                        id: 'narrator',
+                        name: 'The Narrator',
+                        role: 'narrator',
+                        voiceFormula: 'Sb₆ + Mt₅ + Im₆ + Ps₅',
+                        voiceSample: '"Time, as Sarah would later understand, had a way of folding back on itself."',
+                        traits: ['Philosophical', 'Observant', 'Poetic']
+                    }
+                ];
+
+                this.renderCharacters();
+                this.updateStatus(`Loaded ${this.characters.length} test characters successfully!`, 'success');
+            },
+
+            renderCharacters() {
+                const container = document.getElementById('characters-grid');
+                container.innerHTML = '';
+
+                if (this.characters.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; color: var(--text-dim); padding: 40px;">No characters loaded. Click "Load Test Characters" to see demo data.</div>';
+                    return;
+                }
+
+                this.characters.forEach(character => {
+                    const card = this.createCharacterCard(character);
+                    container.appendChild(card);
+                });
+            },
+
+            createCharacterCard(character) {
+                const card = document.createElement('div');
+                card.className = `character-card ${character.role}`;
+                
+                const roleIcons = {
+                    protagonist: '👤',
+                    supporting: '👥',
+                    narrator: '🎙️'
+                };
+
+                card.innerHTML = `
+                    <div class="character-header">
+                        <div class="character-avatar ${character.role}">
+                            ${roleIcons[character.role] || character.name.charAt(0)}
+                        </div>
+                        <div class="character-info">
+                            <div class="character-name">${character.name}</div>
+                            <div class="character-role">${character.role}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="voice-formula">${character.voiceFormula}</div>
+                    
+                    <div class="voice-preview">${character.voiceSample}</div>
+                `;
+
+                card.addEventListener('click', () => {
+                    this.updateStatus(`Clicked on ${character.name} (${character.role})`, 'success');
+                    console.log('Character clicked:', character);
+                });
+
+                return card;
+            },
+
+            clearCharacters() {
+                this.characters = [];
+                this.renderCharacters();
+                this.updateStatus('Characters cleared', 'success');
+            },
+
+            addRandomCharacter() {
+                const names = ['Alex Rivera', 'Jordan Kim', 'Taylor Brooks', 'Casey Morgan'];
+                const roles = ['protagonist', 'supporting', 'narrator'];
+                const formulas = ['Co₅ + El₃ + Rg₄', 'Sb₆ + Mt₄ + Md₅', 'Dr₇ + Pm₃ + An₆'];
+                
+                const randomCharacter = {
+                    id: `char_${Date.now()}`,
+                    name: names[Math.floor(Math.random() * names.length)],
+                    role: roles[Math.floor(Math.random() * roles.length)],
+                    voiceFormula: formulas[Math.floor(Math.random() * formulas.length)],
+                    voiceSample: '"This is a randomly generated voice sample."',
+                    traits: ['Random', 'Generated', 'Test']
+                };
+
+                this.characters.push(randomCharacter);
+                this.renderCharacters();
+                this.updateStatus(`Added random character: ${randomCharacter.name}`, 'success');
+            }
+        };
+
+        // Initialize when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            CharactersDebug.init();
+        });
+
+        // Make it globally accessible for debugging
+        window.CharactersDebug = CharactersDebug;
+    </script>
+</body>
+</html>

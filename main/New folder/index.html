@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StoryDirector - Complete Story Development Platform</title>
+    <style>
+        :root {
+            --primary: #03dac6;
+            --secondary: #bb86fc;
+            --accent: #ffd700;
+            --bg-dark: #0a0a0f;
+            --bg-panel: #1a1a1a;
+            --bg-lighter: #2a2a2a;
+            --border: #444;
+            --text-light: #e0e0e0;
+            --text-dim: #888;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Header Bar */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(90deg, var(--bg-panel), #16213e);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.2em;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .project-name {
+            margin-left: 20px;
+            color: var(--text-dim);
+            font-size: 0.9em;
+        }
+
+        /* File Tree Sidebar */
+        .file-tree {
+            width: 280px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            margin-top: 60px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .tree-section {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tree-header {
+            padding: 15px 20px 10px;
+            font-size: 0.9em;
+            font-weight: bold;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .tree-header:hover {
+            color: var(--primary);
+        }
+
+        .tree-header.active {
+            color: var(--primary);
+        }
+
+        .tree-items {
+            padding-bottom: 10px;
+        }
+
+        .tree-item {
+            padding: 8px 35px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+
+        .tree-item:hover {
+            background: var(--bg-lighter);
+        }
+
+        .tree-item.active {
+            background: rgba(3, 218, 198, 0.1);
+            border-right: 3px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .tree-item.add-new {
+            color: var(--text-dim);
+            font-style: italic;
+        }
+
+        .tree-item.add-new:hover {
+            color: var(--primary);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            margin-top: 60px;
+            background: var(--bg-dark);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-panel);
+        }
+
+        .content-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .content-subtitle {
+            color: var(--text-dim);
+            font-size: 0.9em;
+        }
+
+        .content-body {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-dim);
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: var(--text-light);
+        }
+
+        .welcome-message {
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .feature-highlight {
+            background: var(--bg-panel);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 3px solid var(--primary);
+        }
+
+        .btn {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 24px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.2s;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(3, 218, 198, 0.3);
+        }
+
+        /* Component Loading State */
+        .loading-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: var(--text-dim);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--bg-lighter);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">StoryDirector</div>
+            <div class="project-name">• My Epic Story Project</div>
+        </div>
+
+        <!-- File Tree Sidebar -->
+        <div class="file-tree">
+            <div class="tree-section">
+                <div class="tree-header" data-section="project">
+                    <span>📁</span>
+                    <span>Project</span>
+                </div>
+                <div class="tree-items">
+                    <div class="tree-item" data-component="project" data-view="settings">
+                        <span>⚙️</span>
+                        <span>Project Settings</span>
+                    </div>
+                    <div class="tree-item" data-component="project" data-view="export">
+                        <span>📤</span>
+                        <span>Export Story</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tree-section">
+                <div class="tree-header" data-section="development">
+                    <span>✍️</span>
+                    <span>Development</span>
+                </div>
+                <div class="tree-items">
+                    <div class="tree-item" data-component="brainstorm">
+                        <span>💡</span>
+                        <span>Brainstorm</span>
+                    </div>
+                    <div class="tree-item" data-component="story-dna">
+                        <span>🧬</span>
+                        <span>Story DNA</span>
+                    </div>
+                    <div class="tree-item" data-component="outline">
+                        <span>📋</span>
+                        <span>Outline</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tree-section">
+                <div class="tree-header" data-section="entities">
+                    <span>🎭</span>
+                    <span>Story Elements</span>
+                </div>
+                <div class="tree-items">
+                    <div class="tree-item active" data-component="characters">
+                        <span>👥</span>
+                        <span>Characters</span>
+                    </div>
+                    <div class="tree-item" data-component="settings">
+                        <span>🏰</span>
+                        <span>Settings</span>
+                    </div>
+                    <div class="tree-item" data-component="worldbuilding">
+                        <span>🌍</span>
+                        <span>Worldbuilding</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tree-section">
+                <div class="tree-header" data-section="writing">
+                    <span>📝</span>
+                    <span>Writing</span>
+                </div>
+                <div class="tree-items">
+                    <div class="tree-item" data-component="chapter-briefing">
+                        <span>📋</span>
+                        <span>Chapter Briefing</span>
+                    </div>
+                    <div class="tree-item" data-component="chapter-writer">
+                        <span>✍️</span>
+                        <span>Chapter Writer</span>
+                    </div>
+                    <div class="tree-item add-new" data-action="new-chapter">
+                        <span>➕</span>
+                        <span>New Chapter</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tree-section">
+                <div class="tree-header" data-section="tools">
+                    <span>🧪</span>
+                    <span>Tools</span>
+                </div>
+                <div class="tree-items">
+                    <div class="tree-item" data-component="voice-analyzer">
+                        <span>🔬</span>
+                        <span>Voice Analyzer</span>
+                    </div>
+                    <div class="tree-item" data-component="v2p-designer">
+                        <span>⚗️</span>
+                        <span>V2P Designer</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="content-header">
+                <div class="content-title" id="content-title">Welcome to StoryDirector</div>
+                <div class="content-subtitle" id="content-subtitle">Your complete story development platform</div>
+            </div>
+            <div class="content-body" id="content-body">
+                
+                <!-- Welcome Screen -->
+                <div class="empty-state" id="welcome-screen">
+                    <h3>🎬 StoryDirector</h3>
+                    <div class="welcome-message">
+                        <p>Transform your storytelling with the world's first <strong>Voice Chemistry Platform</strong>. Create characters with mathematically precise voices, build immersive settings with atmospheric chemistry, and generate professional prose through directorial control.</p>
+                        
+                        <div class="feature-highlight">
+                            <strong>🧪 Voice Chemistry (V2P EQ)</strong><br>
+                            Create characters with precise voice formulas like <code>Co₈ + Dx₆ + El₅ + Rg₃</code> for consistent, unique character voices across your entire story.
+                        </div>
+
+                        <div class="feature-highlight">
+                            <strong>🎭 Directorial Storytelling</strong><br>
+                            Be the director, not just the writer. Design scenes, manage character voices, and let AI generate prose that matches your exact creative vision.
+                        </div>
+
+                        <button class="btn" onclick="StoryDirectorApp.loadComponent('characters')">
+                            🚀 Start with Characters
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple StoryDirector App Controller
+        const StoryDirectorApp = {
+            currentComponent: null,
+            
+            init() {
+                this.setupNavigation();
+                this.showWelcomeScreen();
+            },
+
+            setupNavigation() {
+                // File tree navigation
+                document.querySelectorAll('.tree-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        if (item.dataset.component) {
+                            this.loadComponent(item.dataset.component);
+                            this.updateActiveItem(item);
+                        } else if (item.dataset.action) {
+                            this.handleAction(item.dataset.action);
+                        }
+                    });
+                });
+            },
+
+            updateActiveItem(activeItem) {
+                document.querySelectorAll('.tree-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                activeItem.classList.add('active');
+            },
+
+            showWelcomeScreen() {
+                document.getElementById('content-title').textContent = 'Welcome to StoryDirector';
+                document.getElementById('content-subtitle').textContent = 'Your complete story development platform';
+                document.getElementById('content-body').innerHTML = `
+                    <div class="empty-state">
+                        <h3>🎬 StoryDirector</h3>
+                        <div class="welcome-message">
+                            <p>Transform your storytelling with the world's first <strong>Voice Chemistry Platform</strong>. Create characters with mathematically precise voices, build immersive settings with atmospheric chemistry, and generate professional prose through directorial control.</p>
+                            
+                            <div class="feature-highlight">
+                                <strong>🧪 Voice Chemistry (V2P EQ)</strong><br>
+                                Create characters with precise voice formulas like <code>Co₈ + Dx₆ + El₅ + Rg₃</code> for consistent, unique character voices across your entire story.
+                            </div>
+
+                            <div class="feature-highlight">
+                                <strong>🎭 Directorial Storytelling</strong><br>
+                                Be the director, not just the writer. Design scenes, manage character voices, and let AI generate prose that matches your exact creative vision.
+                            </div>
+
+                            <button class="btn" onclick="StoryDirectorApp.loadComponent('characters')">
+                                🚀 Start with Characters
+                            </button>
+                        </div>
+                    </div>
+                `;
+            },
+
+            loadComponent(componentName) {
+                this.currentComponent = componentName;
+                
+                // Show loading state
+                document.getElementById('content-body').innerHTML = `
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <span>Loading ${componentName}...</span>
+                    </div>
+                `;
+
+                // Update header
+                const componentTitles = {
+                    'characters': 'Characters',
+                    'settings': 'Settings', 
+                    'worldbuilding': 'Worldbuilding',
+                    'brainstorm': 'Brainstorm',
+                    'story-dna': 'Story DNA',
+                    'outline': 'Outline',
+                    'chapter-briefing': 'Chapter Briefing',
+                    'chapter-writer': 'Chapter Writer',
+                    'voice-analyzer': 'Voice Analyzer',
+                    'v2p-designer': 'V2P Designer'
+                };
+
+                const componentSubtitles = {
+                    'characters': 'Voice chemistry & character development',
+                    'settings': 'Atmospheric chemistry & environments',
+                    'worldbuilding': 'Rules, systems & world logic',
+                    'brainstorm': 'Idea capture & creative exploration',
+                    'story-dna': 'Core themes, conflicts & relationships',
+                    'outline': 'Story structure & beat development',
+                    'chapter-briefing': 'Scene planning & preparation',
+                    'chapter-writer': 'Prose generation & editing',
+                    'voice-analyzer': 'Text analysis & voice detection',
+                    'v2p-designer': 'Voice chemistry formula builder'
+                };
+
+                document.getElementById('content-title').textContent = componentTitles[componentName] || componentName;
+                document.getElementById('content-subtitle').textContent = componentSubtitles[componentName] || 'StoryDirector component';
+
+                // Simulate loading and show placeholder
+                setTimeout(() => {
+                    this.showComponentPlaceholder(componentName);
+                }, 800);
+            },
+
+            showComponentPlaceholder(componentName) {
+                const placeholders = {
+                    'characters': `
+                        <div class="empty-state">
+                            <h3>👥 Characters Component</h3>
+                            <p>This will load the Characters component with voice chemistry tools, character profiles, and relationship mapping.</p>
+                            <div class="feature-highlight">
+                                Features: Character creation, V2P voice formulas, relationship web, narrator support
+                            </div>
+                        </div>
+                    `,
+                    'settings': `
+                        <div class="empty-state">
+                            <h3>🏰 Settings Component</h3>
+                            <p>This will load the Settings component with atmospheric chemistry tools and environmental design.</p>
+                            <div class="feature-highlight">
+                                Features: Location creation, atmospheric formulas, sensory details, setting connections
+                            </div>
+                        </div>
+                    `,
+                    'worldbuilding': `
+                        <div class="empty-state">
+                            <h3>🌍 Worldbuilding Component</h3>
+                            <p>This will load the Worldbuilding system for creating consistent world rules and systems.</p>
+                            <div class="feature-highlight">
+                                Features: Rule categories, system interconnections, consistency checking, AI analysis
+                            </div>
+                        </div>
+                    `,
+                    'brainstorm': `
+                        <div class="empty-state">
+                            <h3>💡 Brainstorm Component</h3>
+                            <p>This will load the Brainstorm canvas for capturing and organizing creative ideas.</p>
+                            <div class="feature-highlight">
+                                Features: Idea snippets, visual organization, AI collaboration, connection discovery
+                            </div>
+                        </div>
+                    `,
+                    'story-dna': `
+                        <div class="empty-state">
+                            <h3>🧬 Story DNA Component</h3>
+                            <p>This will load the Story DNA dashboard for managing core themes and story elements.</p>
+                            <div class="feature-highlight">
+                                Features: Theme management, character relationships, story questions, conflict analysis
+                            </div>
+                        </div>
+                    `,
+                    'outline': `
+                        <div class="empty-state">
+                            <h3>📋 Outline Component</h3>
+                            <p>This will load the Outline editor with beat-by-beat story development tools.</p>
+                            <div class="feature-highlight">
+                                Features: Multiple frameworks, beat management, AI assistance, character arc tracking
+                            </div>
+                        </div>
+                    `
+                };
+
+                document.getElementById('content-body').innerHTML = placeholders[componentName] || `
+                    <div class="empty-state">
+                        <h3>🚧 ${componentName}</h3>
+                        <p>This component is ready to be implemented!</p>
+                    </div>
+                `;
+            },
+
+            handleAction(actionName) {
+                switch(actionName) {
+                    case 'new-chapter':
+                        alert('New Chapter creation - this would open the chapter creation workflow!');
+                        break;
+                    default:
+                        alert(`Action: ${actionName} - Ready to implement!`);
+                }
+            }
+        };
+
+        // Initialize app when DOM loads
+        document.addEventListener('DOMContentLoaded', () => {
+            StoryDirectorApp.init();
+        });
+    </script>
+</body>
+</html>

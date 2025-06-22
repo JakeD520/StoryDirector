@@ -1,0 +1,253 @@
+<!-- templates/characters.html -->
+<div class="characters-overview">
+    <!-- Overview Statistics -->
+    <div class="overview-stats">
+        <div class="stat-card">
+            <div class="stat-number" id="total-characters">0</div>
+            <div class="stat-label">Total Characters</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="protagonist-count">0</div>
+            <div class="stat-label">Protagonists</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="relationship-count">0</div>
+            <div class="stat-label">Relationships</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="narrator-count">0</div>
+            <div class="stat-label">Narrators</div>
+        </div>
+    </div>
+
+    <!-- Character Cards Grid -->
+    <div class="characters-grid" id="characters-grid">
+        <!-- Characters will be populated by JavaScript -->
+    </div>
+
+    <!-- Character Relationships Section -->
+    <div class="relationships-section">
+        <div class="section-title">
+            <span>💫</span>
+            <span>Character Relationships</span>
+        </div>
+        
+        <!-- Interactive Relationship Web -->
+        <div class="relationships-web" id="relationships-web">
+            <!-- Relationship nodes and lines will be rendered here -->
+        </div>
+        
+        <!-- Relationship Details List -->
+        <div class="relationships-list" id="relationships-list">
+            <!-- Relationship items will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="text-align: center; margin-top: 30px;">
+        <button class="btn btn-secondary" onclick="CharactersComponent.showRelationshipsView()" style="margin-right: 15px;">
+            🔗 Manage Relationships
+        </button>
+        <button class="btn" onclick="CharactersComponent.createNewCharacter()">
+            + Create New Character
+        </button>
+    </div>
+</div>
+
+<!-- Character Detail Modal (for future expansion) -->
+<div class="character-modal" id="character-modal" style="display: none;">
+    <div class="modal-overlay" onclick="CharactersComponent.closeCharacterModal()"></div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modal-character-name">Character Details</h3>
+            <button class="modal-close" onclick="CharactersComponent.closeCharacterModal()">✕</button>
+        </div>
+        <div class="modal-body" id="modal-character-body">
+            <!-- Character details will be populated here -->
+        </div>
+    </div>
+</div>
+
+<!-- Voice Designer Modal (for future expansion) -->
+<div class="voice-designer-modal" id="voice-designer-modal" style="display: none;">
+    <div class="modal-overlay" onclick="CharactersComponent.closeVoiceDesigner()"></div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Voice Chemistry Designer</h3>
+            <button class="modal-close" onclick="CharactersComponent.closeVoiceDesigner()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div style="text-align: center; padding: 60px 20px; color: #888;">
+                <h4>V2P EQ Voice Designer</h4>
+                <p>The Voice Chemistry Designer would be embedded here.</p>
+                <p style="margin-top: 15px;">Build character voice formulas using the V2P EQ periodic table.</p>
+                <button class="btn" style="margin-top: 20px;" onclick="CharactersComponent.applyVoiceFormula()">
+                    Apply Voice Formula
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional CSS for Characters Component -->
+<style>
+    /* Modal Styles */
+    .character-modal, .voice-designer-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-content {
+        background: var(--bg-panel);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        width: 90%;
+        max-width: 800px;
+        max-height: 90vh;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        position: relative;
+        z-index: 1001;
+    }
+
+    .modal-header {
+        padding: 20px 30px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h3 {
+        color: var(--primary);
+        margin: 0;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        color: var(--text-dim);
+        font-size: 1.5em;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+        color: var(--text-light);
+        background: var(--bg-lighter);
+    }
+
+    .modal-body {
+        padding: 30px;
+        overflow-y: auto;
+        max-height: calc(90vh - 100px);
+    }
+
+    /* Button Styles */
+    .btn {
+        background: var(--primary);
+        color: #000;
+        border: none;
+        border-radius: 6px;
+        padding: 12px 24px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 1em;
+        transition: all 0.2s;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(3, 218, 198, 0.3);
+    }
+
+    .btn-secondary {
+        background: var(--secondary);
+        color: #fff;
+    }
+
+    .btn-secondary:hover {
+        box-shadow: 0 4px 12px rgba(187, 134, 252, 0.3);
+    }
+
+    /* Character Actions */
+    .character-actions {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        display: flex;
+        gap: 5px;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    .character-card:hover .character-actions {
+        opacity: 1;
+    }
+
+    .action-icon {
+        background: var(--bg-lighter);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 4px 6px;
+        cursor: pointer;
+        font-size: 0.8em;
+        transition: all 0.2s;
+        color: var(--text-dim);
+    }
+
+    .action-icon:hover {
+        background: var(--bg-dark);
+        color: var(--primary);
+    }
+
+    /* Empty State */
+    .empty-characters {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--text-dim);
+    }
+
+    .empty-characters h3 {
+        margin-bottom: 10px;
+        color: var(--text-light);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .overview-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .characters-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .relationships-web {
+            height: 150px;
+        }
+        
+        .modal-content {
+            width: 95%;
+            margin: 20px;
+        }
+    }
+</style>
