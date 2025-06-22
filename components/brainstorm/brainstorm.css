@@ -1,15 +1,62 @@
-/* Brainstorm Component Styles */
-.brainstorm-container {
-    display: flex;
-    height: 100vh;
+:root {
+    --primary: #03dac6;
+    --secondary: #bb86fc;
+    --accent: #ffd700;
+    --bg-dark: #0a0a0f;
+    --bg-panel: #1a1a1a;
+    --bg-lighter: #2a2a2a;
+    --border: #444;
+    --text-light: #e0e0e0;
+    --text-dim: #888;
+    
+    --concept-color: #03dac6;
+    --character-color: #bb86fc;
+    --scene-color: #ffd700;
+    --world-color: #4caf50;
+    --dialogue-color: #ff5722;
+    --theme-color: #2196f3;
+    --question-color: #ff9800;
+    --mood-color: #e91e63;
+    
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 12px;
+    --spacing-lg: 20px;
+    --spacing-xl: 32px;
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --radius-xl: 12px;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 6px 20px rgba(0, 0, 0, 0.4);
+    --transition-fast: all 0.2s ease;
+}
+
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+}
+
+body {
     font-family: var(--font-family);
     background: var(--bg-dark);
     color: var(--text-light);
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Brainstorm Container */
+.brainstorm-container {
+    display: flex;
+    height: 100vh;
 }
 
 /* Sidebar */
 .sidebar {
-    width: 350px;
+    width: 300px;
     background: var(--bg-panel);
     border-right: 1px solid var(--border);
     display: flex;
@@ -42,7 +89,7 @@
 
 .capture-input {
     width: 100%;
-    padding: 12px;
+    padding: var(--spacing-md);
     background: var(--bg-lighter);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
@@ -51,12 +98,17 @@
     margin-bottom: var(--spacing-sm);
     resize: vertical;
     min-height: 80px;
+    font-family: inherit;
 }
 
 .capture-input:focus {
     outline: none;
     border-color: var(--primary);
     box-shadow: 0 0 0 2px rgba(3, 218, 198, 0.2);
+}
+
+.capture-input::placeholder {
+    color: var(--text-dim);
 }
 
 .capture-controls {
@@ -75,6 +127,11 @@
     font-size: 0.8em;
 }
 
+.snippet-type-select:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
 .add-snippet-btn {
     background: var(--primary);
     color: #000;
@@ -91,56 +148,8 @@
     transform: scale(1.05);
 }
 
-/* AI Collaboration */
-.ai-section {
-    padding: var(--spacing-lg);
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.ai-title {
-    font-size: 1em;
-    font-weight: bold;
-    color: var(--secondary);
-    margin-bottom: var(--spacing-md);
-}
-
-.ai-suggestions {
-    flex-grow: 1;
-    overflow-y: auto;
-    margin-bottom: var(--spacing-md);
-}
-
-.ai-suggestion {
-    background: rgba(187, 134, 252, 0.1);
-    border: 1px solid var(--secondary);
-    border-radius: var(--radius-lg);
-    padding: 12px;
-    margin-bottom: var(--spacing-sm);
-    font-size: 0.85em;
-    line-height: 1.4;
-}
-
-.ai-controls {
-    display: flex;
-    gap: 8px;
-}
-
-.ai-btn {
-    flex: 1;
-    background: var(--secondary);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius-md);
-    padding: 8px 12px;
-    font-size: 0.8em;
-    cursor: pointer;
-    transition: var(--transition-fast);
-}
-
-.ai-btn:hover {
-    opacity: 0.8;
+.add-snippet-btn:active {
+    transform: scale(0.98);
 }
 
 /* Main Canvas */
@@ -167,7 +176,7 @@
 .canvas-controls {
     position: absolute;
     top: var(--spacing-lg);
-    right: var(--spacing-lg);
+    left: var(--spacing-lg);
     display: flex;
     gap: var(--spacing-sm);
     z-index: 100;
@@ -202,6 +211,7 @@
     box-shadow: var(--shadow-md);
     transition: var(--transition-fast);
     user-select: none;
+    touch-action: none;
 }
 
 .snippet:hover {
@@ -212,6 +222,7 @@
 .snippet.dragging {
     transform: rotate(5deg);
     z-index: 1000;
+    opacity: 0.9;
 }
 
 .snippet-concept { border-color: var(--concept-color); }
@@ -267,12 +278,12 @@
     font-size: 0.9em;
     line-height: 1.4;
     word-wrap: break-word;
+    margin-bottom: var(--spacing-sm);
 }
 
 .snippet-timestamp {
     font-size: 0.7em;
     color: var(--text-dim);
-    margin-top: 8px;
     opacity: 0.6;
 }
 
@@ -297,4 +308,217 @@
     font-size: 0.9em;
     max-width: 300px;
     line-height: 1.5;
+}
+
+/* AI Sidebar */
+.ai-sidebar {
+    width: 350px;
+    background: var(--bg-panel);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.ai-header {
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--border);
+}
+
+.ai-title {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--secondary);
+    margin-bottom: 10px;
+}
+
+.ai-subtitle {
+    font-size: 0.9em;
+    color: var(--text-dim);
+}
+
+.ai-insights {
+    flex: 1;
+    padding: var(--spacing-lg);
+    overflow-y: auto;
+}
+
+.ai-insights::-webkit-scrollbar {
+    width: 4px;
+}
+
+.ai-insights::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 2px;
+}
+
+.ai-suggestion {
+    background: rgba(187, 134, 252, 0.1);
+    border: 1px solid var(--secondary);
+    border-radius: var(--radius-lg);
+    padding: 15px;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.ai-suggestion-type {
+    font-size: 0.8em;
+    color: var(--secondary);
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.ai-chat-area {
+    border-top: 1px solid var(--border);
+    padding: var(--spacing-lg);
+}
+
+.ai-quick-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.ai-quick-btn {
+    background: rgba(187, 134, 252, 0.2);
+    border: 1px solid var(--secondary);
+    color: var(--secondary);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    font-size: 0.7em;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.ai-quick-btn:hover {
+    background: rgba(187, 134, 252, 0.3);
+}
+
+.ai-input {
+    width: 100%;
+    background: var(--bg-lighter);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 10px;
+    color: var(--text-light);
+    font-size: 0.9em;
+    min-height: 80px;
+    resize: vertical;
+    margin-bottom: 10px;
+    font-family: inherit;
+}
+
+.ai-input:focus {
+    outline: none;
+    border-color: var(--secondary);
+}
+
+.ai-input::placeholder {
+    color: var(--text-dim);
+}
+
+.ai-submit-btn {
+    width: 100%;
+    background: var(--secondary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.ai-submit-btn:hover {
+    opacity: 0.8;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .ai-sidebar {
+        width: 300px;
+    }
+    
+    .sidebar {
+        width: 280px;
+    }
+}
+
+@media (max-width: 768px) {
+    .brainstorm-container {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        height: 200px;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .quick-capture {
+        padding: var(--spacing-md);
+    }
+    
+    .ai-sidebar {
+        width: 100%;
+        height: 150px;
+        border-left: none;
+        border-top: 1px solid var(--border);
+    }
+    
+    .ai-insights {
+        padding: var(--spacing-md);
+    }
+    
+    .ai-chat-area {
+        padding: var(--spacing-md);
+    }
+    
+    .snippet {
+        min-width: 180px;
+        max-width: 250px;
+    }
+}
+
+/* Touch device improvements */
+@media (hover: none) and (pointer: coarse) {
+    .snippet {
+        cursor: grab;
+    }
+    
+    .snippet.dragging {
+        cursor: grabbing;
+    }
+    
+    .snippet-actions {
+        opacity: 1;
+    }
+    
+    .canvas-control {
+        padding: 12px 16px;
+        font-size: 0.9em;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    :root {
+        --border: #666;
+        --text-dim: #aaa;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+    
+    .snippet:hover {
+        transform: none;
+    }
 }
