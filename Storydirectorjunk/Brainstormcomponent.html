@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brainstorm Canvas - StoryDirector</title>
+    <style>
+        :root {
+            --primary: #03dac6;
+            --secondary: #bb86fc;
+            --accent: #ffd700;
+            --bg-dark: #0a0a0f;
+            --bg-panel: #1a1a1a;
+            --bg-lighter: #2a2a2a;
+            --border: #444;
+            --text-light: #e0e0e0;
+            --text-dim: #888;
+            
+            --concept-color: #03dac6;
+            --character-color: #bb86fc;
+            --scene-color: #ffd700;
+            --world-color: #4caf50;
+            --dialogue-color: #ff5722;
+            --theme-color: #2196f3;
+            --question-color: #ff9800;
+            --mood-color: #e91e63;
+            
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 12px;
+            --spacing-lg: 20px;
+            --spacing-xl: 32px;
+            --radius-sm: 4px;
+            --radius-md: 6px;
+            --radius-lg: 8px;
+            --radius-xl: 12px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 6px 20px rgba(0, 0, 0, 0.4);
+            --transition-fast: all 0.2s ease;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg-dark);
+            color: var(--text-light);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Brainstorm Container */
+        .brainstorm-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.9em;
+            color: var(--text-dim);
+        }
+
+        /* Quick Capture */
+        .quick-capture {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .capture-input {
+            width: 100%;
+            padding: var(--spacing-md);
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            color: var(--text-light);
+            font-size: 0.9em;
+            margin-bottom: var(--spacing-sm);
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+
+        .capture-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(3, 218, 198, 0.2);
+        }
+
+        .capture-input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .capture-controls {
+            display: flex;
+            gap: var(--spacing-sm);
+            align-items: center;
+        }
+
+        .snippet-type-select {
+            flex: 1;
+            padding: 8px;
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            color: var(--text-light);
+            font-size: 0.8em;
+        }
+
+        .snippet-type-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .add-snippet-btn {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 8px 16px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: var(--transition-fast);
+        }
+
+        .add-snippet-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .add-snippet-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Main Canvas */
+        .canvas-area {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(3, 218, 198, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(187, 134, 252, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(255, 215, 0, 0.05) 0%, transparent 50%),
+                var(--bg-dark);
+        }
+
+        .canvas {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: auto;
+            padding: var(--spacing-lg);
+        }
+
+        /* Canvas Controls */
+        .canvas-controls {
+            position: absolute;
+            top: var(--spacing-lg);
+            left: var(--spacing-lg);
+            display: flex;
+            gap: var(--spacing-sm);
+            z-index: 100;
+        }
+
+        .canvas-control {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 8px 12px;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: var(--transition-fast);
+        }
+
+        .canvas-control:hover {
+            background: var(--bg-lighter);
+            border-color: var(--primary);
+        }
+
+        /* Snippets */
+        .snippet {
+            position: absolute;
+            min-width: 200px;
+            max-width: 300px;
+            background: var(--bg-panel);
+            border: 2px solid;
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-md);
+            cursor: move;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition-fast);
+            user-select: none;
+            touch-action: none;
+        }
+
+        .snippet:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .snippet.dragging {
+            transform: rotate(5deg);
+            z-index: 1000;
+            opacity: 0.9;
+        }
+
+        .snippet-concept { border-color: var(--concept-color); }
+        .snippet-character { border-color: var(--character-color); }
+        .snippet-scene { border-color: var(--scene-color); }
+        .snippet-world { border-color: var(--world-color); }
+        .snippet-dialogue { border-color: var(--dialogue-color); }
+        .snippet-theme { border-color: var(--theme-color); }
+        .snippet-question { border-color: var(--question-color); }
+        .snippet-mood { border-color: var(--mood-color); }
+
+        .snippet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .snippet-type {
+            font-size: 0.8em;
+            font-weight: bold;
+            opacity: 0.8;
+        }
+
+        .snippet-actions {
+            display: flex;
+            gap: 5px;
+            opacity: 0;
+            transition: var(--transition-fast);
+        }
+
+        .snippet:hover .snippet-actions {
+            opacity: 1;
+        }
+
+        .snippet-action {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 0.8em;
+            padding: 2px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition-fast);
+        }
+
+        .snippet-action:hover {
+            color: var(--text-light);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .snippet-content {
+            font-size: 0.9em;
+            line-height: 1.4;
+            word-wrap: break-word;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .snippet-timestamp {
+            font-size: 0.7em;
+            color: var(--text-dim);
+            opacity: 0.6;
+        }
+
+        /* Empty State */
+        .empty-state {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: var(--text-dim);
+            pointer-events: none;
+        }
+
+        .empty-state h3 {
+            font-size: 1.2em;
+            margin-bottom: var(--spacing-sm);
+            color: var(--text-light);
+        }
+
+        .empty-state p {
+            font-size: 0.9em;
+            max-width: 300px;
+            line-height: 1.5;
+        }
+
+        /* AI Sidebar */
+        .ai-sidebar {
+            width: 350px;
+            background: var(--bg-panel);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .ai-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .ai-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .ai-subtitle {
+            font-size: 0.9em;
+            color: var(--text-dim);
+        }
+
+        .ai-insights {
+            flex: 1;
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+        }
+
+        .ai-insights::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .ai-insights::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        .ai-suggestion {
+            background: rgba(187, 134, 252, 0.1);
+            border: 1px solid var(--secondary);
+            border-radius: var(--radius-lg);
+            padding: 15px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .ai-suggestion-type {
+            font-size: 0.8em;
+            color: var(--secondary);
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .ai-chat-area {
+            border-top: 1px solid var(--border);
+            padding: var(--spacing-lg);
+        }
+
+        .ai-quick-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .ai-quick-btn {
+            background: rgba(187, 134, 252, 0.2);
+            border: 1px solid var(--secondary);
+            color: var(--secondary);
+            border-radius: var(--radius-sm);
+            padding: 6px 10px;
+            font-size: 0.7em;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .ai-quick-btn:hover {
+            background: rgba(187, 134, 252, 0.3);
+        }
+
+        .ai-input {
+            width: 100%;
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 10px;
+            color: var(--text-light);
+            font-size: 0.9em;
+            min-height: 80px;
+            resize: vertical;
+            margin-bottom: 10px;
+            font-family: inherit;
+        }
+
+        .ai-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        .ai-input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .ai-submit-btn {
+            width: 100%;
+            background: var(--secondary);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .ai-submit-btn:hover {
+            opacity: 0.8;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .ai-sidebar {
+                width: 300px;
+            }
+            
+            .sidebar {
+                width: 280px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .brainstorm-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: 200px;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+            
+            .quick-capture {
+                padding: var(--spacing-md);
+            }
+            
+            .ai-sidebar {
+                width: 100%;
+                height: 150px;
+                border-left: none;
+                border-top: 1px solid var(--border);
+            }
+            
+            .ai-insights {
+                padding: var(--spacing-md);
+            }
+            
+            .ai-chat-area {
+                padding: var(--spacing-md);
+            }
+            
+            .snippet {
+                min-width: 180px;
+                max-width: 250px;
+            }
+        }
+
+        /* Touch device improvements */
+        @media (hover: none) and (pointer: coarse) {
+            .snippet {
+                cursor: grab;
+            }
+            
+            .snippet.dragging {
+                cursor: grabbing;
+            }
+            
+            .snippet-actions {
+                opacity: 1;
+            }
+            
+            .canvas-control {
+                padding: 12px 16px;
+                font-size: 0.9em;
+            }
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            :root {
+                --border: #666;
+                --text-dim: #aaa;
+            }
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+                animation: none !important;
+            }
+            
+            .snippet:hover {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="brainstorm-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">Brainstorm</div>
+                <div class="sidebar-subtitle">Capture ideas, explore connections</div>
+            </div>
+
+            <!-- Quick Capture -->
+            <div class="quick-capture">
+                <textarea 
+                    class="capture-input" 
+                    id="capture-input"
+                    placeholder="What's your idea? A character, scene, world detail, question..."
+                ></textarea>
+                <div class="capture-controls">
+                    <select class="snippet-type-select" id="snippet-type">
+                        <option value="concept">💡 Concept</option>
+                        <option value="character">👤 Character</option>
+                        <option value="scene">🎬 Scene</option>
+                        <option value="world">🌍 World</option>
+                        <option value="dialogue">💬 Dialogue</option>
+                        <option value="theme">🎯 Theme</option>
+                        <option value="question">❓ Question</option>
+                        <option value="mood">🎨 Mood</option>
+                    </select>
+                    <button class="add-snippet-btn" onclick="BrainstormApp.addSnippet()">Add</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Canvas -->
+        <div class="canvas-area">
+            <div class="canvas-controls">
+                <div class="canvas-control" onclick="BrainstormApp.organizeSnippets()">🔗 Auto-Organize</div>
+                <div class="canvas-control" onclick="BrainstormApp.clearCanvas()">🗑️ Clear</div>
+            </div>
+
+            <div class="canvas" id="canvas">
+                <div class="empty-state" id="empty-state">
+                    <h3>Your Creative Canvas</h3>
+                    <p>Start by adding snippets of ideas in the sidebar. Drag them around to explore connections and let the AI help you develop them further.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Sidebar -->
+        <div class="ai-sidebar">
+            <div class="ai-header">
+                <div class="ai-title">AI Collaborator</div>
+                <div class="ai-subtitle">Explore connections & expand ideas</div>
+            </div>
+
+            <div class="ai-insights" id="ai-suggestions">
+                <div class="ai-suggestion">
+                    Add some snippets and I'll help you explore connections, expand ideas, and discover new possibilities!
+                </div>
+            </div>
+
+            <div class="ai-chat-area">
+                <div class="ai-quick-actions">
+                    <button class="ai-quick-btn" onclick="BrainstormApp.getAISuggestions('expand')">Expand</button>
+                    <button class="ai-quick-btn" onclick="BrainstormApp.getAISuggestions('connect')">Connect</button>
+                    <button class="ai-quick-btn" onclick="BrainstormApp.getAISuggestions('challenge')">Challenge</button>
+                </div>
+                <textarea 
+                    class="ai-input" 
+                    id="ai-input"
+                    placeholder="Ask about your ideas: 'How do these connect?' or 'What's missing from my story?'"
+                ></textarea>
+                <button class="ai-submit-btn" onclick="BrainstormApp.askCustomAI()">Ask AI</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BrainstormApp = {
+            snippets: [],
+            nextId: 1,
+            isDragging: false,
+            dragOffset: { x: 0, y: 0 },
+            currentSnippet: null,
+
+            init() {
+                this.setupEventListeners();
+                this.loadDemoSnippets();
+            },
+
+            setupEventListeners() {
+                // Enter key in input (Ctrl+Enter to add)
+                document.getElementById('capture-input').addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                        this.addSnippet();
+                    }
+                });
+
+                // Canvas mouse events for dragging
+                const canvas = document.getElementById('canvas');
+                canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
+                canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
+                canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
+
+                // Touch events for mobile
+                canvas.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
+                canvas.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
+                canvas.addEventListener('touchend', this.handleTouchEnd.bind(this));
+
+                // AI input
+                document.getElementById('ai-input').addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                        this.askCustomAI();
+                    }
+                });
+            },
+
+            addSnippet() {
+                const input = document.getElementById('capture-input');
+                const typeSelect = document.getElementById('snippet-type');
+                const content = input.value.trim();
+
+                if (!content) return;
+
+                const snippet = {
+                    id: this.nextId++,
+                    content: content,
+                    type: typeSelect.value,
+                    x: Math.random() * 400 + 50,
+                    y: Math.random() * 300 + 50,
+                    timestamp: new Date().toLocaleString()
+                };
+
+                this.snippets.push(snippet);
+                this.renderSnippet(snippet);
+                this.updateEmptyState();
+
+                // Clear input
+                input.value = '';
+                input.focus();
+
+                // Get AI suggestion for new snippet
+                setTimeout(() => this.getContextualSuggestion(snippet), 500);
+            },
+
+            renderSnippet(snippet) {
+                const canvas = document.getElementById('canvas');
+                const snippetEl = document.createElement('div');
+                snippetEl.className = `snippet snippet-${snippet.type}`;
+                snippetEl.style.left = `${snippet.x}px`;
+                snippetEl.style.top = `${snippet.y}px`;
+                snippetEl.dataset.id = snippet.id;
+
+                const typeIcons = {
+                    concept: '💡', character: '👤', scene: '🎬', world: '🌍',
+                    dialogue: '💬', theme: '🎯', question: '❓', mood: '🎨'
+                };
+
+                snippetEl.innerHTML = `
+                    <div class="snippet-header">
+                        <div class="snippet-type">${typeIcons[snippet.type]} ${snippet.type.charAt(0).toUpperCase() + snippet.type.slice(1)}</div>
+                        <div class="snippet-actions">
+                            <button class="snippet-action" onclick="BrainstormApp.expandSnippet(${snippet.id})" title="Expand">🔍</button>
+                            <button class="snippet-action" onclick="BrainstormApp.deleteSnippet(${snippet.id})" title="Delete">✕</button>
+                        </div>
+                    </div>
+                    <div class="snippet-content">${snippet.content}</div>
+                    <div class="snippet-timestamp">${snippet.timestamp}</div>
+                `;
+
+                canvas.appendChild(snippetEl);
+            },
+
+            // Mouse Events
+            handleMouseDown(e) {
+                const snippet = e.target.closest('.snippet');
+                if (!snippet) return;
+
+                this.startDrag(snippet, e.clientX, e.clientY);
+                e.preventDefault();
+            },
+
+            handleMouseMove(e) {
+                if (!this.isDragging || !this.currentSnippet) return;
+                this.dragSnippet(e.clientX, e.clientY);
+            },
+
+            handleMouseUp(e) {
+                this.endDrag();
+            },
+
+            // Touch Events
+            handleTouchStart(e) {
+                const snippet = e.target.closest('.snippet');
+                if (!snippet) return;
+
+                const touch = e.touches[0];
+                this.startDrag(snippet, touch.clientX, touch.clientY);
+                e.preventDefault();
+            },
+
+            handleTouchMove(e) {
+                if (!this.isDragging || !this.currentSnippet) return;
+                const touch = e.touches[0];
+                this.dragSnippet(touch.clientX, touch.clientY);
+                e.preventDefault();
+            },
+
+            handleTouchEnd(e) {
+                this.endDrag();
+            },
+
+            // Drag Logic
+            startDrag(snippet, clientX, clientY) {
+                this.isDragging = true;
+                this.currentSnippet = snippet;
+                snippet.classList.add('dragging');
+
+                const rect = snippet.getBoundingClientRect();
+                this.dragOffset = {
+                    x: clientX - rect.left,
+                    y: clientY - rect.top
+                };
+            },
+
+            dragSnippet(clientX, clientY) {
+                const canvasRect = document.getElementById('canvas').getBoundingClientRect();
+                const x = clientX - canvasRect.left - this.dragOffset.x;
+                const y = clientY - canvasRect.top - this.dragOffset.y;
+
+                this.currentSnippet.style.left = `${Math.max(0, x)}px`;
+                this.currentSnippet.style.top = `${Math.max(0, y)}px`;
+
+                // Update snippet data
+                const snippetId = parseInt(this.currentSnippet.dataset.id);
+                const snippet = this.snippets.find(s => s.id === snippetId);
+                if (snippet) {
+                    snippet.x = x;
+                    snippet.y = y;
+                }
+            },
+
+            endDrag() {
+                if (this.currentSnippet) {
+                    this.currentSnippet.classList.remove('dragging');
+                    this.currentSnippet = null;
+                }
+                this.isDragging = false;
+            },
+
+            expandSnippet(id) {
+                const snippet = this.snippets.find(s => s.id === id);
+                if (!snippet) return;
+
+                // Simulate AI expansion based on snippet type
+                const expansions = {
+                    character: [
+                        "What if this character has a hidden past that conflicts with their current role?",
+                        "Consider this character's greatest fear and how it drives their decisions.",
+                        "How would this character react under extreme pressure?"
+                    ],
+                    scene: [
+                        "This scene could be the turning point where everything changes.",
+                        "What if you added a time constraint to increase tension?",
+                        "Consider what each character wants to hide in this scene."
+                    ],
+                    world: [
+                        "Consider the deeper implications of this world rule on society.",
+                        "How does this world element affect daily life for ordinary people?",
+                        "What are the unintended consequences of this world feature?"
+                    ],
+                    dialogue: [
+                        "This dialogue suggests unspoken tension between the characters.",
+                        "What is each character not saying in this exchange?",
+                        "How does this dialogue reveal character motivation?"
+                    ],
+                    concept: [
+                        "How could you push this concept to its logical extreme?",
+                        "What would happen if this concept were reversed?",
+                        "Who would oppose this concept and why?"
+                    ],
+                    theme: [
+                        "How does this theme manifest in your character relationships?",
+                        "What symbols could represent this theme throughout your story?",
+                        "How might this theme create internal conflict for your protagonist?"
+                    ],
+                    question: [
+                        "This question could drive your entire plot structure.",
+                        "What are all the possible answers to this question?",
+                        "Who in your story would answer this question differently?"
+                    ],
+                    mood: [
+                        "How could you intensify this mood through setting details?",
+                        "What sensory elements would enhance this mood?",
+                        "How might this mood shift throughout your story?"
+                    ]
+                };
+
+                const typeExpansions = expansions[snippet.type] || [
+                    "Interesting idea! How might this connect to your larger story?",
+                    "Consider the implications of this element on your plot.",
+                    "What conflicts could arise from this idea?"
+                ];
+
+                const expansion = typeExpansions[Math.floor(Math.random() * typeExpansions.length)];
+                this.addAISuggestion(`💡 Expanding "${snippet.content.substring(0, 30)}...": ${expansion}`);
+            },
+
+            deleteSnippet(id) {
+                const snippetEl = document.querySelector(`[data-id="${id}"]`);
+                if (snippetEl) {
+                    snippetEl.remove();
+                    this.snippets = this.snippets.filter(s => s.id !== id);
+                    this.updateEmptyState();
+                }
+            },
+
+            getAISuggestions(type) {
+                if (this.snippets.length === 0) {
+                    this.addAISuggestion("Add some snippets first, then I can help you explore them!");
+                    return;
+                }
+
+                const suggestions = {
+                    expand: [
+                        "Your character snippet suggests they need a compelling backstory flaw.",
+                        "That scene concept could work better with higher stakes - what if failure means losing everything?",
+                        "The world detail you mentioned raises questions about how magic affects daily life.",
+                        "Consider adding a ticking clock element to increase urgency.",
+                        "What if this idea had unintended consequences that create new problems?"
+                    ],
+                    connect: [
+                        "Your character and scene snippets could combine - what if the character's fear drives them into that exact situation?",
+                        "The mood and world snippets share themes of isolation - explore that connection.",
+                        "Your dialogue snippet reveals character motivation that could tie to your theme.",
+                        "Notice how your question snippet could be answered through your scene snippet.",
+                        "The world-building elements could explain why your character acts this way."
+                    ],
+                    challenge: [
+                        "What if your main character was wrong about their fundamental belief?",
+                        "Challenge: Could this story work if you flipped the gender/age/role of your protagonist?",
+                        "Devil's advocate: Why would readers care about this conflict in today's world?",
+                        "What if the opposite of your concept were true instead?",
+                        "How would your story change if it happened 100 years ago or 100 years from now?"
+                    ]
+                };
+
+                const suggestion = suggestions[type][Math.floor(Math.random() * suggestions[type].length)];
+                this.addAISuggestion(`🤖 ${type.charAt(0).toUpperCase() + type.slice(1)}: ${suggestion}`);
+            },
+
+            getContextualSuggestion(snippet) {
+                const contextSuggestions = {
+                    character: "Consider: What does this character want most? What do they fear most? These opposing forces create compelling conflict.",
+                    scene: "Scene development: What emotions should the reader feel here? What changes by the end of this scene?",
+                    world: "World building: How does this detail affect how people live, love, work, or die in your world?",
+                    dialogue: "Dialogue insight: What's the subtext here? What are they really saying underneath the words?",
+                    concept: "Concept exploration: How could this idea create both opportunity and danger for your characters?",
+                    theme: "Theme development: How does this theme create internal conflicts for your characters?",
+                    question: "Story question: This could be a central question that drives your entire narrative.",
+                    mood: "Atmospheric detail: How could you weave this mood throughout multiple scenes?"
+                };
+
+                const suggestion = contextSuggestions[snippet.type] || "Interesting idea! How might this connect to your larger story?";
+                this.addAISuggestion(`💭 About your ${snippet.type}: ${suggestion}`);
+            },
+
+            askCustomAI() {
+                const input = document.getElementById('ai-input');
+                const question = input.value.trim();
+                if (!question) return;
+
+                // Simulate AI analysis based on current snippets
+                const responses = this.generateAIResponse(question);
+                this.addAISuggestion(`🤖 AI Response: ${responses}`);
+                input.value = '';
+            },
+
+            generateAIResponse(question) {
+                const lowerQ = question.toLowerCase();
+                
+                if (lowerQ.includes('connect') || lowerQ.includes('relationship')) {
+                    const characters = this.snippets.filter(s => s.type === 'character');
+                    const scenes = this.snippets.filter(s => s.type === 'scene');
+                    if (characters.length > 0 && scenes.length > 0) {
+                        return "I see potential connections between your character and scene snippets. Consider how your character's personality would drive them into these specific situations.";
+                    }
+                    return "To explore connections, try adding both character and scene snippets, then look for ways they could influence each other.";
+                }
+                
+                if (lowerQ.includes('story') || lowerQ.includes('plot')) {
+                    const concepts = this.snippets.filter(s => s.type === 'concept');
+                    const questions = this.snippets.filter(s => s.type === 'question');
+                    if (concepts.length > 0 || questions.length > 0) {
+                        return "Your concept and question snippets suggest the foundation for a compelling story. Consider which elements create the most conflict and tension.";
+                    }
+                    return "For story development, start with concept or question snippets that explore 'what if' scenarios.";
+                }
+                
+                if (lowerQ.includes('character')) {
+                    const chars = this.snippets.filter(s => s.type === 'character');
+                    if (chars.length > 1) {
+                        return "With multiple character snippets, think about their relationships, conflicts, and how they would clash or complement each other.";
+                    }
+                    return "Character development tip: Every compelling character needs both a driving desire and a fundamental flaw that gets in their way.";
+                }
+                
+                if (lowerQ.includes('theme')) {
+                    const themes = this.snippets.filter(s => s.type === 'theme');
+                    if (themes.length > 0) {
+                        return "Your theme snippets provide the emotional backbone of your story. Make sure every other element serves or challenges these themes.";
+                    }
+                    return "Theme emerges from the conflicts and choices your characters face. What universal human experiences are you exploring?";
+                }
+                
+                // General response based on snippet composition
+                const typeCount = [...new Set(this.snippets.map(s => s.type))].length;
+                if (typeCount >= 4) {
+                    return "You have good variety in your snippets! Look for ways to weave these different elements together into a cohesive narrative.";
+                } else if (this.snippets.length > 5) {
+                    return "You have plenty of raw material. Consider organizing similar snippets together to see patterns and connections.";
+                } else {
+                    return "Keep adding diverse snippet types. The more elements you have, the more unexpected connections you'll discover.";
+                }
+            },
+
+            addAISuggestion(text) {
+                const suggestionsEl = document.getElementById('ai-suggestions');
+                const suggestionEl = document.createElement('div');
+                suggestionEl.className = 'ai-suggestion';
+                suggestionEl.textContent = text;
+                
+                suggestionsEl.appendChild(suggestionEl);
+                suggestionsEl.scrollTop = suggestionsEl.scrollHeight;
+
+                // Remove old suggestions to keep it manageable
+                const suggestions = suggestionsEl.querySelectorAll('.ai-suggestion');
+                if (suggestions.length > 8) {
+                    suggestions[0].remove();
+                }
+            },
+
+            organizeSnippets() {
+                // Smart auto-organize by type with better positioning
+                const types = [...new Set(this.snippets.map(s => s.type))];
+                const canvasRect = document.getElementById('canvas').getBoundingClientRect();
+                const cols = Math.ceil(Math.sqrt(types.length));
+                const colWidth = (canvasRect.width - 100) / cols;
+                
+                types.forEach((type, typeIndex) => {
+                    const typeSnippets = this.snippets.filter(s => s.type === type);
+                    const col = typeIndex % cols;
+                    const row = Math.floor(typeIndex / cols);
+                    
+                    typeSnippets.forEach((snippet, index) => {
+                        snippet.x = col * colWidth + 50;
+                        snippet.y = row * 220 + index * 150 + 50;
+                        
+                        const snippetEl = document.querySelector(`[data-id="${snippet.id}"]`);
+                        if (snippetEl) {
+                            snippetEl.style.left = `${snippet.x}px`;
+                            snippetEl.style.top = `${snippet.y}px`;
+                        }
+                    });
+                });
+
+                this.addAISuggestion("🔗 Organized by type! Notice any new connections between nearby snippets?");
+            },
+
+            clearCanvas() {
+                if (confirm('Clear all snippets? This cannot be undone.')) {
+                    this.snippets = [];
+                    document.getElementById('canvas').innerHTML = '<div class="empty-state" id="empty-state"><h3>Your Creative Canvas</h3><p>Start by adding snippets of ideas in the sidebar. Drag them around to explore connections and let the AI help you develop them further.</p></div>';
+                    document.getElementById('ai-suggestions').innerHTML = '<div class="ai-suggestion">Add some snippets and I\'ll help you explore connections, expand ideas, and discover new possibilities!</div>';
+                }
+            },
+
+            updateEmptyState() {
+                const emptyState = document.getElementById('empty-state');
+                if (emptyState) {
+                    emptyState.style.display = this.snippets.length > 0 ? 'none' : 'block';
+                }
+            },
+
+            loadDemoSnippets() {
+                // Add a few demo snippets with better positioning
+                const demos = [
+                    { content: "A lighthouse keeper who hears voices in storm sounds", type: "character", x: 100, y: 100 },
+                    { content: "What if the voices are from shipwreck victims across different time periods?", type: "question", x: 400, y: 150 },
+                    { content: "The lighthouse beam creates temporal rifts during storms", type: "world", x: 250, y: 280 },
+                    { content: "\"I can hear them calling across the years\"", type: "dialogue", x: 150, y: 400 }
+                ];
+
+                demos.forEach(demo => {
+                    const snippet = {
+                        id: this.nextId++,
+                        content: demo.content,
+                        type: demo.type,
+                        x: demo.x,
+                        y: demo.y,
+                        timestamp: new Date().toLocaleString()
+                    };
+                    this.snippets.push(snippet);
+                    this.renderSnippet(snippet);
+                });
+
+                this.updateEmptyState();
+                
+                // Add initial AI insight
+                setTimeout(() => {
+                    this.addAISuggestion("👋 Welcome! I see you have some lighthouse-themed snippets. These suggest a story about time, memory, and supernatural communication. Try adding a theme snippet about \"connection across time\" to tie them together.");
+                }, 1000);
+            },
+
+            // Additional utility methods
+            getSnippetsByType(type) {
+                return this.snippets.filter(s => s.type === type);
+            },
+
+            findNearbySnippets(targetSnippet, radius = 200) {
+                return this.snippets.filter(s => {
+                    if (s.id === targetSnippet.id) return false;
+                    const distance = Math.sqrt(
+                        Math.pow(s.x - targetSnippet.x, 2) + 
+                        Math.pow(s.y - targetSnippet.y, 2)
+                    );
+                    return distance <= radius;
+                });
+            }
+        };
+
+        // Initialize the app when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            BrainstormApp.init();
+        });
+    </script>
+</body>
+</html>

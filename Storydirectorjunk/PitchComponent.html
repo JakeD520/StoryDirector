@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StoryDirector - Pitch Your Story</title>
+    <style>
+        :root {
+            --primary: #03dac6;
+            --secondary: #bb86fc;
+            --accent: #ffd700;
+            --bg-dark: #0a0a0f;
+            --bg-panel: #1a1a1a;
+            --bg-lighter: #2a2a2a;
+            --border: #444;
+            --text-light: #e0e0e0;
+            --text-dim: #888;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .pitch-container {
+            display: flex;
+            height: 100vh;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-panel) 50%, var(--bg-dark) 100%);
+        }
+
+        /* Left Panel - Conversation */
+        .conversation-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            position: relative;
+        }
+
+        .conversation-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: #000;
+            text-align: center;
+        }
+
+        .header-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .header-subtitle {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .conversation-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            position: relative;
+            animation: messageSlide 0.3s ease-out;
+        }
+
+        @keyframes messageSlide {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--primary), #00b4a6);
+            color: #000;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.ai {
+            align-self: flex-start;
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 5px;
+        }
+
+        .message.ai::before {
+            content: "🤖";
+            position: absolute;
+            left: -15px;
+            top: 15px;
+            background: var(--secondary);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+        }
+
+        .save-idea-btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .save-idea-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+        }
+
+        .message-input-area {
+            padding: 20px;
+            border-top: 1px solid var(--border);
+            background: var(--bg-dark);
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 15px 20px;
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 25px;
+            color: var(--text-light);
+            font-size: 1em;
+            resize: none;
+            min-height: 50px;
+            max-height: 120px;
+            font-family: inherit;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(3, 218, 198, 0.2);
+        }
+
+        .send-btn {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: transform 0.2s;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Right Panel - Insights & Actions */
+        .insights-panel {
+            width: 350px;
+            background: var(--bg-panel);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .insights-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .insights-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+
+        .insights-subtitle {
+            font-size: 0.8em;
+            color: var(--text-dim);
+        }
+
+        .story-goals {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .goals-title {
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .goal-slider {
+            margin-bottom: 15px;
+        }
+
+        .goal-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.8em;
+        }
+
+        .goal-value {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--bg-lighter);
+            -webkit-appearance: none;
+            appearance: none;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+        }
+
+        .saved-ideas {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .saved-ideas-title {
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--accent);
+        }
+
+        .saved-idea {
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            font-size: 0.8em;
+            animation: ideaAppear 0.3s ease-out;
+        }
+
+        @keyframes ideaAppear {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .idea-type {
+            color: var(--secondary);
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .idea-content {
+            line-height: 1.4;
+        }
+
+        .quick-starters {
+            padding: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .starters-title {
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--secondary);
+        }
+
+        .starter-btn {
+            display: block;
+            width: 100%;
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            color: var(--text-light);
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            font-size: 0.8em;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .starter-btn:hover {
+            border-color: var(--primary);
+            background: rgba(3, 218, 198, 0.1);
+        }
+
+        .ai-thinking {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+            color: var(--text-dim);
+            font-style: italic;
+        }
+
+        .thinking-dots {
+            display: flex;
+            gap: 3px;
+        }
+
+        .thinking-dot {
+            width: 4px;
+            height: 4px;
+            background: var(--secondary);
+            border-radius: 50%;
+            animation: thinking 1.4s infinite ease-in-out both;
+        }
+
+        .thinking-dot:nth-child(1) { animation-delay: -0.32s; }
+        .thinking-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes thinking {
+            0%, 80%, 100% { 
+                transform: scale(0);
+                opacity: 0.5;
+            } 
+            40% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .pitch-container {
+                flex-direction: column;
+            }
+            
+            .insights-panel {
+                width: 100%;
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="pitch-container">
+        <!-- Conversation Panel -->
+        <div class="conversation-panel">
+            <div class="conversation-header">
+                <div class="header-title">✨ Tell Me About Your Story</div>
+                <div class="header-subtitle">Let's explore your creative vision together</div>
+            </div>
+
+            <div class="conversation-area" id="conversation-area">
+                <div class="message ai">
+                    <div>Hey there! I'm super excited to hear about the story that's been rattling around in your head. Don't worry about being organized or perfect - just tell me what's got you fired up about this idea. What's the core of it? What made you think "I have to tell this story"?</div>
+                </div>
+            </div>
+
+            <div class="ai-thinking" id="ai-thinking">
+                <span>AI is thinking</span>
+                <div class="thinking-dots">
+                    <div class="thinking-dot"></div>
+                    <div class="thinking-dot"></div>
+                    <div class="thinking-dot"></div>
+                </div>
+            </div>
+
+            <div class="message-input-area">
+                <div class="input-container">
+                    <textarea 
+                        class="message-input" 
+                        id="message-input" 
+                        placeholder="Tell me about your story idea..."
+                        rows="1"
+                    ></textarea>
+                    <button class="send-btn" id="send-btn" onclick="PitchApp.sendMessage()">→</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Insights Panel -->
+        <div class="insights-panel">
+            <div class="insights-header">
+                <div class="insights-title">Story DNA Extraction</div>
+                <div class="insights-subtitle">Building your story's blueprint</div>
+            </div>
+
+            <div class="story-goals">
+                <div class="goals-title">📊 Emerging Goals</div>
+                
+                <div class="goal-slider">
+                    <div class="goal-label">
+                        <span>Emotional Investment</span>
+                        <span class="goal-value" id="emotional-value">50</span>
+                    </div>
+                    <input type="range" class="slider" id="emotional-slider" min="0" max="100" value="50">
+                </div>
+
+                <div class="goal-slider">
+                    <div class="goal-label">
+                        <span>Intellectual Challenge</span>
+                        <span class="goal-value" id="intellectual-value">50</span>
+                    </div>
+                    <input type="range" class="slider" id="intellectual-slider" min="0" max="100" value="50">
+                </div>
+
+                <div class="goal-slider">
+                    <div class="goal-label">
+                        <span>Comfort vs. Discomfort</span>
+                        <span class="goal-value" id="comfort-value">50</span>
+                    </div>
+                    <input type="range" class="slider" id="comfort-slider" min="0" max="100" value="50">
+                </div>
+
+                <div class="goal-slider">
+                    <div class="goal-label">
+                        <span>Surprise Factor</span>
+                        <span class="goal-value" id="surprise-value">50</span>
+                    </div>
+                    <input type="range" class="slider" id="surprise-slider" min="0" max="100" value="50">
+                </div>
+            </div>
+
+            <div class="saved-ideas">
+                <div class="saved-ideas-title">💡 Captured Ideas</div>
+                <div id="saved-ideas-list">
+                    <div style="color: var(--text-dim); font-style: italic; font-size: 0.8em;">
+                        Ideas will appear here as we talk...
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-starters">
+                <div class="starters-title">🚀 Quick Starters</div>
+                <button class="starter-btn" onclick="PitchApp.useStarter('character')">
+                    Tell me about your main character
+                </button>
+                <button class="starter-btn" onclick="PitchApp.useStarter('conflict')">
+                    What's the central conflict?
+                </button>
+                <button class="starter-btn" onclick="PitchApp.useStarter('world')">
+                    Describe the world/setting
+                </button>
+                <button class="starter-btn" onclick="PitchApp.useStarter('feeling')">
+                    What should readers feel?
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PitchApp = {
+            conversation: [],
+            savedIdeas: [],
+            isAIResponding: false,
+
+            init() {
+                this.setupEventListeners();
+                this.setupSliders();
+            },
+
+            setupEventListeners() {
+                const input = document.getElementById('message-input');
+                const sendBtn = document.getElementById('send-btn');
+
+                // Auto-resize textarea
+                input.addEventListener('input', () => {
+                    input.style.height = 'auto';
+                    input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+                });
+
+                // Send on Enter (but allow Shift+Enter for new lines)
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+
+                // Send button click
+                sendBtn.addEventListener('click', () => this.sendMessage());
+            },
+
+            setupSliders() {
+                const sliders = ['emotional', 'intellectual', 'comfort', 'surprise'];
+                
+                sliders.forEach(type => {
+                    const slider = document.getElementById(`${type}-slider`);
+                    const value = document.getElementById(`${type}-value`);
+                    
+                    slider.addEventListener('input', () => {
+                        value.textContent = slider.value;
+                        this.updateGoalDescription(type, slider.value);
+                    });
+                });
+            },
+
+            updateGoalDescription(type, value) {
+                // This would update AI understanding of user preferences
+                console.log(`${type} goal updated to ${value}`);
+            },
+
+            sendMessage() {
+                const input = document.getElementById('message-input');
+                const message = input.value.trim();
+                
+                if (!message || this.isAIResponding) return;
+
+                // Add user message
+                this.addMessage(message, 'user');
+                input.value = '';
+                input.style.height = 'auto';
+
+                // Generate AI response
+                this.generateAIResponse(message);
+            },
+
+            addMessage(content, sender) {
+                const conversationArea = document.getElementById('conversation-area');
+                const messageEl = document.createElement('div');
+                messageEl.className = `message ${sender}`;
+                
+                if (sender === 'ai') {
+                    // Check for saveable ideas in AI messages
+                    const saveableIdeas = this.extractSaveableIdeas(content);
+                    let messageContent = content;
+                    
+                    if (saveableIdeas.length > 0) {
+                        messageContent += `<br><br>`;
+                        saveableIdeas.forEach((idea, index) => {
+                            messageContent += `<button class="save-idea-btn" onclick="PitchApp.saveIdea('${idea.content}', '${idea.type}')">💡 Save: "${idea.content.substring(0, 30)}..."</button> `;
+                        });
+                    }
+                    
+                    messageEl.innerHTML = messageContent;
+                } else {
+                    messageEl.textContent = content;
+                }
+                
+                conversationArea.appendChild(messageEl);
+                conversationArea.scrollTop = conversationArea.scrollHeight;
+
+                this.conversation.push({ content, sender, timestamp: Date.now() });
+            },
+
+            showAIThinking() {
+                document.getElementById('ai-thinking').style.display = 'flex';
+            },
+
+            hideAIThinking() {
+                document.getElementById('ai-thinking').style.display = 'none';
+            },
+
+            generateAIResponse(userMessage) {
+                this.isAIResponding = true;
+                this.showAIThinking();
+
+                // Simulate AI thinking delay
+                setTimeout(() => {
+                    const response = this.getContextualResponse(userMessage);
+                    this.hideAIThinking();
+                    this.addMessage(response, 'ai');
+                    this.updateStoryGoals(userMessage);
+                    this.isAIResponding = false;
+                }, 1500 + Math.random() * 1000);
+            },
+
+            getContextualResponse(message) {
+                const lowerMessage = message.toLowerCase();
+                
+                // Pattern-based responses for demo
+                if (lowerMessage.includes('lighthouse') || lowerMessage.includes('keeper')) {
+                    return "A lighthouse keeper! That's such a compelling setup - the isolation, the responsibility, the constant watching. I'm getting strong atmospheric vibes here. What draws you to that isolation? Is this more about the psychological journey of solitude, or is there something supernatural brewing in those storm sounds?";
+                }
+                
+                if (lowerMessage.includes('voices') || lowerMessage.includes('hearing')) {
+                    return "Ooh, voices! That immediately makes me think - are we talking psychological thriller territory, or is this more supernatural? There's something so deliciously unsettling about voices that might not be real. What do these voices want? Are they helpful, threatening, or just... there?";
+                }
+                
+                if (lowerMessage.includes('mystery') || lowerMessage.includes('secret')) {
+                    return "I love a good mystery! The key question is: what kind of emotional journey do you want readers on? Are you more interested in the intellectual puzzle-solving aspect, or the atmospheric dread of uncovering something better left buried? Both are totally valid - just helps me understand your vision better.";
+                }
+                
+                if (lowerMessage.includes('character') || lowerMessage.includes('person')) {
+                    return "Character-driven stories can be so powerful! Tell me about what makes this character compelling to you. What is it about their situation or personality that makes you want to follow them through an entire story? What kind of change or growth are you envisioning for them?";
+                }
+
+                // Default enthusiastic responses
+                const responses = [
+                    "That's fascinating! I can already feel the atmosphere building. What specifically excites you most about this idea? Is it the emotional core, the mystery elements, or something else entirely?",
+                    "I'm getting some really interesting vibes from this! Help me understand the emotional heart of your story - what do you want readers to walk away feeling?",
+                    "This is sparking so many possibilities! What drew you to this particular idea? Was there a specific moment or image that started it all?",
+                    "I love where this is heading! Tell me more about the world or setting - how does the environment shape the story you want to tell?"
+                ];
+                
+                return responses[Math.floor(Math.random() * responses.length)];
+            },
+
+            extractSaveableIdeas(aiMessage) {
+                // Simple pattern matching for demo - in real app, this would be more sophisticated
+                const ideas = [];
+                
+                if (aiMessage.includes('lighthouse keeper')) {
+                    ideas.push({ content: 'Isolated lighthouse keeper protagonist', type: 'character' });
+                }
+                
+                if (aiMessage.includes('voices') && aiMessage.includes('storm')) {
+                    ideas.push({ content: 'Voices heard during storms', type: 'concept' });
+                }
+                
+                return ideas;
+            },
+
+            saveIdea(content, type) {
+                const idea = {
+                    id: Date.now(),
+                    content: content,
+                    type: type,
+                    timestamp: new Date().toLocaleString()
+                };
+                
+                this.savedIdeas.push(idea);
+                this.renderSavedIdea(idea);
+                
+                // Simulate sending to brainstorm component
+                this.sendToBrainstorm(idea);
+                
+                // Show confirmation
+                this.addMessage(`Great! I saved "${content}" to your brainstorm canvas. Want to explore this idea further or shall we keep developing other aspects of your story?`, 'ai');
+            },
+
+            renderSavedIdea(idea) {
+                const savedIdeasList = document.getElementById('saved-ideas-list');
+                
+                // Remove placeholder text
+                if (savedIdeasList.textContent.includes('Ideas will appear here')) {
+                    savedIdeasList.innerHTML = '';
+                }
+                
+                const ideaEl = document.createElement('div');
+                ideaEl.className = 'saved-idea';
+                ideaEl.innerHTML = `
+                    <div class="idea-type">${this.getTypeIcon(idea.type)} ${idea.type}</div>
+                    <div class="idea-content">${idea.content}</div>
+                `;
+                
+                savedIdeasList.appendChild(ideaEl);
+            },
+
+            getTypeIcon(type) {
+                const icons = {
+                    concept: '💡',
+                    character: '👤',
+                    scene: '🎬',
+                    world: '🌍',
+                    dialogue: '💬',
+                    theme: '🎯',
+                    question: '❓',
+                    mood: '🎨'
+                };
+                return icons[type] || '💡';
+            },
+
+            sendToBrainstorm(idea) {
+                // This would integrate with the actual Brainstorm component
+                console.log('Sending to brainstorm:', idea);
+                
+                // In real implementation:
+                // BrainstormApp.addSnippetFromPitch(idea.content, idea.type);
+            },
+
+            updateStoryGoals(userMessage) {
+                // Analyze message for emotional indicators and adjust sliders
+                const emotional = this.detectEmotionalIntensity(userMessage);
+                const intellectual = this.detectIntellectualComplexity(userMessage);
+                const comfort = this.detectComfortLevel(userMessage);
+                const surprise = this.detectSurprisePreference(userMessage);
+                
+                if (emotional !== null) this.adjustSlider('emotional', emotional);
+                if (intellectual !== null) this.adjustSlider('intellectual', intellectual);
+                if (comfort !== null) this.adjustSlider('comfort', comfort);
+                if (surprise !== null) this.adjustSlider('surprise', surprise);
+            },
+
+            detectEmotionalIntensity(message) {
+                const highEmotionWords = ['love', 'hate', 'passionate', 'heartbreaking', 'devastating', 'beautiful'];
+                const lowEmotionWords = ['simple', 'straightforward', 'logical', 'technical'];
+                
+                if (highEmotionWords.some(word => message.toLowerCase().includes(word))) return 75;
+                if (lowEmotionWords.some(word => message.toLowerCase().includes(word))) return 25;
+                return null;
+            },
+
+            detectIntellectualComplexity(message) {
+                const complexWords = ['philosophy', 'meaning', 'explore', 'question', 'complex', 'deep'];
+                const simpleWords = ['action', 'adventure', 'fun', 'entertainment', 'simple'];
+                
+                if (complexWords.some(word => message.toLowerCase().includes(word))) return 75;
+                if (simpleWords.some(word => message.toLowerCase().includes(word))) return 25;
+                return null;
+            },
+
+            detectComfortLevel(message) {
+                const discomfortWords = ['dark', 'unsettling', 'disturbing', 'challenging', 'difficult'];
+                const comfortWords = ['cozy', 'warm', 'safe', 'hopeful', 'uplifting'];
+                
+                if (discomfortWords.some(word => message.toLowerCase().includes(word))) return 25;
+                if (comfortWords.some(word => message.toLowerCase().includes(word))) return 75;
+                return null;
+            },
+
+            detectSurprisePreference(message) {
+                const surpriseWords = ['twist', 'unexpected', 'surprise', 'mystery', 'revelation'];
+                const predictableWords = ['classic', 'traditional', 'familiar', 'expected'];
+                
+                if (surpriseWords.some(word => message.toLowerCase().includes(word))) return 75;
+                if (predictableWords.some(word => message.toLowerCase().includes(word))) return 25;
+                return null;
+            },
+
+            adjustSlider(type, value) {
+                const slider = document.getElementById(`${type}-slider`);
+                const valueEl = document.getElementById(`${type}-value`);
+                
+                // Animate towards the new value
+                const currentValue = parseInt(slider.value);
+                const targetValue = value;
+                const steps = 20;
+                const stepSize = (targetValue - currentValue) / steps;
+                
+                let step = 0;
+                const animate = () => {
+                    if (step < steps) {
+                        const newValue = Math.round(currentValue + (stepSize * step));
+                        slider.value = newValue;
+                        valueEl.textContent = newValue;
+                        step++;
+                        setTimeout(animate, 50);
+                    }
+                };
+                
+                animate();
+            },
+
+            useStarter(type) {
+                const starters = {
+                    character: "I'm really drawn to this character who...",
+                    conflict: "The main tension in my story comes from...",
+                    world: "The setting is important because...",
+                    feeling: "I want readers to feel..."
+                };
+                
+                const input = document.getElementById('message-input');
+                input.value = starters[type];
+                input.focus();
+                
+                // Auto-resize
+                input.style.height = 'auto';
+                input.style.height = input.scrollHeight + 'px';
+            }
+        };
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            PitchApp.init();
+        });
+    </script>
+</body>
+</html>

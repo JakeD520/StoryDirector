@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Story DNA - StoryDirector</title>
+    <style>
+        :root {
+            --primary: #03dac6;
+            --secondary: #bb86fc;
+            --accent: #ffd700;
+            --bg-dark: #0a0a0f;
+            --bg-panel: #1a1a1a;
+            --bg-lighter: #2a2a2a;
+            --border: #444;
+            --text-light: #e0e0e0;
+            --text-dim: #888;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+            
+            --genome-color: #03dac6;
+            --character-color: #bb86fc;
+            --prose-color: #ffd700;
+            --narrative-color: #ff5722;
+            --thematic-color: #4caf50;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .dna-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Navigation Sidebar */
+        .dna-nav {
+            width: 280px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .nav-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .nav-subtitle {
+            font-size: 0.9em;
+            color: var(--text-dim);
+        }
+
+        .genome-section {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-header {
+            padding: 15px 20px 10px;
+            font-size: 0.9em;
+            font-weight: bold;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .section-header:hover {
+            color: var(--primary);
+        }
+
+        .section-header.active {
+            color: var(--primary);
+        }
+
+        .nav-items {
+            padding-bottom: 10px;
+        }
+
+        .nav-item {
+            padding: 8px 35px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-lighter);
+        }
+
+        .nav-item.active {
+            background: rgba(3, 218, 198, 0.1);
+            border-right: 3px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .completion-indicator {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-dim);
+            margin-left: auto;
+        }
+
+        .completion-indicator.complete {
+            background: var(--success);
+        }
+
+        .completion-indicator.partial {
+            background: var(--warning);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-panel);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .content-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .content-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .dna-completion {
+            background: var(--bg-lighter);
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 0.8em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .completion-bar {
+            width: 60px;
+            height: 4px;
+            background: var(--bg-dark);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .completion-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #000;
+            font-weight: bold;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: #fff;
+        }
+
+        .content-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .content-main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            padding-right: 20px;
+        }
+
+        /* AI Assistant Sidebar */
+        .ai-assistant {
+            width: 350px;
+            background: var(--bg-panel);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .ai-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .ai-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .ai-subtitle {
+            font-size: 0.9em;
+            color: var(--text-dim);
+        }
+
+        .ai-insights {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .ai-insight {
+            background: rgba(187, 134, 252, 0.1);
+            border: 1px solid var(--secondary);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .insight-type {
+            font-size: 0.8em;
+            color: var(--secondary);
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .ai-chat {
+            border-top: 1px solid var(--border);
+            padding: 20px;
+        }
+
+        .quick-analysis {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .analysis-btn {
+            background: rgba(187, 134, 252, 0.2);
+            border: 1px solid var(--secondary);
+            color: var(--secondary);
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-size: 0.7em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .analysis-btn:hover {
+            background: rgba(187, 134, 252, 0.3);
+        }
+
+        .ai-input {
+            width: 100%;
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px;
+            color: var(--text-light);
+            font-size: 0.9em;
+            min-height: 60px;
+            resize: vertical;
+            margin-bottom: 10px;
+        }
+
+        .ai-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        /* DNA Section Views */
+        .dna-section {
+            max-width: 900px;
+            margin: 0 auto;
+            display: none;
+        }
+
+        .dna-section.active {
+            display: block;
+        }
+
+        .section-intro {
+            background: var(--bg-panel);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-left: 4px solid;
+        }
+
+        .section-intro.genome { border-left-color: var(--genome-color); }
+        .section-intro.character { border-left-color: var(--character-color); }
+        .section-intro.prose { border-left-color: var(--prose-color); }
+        .section-intro.narrative { border-left-color: var(--narrative-color); }
+        .section-intro.thematic { border-left-color: var(--thematic-color); }
+
+        .intro-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .intro-description {
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        .dna-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .dna-panel {
+            background: var(--bg-panel);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .panel-title {
+            font-size: 1em;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            color: var(--text-dim);
+            font-weight: bold;
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px;
+            color: var(--text-light);
+            font-size: 0.9em;
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .tag-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .tag {
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 4px 12px;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tag.active {
+            border-color: var(--primary);
+            background: rgba(3, 218, 198, 0.1);
+            color: var(--primary);
+        }
+
+        .wide-panel {
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="dna-container">
+        <!-- Navigation Sidebar -->
+        <div class="dna-nav">
+            <div class="nav-header">
+                <div class="nav-title">Story DNA Builder</div>
+                <div class="nav-subtitle">Comprehensive narrative genetics</div>
+            </div>
+
+            <div class="genome-section">
+                <div class="section-header active" data-section="genome">
+                    <span>🧬</span>
+                    <span>Story Genome</span>
+                </div>
+                <div class="nav-items">
+                    <div class="nav-item active" data-view="genome">
+                        <span>📋</span>
+                        <span>Core Identity</span>
+                        <div class="completion-indicator partial"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="genome-section">
+                <div class="section-header" data-section="character">
+                    <span>👥</span>
+                    <span>Character Arcs</span>
+                </div>
+                <div class="nav-items">
+                    <div class="nav-item" data-view="character-arcs">
+                        <span>🎭</span>
+                        <span>Arc Blueprint</span>
+                        <div class="completion-indicator"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="genome-section">
+                <div class="section-header" data-section="prose">
+                    <span>✍️</span>
+                    <span>Prose Composition</span>
+                </div>
+                <div class="nav-items">
+                    <div class="nav-item" data-view="prose-directives">
+                        <span>📊</span>
+                        <span>Content Weighting</span>
+                        <div class="completion-indicator"></div>
+                    </div>
+                    <div class="nav-item" data-view="prose-constraints">
+                        <span>📏</span>
+                        <span>Style Constraints</span>
+                        <div class="completion-indicator"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="genome-section">
+                <div class="section-header" data-section="review">
+                    <span>📄</span>
+                    <span>Review</span>
+                </div>
+                <div class="nav-items">
+                    <div class="nav-item" data-view="dna-export">
+                        <span>📋</span>
+                        <span>Review & Save</span>
+                        <div class="completion-indicator"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="content-header">
+                <div class="content-title" id="content-title">Story Genome</div>
+                <div class="content-actions">
+                    <div class="dna-completion">
+                        <span>DNA Complete:</span>
+                        <div class="completion-bar">
+                            <div class="completion-fill" id="completion-fill" style="width: 25%"></div>
+                        </div>
+                        <span id="completion-percent">25%</span>
+                    </div>
+                    <button class="btn btn-secondary" onclick="DNABuilder.aiPatternSpotter()">🤖 AI Pattern Spotter</button>
+                    <button class="btn btn-primary" onclick="DNABuilder.exportDNA()">📄 Export DNA</button>
+                </div>
+            </div>
+
+            <div class="content-body">
+                <div class="content-main">
+                    <!-- Story Genome Section -->
+                    <div id="genome-section" class="dna-section active">
+                        <div class="section-intro genome">
+                            <div class="intro-title">Story Genome - Core Identity</div>
+                            <div class="intro-description">
+                                Define the foundational DNA that establishes your story's intrinsic nature and delivery method. This becomes the master instruction set for LLM prose generation.
+                            </div>
+                        </div>
+
+                        <div class="dna-grid">
+                            <div class="dna-panel">
+                                <div class="panel-title">
+                                    <span>🎭</span>
+                                    <span>Genre DNA</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Primary Genre</label>
+                                    <select class="form-select" id="primary-genre">
+                                        <option value="">Select primary genre...</option>
+                                        <option value="literary">Literary Fiction</option>
+                                        <option value="mystery">Mystery</option>
+                                        <option value="thriller">Thriller</option>
+                                        <option value="romance">Romance</option>
+                                        <option value="sci-fi">Science Fiction</option>
+                                        <option value="fantasy">Fantasy</option>
+                                        <option value="horror">Horror</option>
+                                        <option value="comedy">Comedy</option>
+                                        <option value="drama">Drama</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Genre Flavors</label>
+                                    <div class="tag-selector">
+                                        <div class="tag" data-flavor="gothic">Gothic</div>
+                                        <div class="tag" data-flavor="noir">Noir</div>
+                                        <div class="tag" data-flavor="slapstick">Slapstick</div>
+                                        <div class="tag" data-flavor="psychological">Psychological</div>
+                                        <div class="tag" data-flavor="supernatural">Supernatural</div>
+                                        <div class="tag" data-flavor="dystopian">Dystopian</div>
+                                        <div class="tag" data-flavor="cozy">Cozy</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="dna-panel">
+                                <div class="panel-title">
+                                    <span>🎨</span>
+                                    <span>Tonal DNA</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Primary Tone</label>
+                                    <select class="form-select" id="primary-tone">
+                                        <option value="">Select primary tone...</option>
+                                        <option value="melancholic">Melancholic</option>
+                                        <option value="hopeful">Hopeful</option>
+                                        <option value="absurdist">Absurdist</option>
+                                        <option value="introspective">Introspective</option>
+                                        <option value="tense">Tense</option>
+                                        <option value="ironic">Ironic</option>
+                                        <option value="whimsical">Whimsical</option>
+                                        <option value="dark">Dark</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Tonal Evolution</label>
+                                    <textarea class="form-textarea" id="tonal-evolution" placeholder="How does the tone shift throughout the book?"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="dna-panel">
+                                <div class="panel-title">
+                                    <span>👁️</span>
+                                    <span>Reader Experience DNA</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Intended Reader Impact</label>
+                                    <div class="tag-selector">
+                                        <div class="tag" data-impact="emotionally-resonant">Emotionally Resonant</div>
+                                        <div class="tag" data-impact="thought-provoking">Thought-Provoking</div>
+                                        <div class="tag" data-impact="immersive">Immersive</div>
+                                        <div class="tag" data-impact="unsettling">Unsettling</div>
+                                        <div class="tag" data-impact="amusing">Amusing</div>
+                                        <div class="tag" data-impact="cathartic">Cathartic</div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Emotional Journey</label>
+                                    <textarea class="form-textarea" id="emotional-journey" placeholder="Describe the emotional arc you want readers to experience..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="dna-panel">
+                                <div class="panel-title">
+                                    <span>📝</span>
+                                    <span>Prose Delivery DNA</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Narrative Perspective</label>
+                                    <select class="form-select" id="narrative-perspective">
+                                        <option value="">Select perspective...</option>
+                                        <option value="first-person">First Person</option>
+                                        <option value="third-limited">Third Person Limited</option>
+                                        <option value="third-omniscient">Third Person Omniscient</option>
+                                        <option value="alternating">Alternating POV</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Narrative Voice</label>
+                                    <div class="tag-selector">
+                                        <div class="tag" data-voice="intimate">Intimate</div>
+                                        <div class="tag" data-voice="detached">Detached</div>
+                                        <div class="tag" data-voice="conversational">Conversational</div>
+                                        <div class="tag" data-voice="formal">Formal</div>
+                                        <div class="tag" data-voice="unreliable">Unreliable</div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Tense</label>
+                                    <select class="form-select" id="narrative-tense">
+                                        <option value="past">Past Tense</option>
+                                        <option value="present">Present Tense</option>
+                                        <option value="mixed">Mixed</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="dna-panel wide-panel">
+                                <div class="panel-title">
+                                    <span>🎯</span>
+                                    <span>Content Rating & Guidelines</span>
+                                </div>
+                                <div class="dna-grid">
+                                    <div class="form-group">
+                                        <label class="form-label">Content Rating</label>
+                                        <select class="form-select" id="content-rating">
+                                            <option value="general">General Audience</option>
+                                            <option value="teen">Teen (13+)</option>
+                                            <option value="mature">Mature (17+)</option>
+                                            <option value="adult">Adult</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Content Guidelines</label>
+                                        <textarea class="form-textarea" id="content-guidelines" placeholder="Specific content considerations (language, violence, themes)..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Assistant Sidebar -->
+                <div class="ai-assistant">
+                    <div class="ai-header">
+                        <div class="ai-title">Story DNA Consultant</div>
+                        <div class="ai-subtitle">Intelligent guidance for narrative genetics</div>
+                    </div>
+
+                    <div class="ai-insights" id="ai-insights">
+                        <div class="ai-insight">
+                            <div class="insight-type">Getting Started</div>
+                            Define your core story genome to see intelligent suggestions for character arcs, prose composition, and thematic strategies.
+                        </div>
+                    </div>
+
+                    <div class="ai-chat">
+                        <div class="quick-analysis">
+                            <button class="analysis-btn" onclick="DNABuilder.analyzeGenome()">Genome Check</button>
+                            <button class="analysis-btn" onclick="DNABuilder.analyzeConsistency()">Consistency</button>
+                            <button class="analysis-btn" onclick="DNABuilder.suggestArcs()">Suggest Arcs</button>
+                            <button class="analysis-btn" onclick="DNABuilder.optimizeWeights()">Optimize Mix</button>
+                        </div>
+                        <textarea 
+                            class="ai-input" 
+                            id="ai-input"
+                            placeholder="Ask about your Story DNA: 'How should my genre affect prose composition?' or 'What character arcs fit this tone?'"
+                        ></textarea>
+                        <button class="btn btn-secondary" style="width: 100%;" onclick="DNABuilder.askCustomAI()">Analyze DNA</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const DNABuilder = {
+            currentSection: 'genome',
+            storyDNA: {
+                genome: {
+                    primaryGenre: '',
+                    genreFlavors: [],
+                    primaryTone: '',
+                    tonalEvolution: '',
+                    readerImpact: [],
+                    emotionalJourney: '',
+                    narrativePerspective: '',
+                    narrativeVoice: [],
+                    narrativeTense: 'past',
+                    contentRating: 'general',
+                    contentGuidelines: ''
+                },
+                characterArcs: {},
+                proseComposition: {
+                    contentWeights: {
+                        'narrative-flow': 30,
+                        'character-dev': 25,
+                        'dialogue': 20,
+                        'worldbuilding': 15,
+                        'themes': 10
+                    }
+                },
+                proseConstraints: [],
+                narrativeGoals: {},
+                pacingArc: {},
+                revelationCadence: {},
+                themeStrategy: {},
+                symbolism: {}
+            },
+
+            init() {
+                this.setupEventListeners();
+                this.updateProgress();
+                this.generateInitialInsights();
+            },
+
+            setupEventListeners() {
+                // Navigation
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        this.switchToSection(item.dataset.view);
+                        this.updateActiveNavItem(item);
+                    });
+                });
+
+                // Tag selectors
+                document.querySelectorAll('.tag').forEach(tag => {
+                    tag.addEventListener('click', () => {
+                        tag.classList.toggle('active');
+                        this.updateStoryDNA();
+                    });
+                });
+
+                // Form inputs
+                document.querySelectorAll('input, select, textarea').forEach(input => {
+                    input.addEventListener('change', () => {
+                        this.updateStoryDNA();
+                    });
+                });
+
+                // AI input
+                document.getElementById('ai-input').addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                        this.askCustomAI();
+                    }
+                });
+            },
+
+            generateInitialInsights() {
+                setTimeout(() => {
+                    this.addAIInsight('Welcome', 'Start with your Story Genome - genre, tone, and reader experience. I\'ll provide intelligent suggestions for all other DNA components based on your selections.');
+                }, 1000);
+            },
+
+            addAIInsight(type, content) {
+                const container = document.getElementById('ai-insights');
+                const insightEl = document.createElement('div');
+                insightEl.className = 'ai-insight';
+                insightEl.innerHTML = `
+                    <div class="insight-type">${type}</div>
+                    ${content}
+                `;
+                container.appendChild(insightEl);
+                container.scrollTop = container.scrollHeight;
+
+                // Remove old insights to keep manageable
+                const insights = container.querySelectorAll('.ai-insight');
+                if (insights.length > 6) {
+                    insights[0].remove();
+                }
+            },
+
+            analyzeGenome() {
+                const genre = this.storyDNA.genome.primaryGenre;
+                const tone = this.storyDNA.genome.primaryTone;
+                
+                if (!genre || !tone) {
+                    this.addAIInsight('Genome Analysis', 'Define your primary genre and tone first to get specific genome analysis.');
+                    return;
+                }
+                
+                const insights = {
+                    'mystery-melancholic': 'Mystery + melancholic tone suggests gothic or noir flavors. Consider third-person limited for intimate psychological exploration.',
+                    'sci-fi-introspective': 'Sci-fi + introspective tone works well with philosophical themes. Third-person omniscient can handle complex world concepts.',
+                    'comedy-whimsical': 'Comedy + whimsical tone suggests light content rating and high dialogue percentage in prose composition.'
+                };
+                
+                const key = `${genre}-${tone}`;
+                const insight = insights[key] || `${genre} + ${tone} is an interesting combination. Consider how this affects your prose delivery and content weighting.`;
+                
+                this.addAIInsight('Genome Analysis', insight);
+            },
+
+            analyzeConsistency() {
+                const issues = [];
+                
+                if (this.storyDNA.genome.primaryGenre === 'comedy' && this.storyDNA.genome.primaryTone === 'dark') {
+                    issues.push('Dark comedy requires careful balance - consider "ironic" or "absurdist" tone instead');
+                }
+                
+                if (this.storyDNA.genome.contentRating === 'general' && this.storyDNA.genome.genreFlavors.includes('gothic')) {
+                    issues.push('Gothic flavor typically requires Teen+ content rating');
+                }
+                
+                if (this.storyDNA.genome.narrativePerspective === 'first-person' && this.storyDNA.genome.narrativeVoice.includes('omniscient')) {
+                    issues.push('First-person narrative cannot be omniscient - consider third-person omniscient');
+                }
+                
+                if (issues.length === 0) {
+                    this.addAIInsight('Consistency Check', 'Your Story DNA elements are consistent! No conflicts detected between genre, tone, and delivery choices.');
+                } else {
+                    this.addAIInsight('Consistency Issues', issues.join('. '));
+                }
+            },
+
+            suggestArcs() {
+                const genre = this.storyDNA.genome.primaryGenre;
+                
+                const arcSuggestions = {
+                    mystery: 'Mystery protagonists often have "revelation arcs" - starting with false beliefs about the truth. Supporting characters might have "trust arcs" as loyalties shift.',
+                    'sci-fi': 'Sci-fi benefits from "adaptation arcs" where characters adjust to new realities. Consider flat arcs for characters representing unchanging human values.',
+                    fantasy: 'Fantasy often uses "power arcs" where characters grow into their abilities. Balance with "humility arcs" to avoid power fantasy pitfalls.',
+                    literary: 'Literary fiction excels with "internal change arcs" focusing on psychological growth. Multiple characters can have parallel development.'
+                };
+                
+                const suggestion = arcSuggestions[genre] || 'Define your genre first to get specific character arc suggestions tailored to your story type.';
+                this.addAIInsight('Character Arc Suggestions', suggestion);
+            },
+
+            optimizeWeights() {
+                const genre = this.storyDNA.genome.primaryGenre;
+                
+                const optimizations = {
+                    mystery: 'Mystery stories benefit from: 35% narrative flow, 20% character development, 25% dialogue, 15% worldbuilding, 5% themes.',
+                    'sci-fi': 'Sci-fi typically needs: 25% narrative flow, 20% character development, 20% dialogue, 30% worldbuilding, 5% themes.',
+                    literary: 'Literary fiction often uses: 20% narrative flow, 35% character development, 20% dialogue, 10% worldbuilding, 15% themes.',
+                    romance: 'Romance focuses on: 25% narrative flow, 30% character development, 30% dialogue, 10% worldbuilding, 5% themes.'
+                };
+                
+                const suggestion = optimizations[genre] || 'Define your primary genre to get optimized prose composition weightings for your story type.';
+                this.addAIInsight('Prose Optimization', suggestion);
+            },
+
+            askCustomAI() {
+                const input = document.getElementById('ai-input');
+                const question = input.value.trim();
+                if (!question) return;
+
+                // Simulate AI analysis based on current DNA state
+                const responses = this.generateAIResponse(question);
+                this.addAIInsight('Custom Analysis', responses);
+                input.value = '';
+            },
+
+            generateAIResponse(question) {
+                const lowerQ = question.toLowerCase();
+                
+                if (lowerQ.includes('genre') && lowerQ.includes('prose')) {
+                    return `Your genre choice affects prose composition significantly. ${this.storyDNA.genome.primaryGenre || 'Mystery'} stories typically need balanced dialogue and narrative flow to maintain pacing.`;
+                }
+                
+                if (lowerQ.includes('character') && lowerQ.includes('arc')) {
+                    return `Character arcs should align with your ${this.storyDNA.genome.primaryTone || 'melancholic'} tone. Consider how each character's journey reinforces your overall narrative goals.`;
+                }
+                
+                if (lowerQ.includes('consistency') || lowerQ.includes('conflict')) {
+                    return `Your current DNA shows ${this.storyDNA.genome.primaryGenre ? 'good genre foundation' : 'incomplete genome'}. Focus on aligning all elements to support unified storytelling.`;
+                }
+                
+                if (lowerQ.includes('theme')) {
+                    return `Themes should emerge naturally from your character arcs and genre choice. Your ${this.storyDNA.genome.primaryGenre || 'chosen genre'} suggests exploring themes of discovery and revelation.`;
+                }
+                
+                return `Based on your current Story DNA, I recommend focusing on completing your core genome first. Each element builds on the foundation of genre, tone, and reader experience.`;
+            },
+
+            switchToSection(sectionView) {
+                // Show selected section (only genome implemented in this version)
+                document.getElementById('content-title').textContent = 'Story Genome';
+                this.currentSection = sectionView;
+                
+                // Generate section-specific insights
+                this.generateSectionInsights(sectionView);
+            },
+
+            generateSectionInsights(section) {
+                const insights = {
+                    'genome': 'Core genome defines everything else. Your genre and tone choices will influence character arcs, prose weighting, and thematic strategies.',
+                    'character-arcs': 'Character arcs should align with your genre and tone. Each arc type serves different narrative functions.',
+                    'prose-directives': 'Prose composition percentages should reflect your genre needs. Mystery requires different weighting than literary fiction.',
+                    'narrative-goals': 'Narrative goals give your LLM clear direction. Be specific about what you want readers to experience.',
+                    'theme-strategy': 'Themes work best when woven naturally through character arcs and plot events rather than stated directly.'
+                };
+                
+                if (insights[section]) {
+                    this.addAIInsight('Section Guidance', insights[section]);
+                }
+            },
+
+            updateActiveNavItem(activeItem) {
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                activeItem.classList.add('active');
+            },
+
+            updateStoryDNA() {
+                // Update genome data
+                this.storyDNA.genome.primaryGenre = document.getElementById('primary-genre')?.value || '';
+                this.storyDNA.genome.primaryTone = document.getElementById('primary-tone')?.value || '';
+                this.storyDNA.genome.narrativePerspective = document.getElementById('narrative-perspective')?.value || '';
+                this.storyDNA.genome.narrativeTense = document.getElementById('narrative-tense')?.value || '';
+                this.storyDNA.genome.contentRating = document.getElementById('content-rating')?.value || '';
+                
+                // Update arrays from active tags
+                this.storyDNA.genome.genreFlavors = Array.from(document.querySelectorAll('[data-flavor].active')).map(tag => tag.dataset.flavor);
+                this.storyDNA.genome.readerImpact = Array.from(document.querySelectorAll('[data-impact].active')).map(tag => tag.dataset.impact);
+                this.storyDNA.genome.narrativeVoice = Array.from(document.querySelectorAll('[data-voice].active')).map(tag => tag.dataset.voice);
+                
+                this.updateProgress();
+                this.generateAISuggestions();
+            },
+
+            updateProgress() {
+                const sections = ['genome', 'characterArcs', 'proseComposition', 'narrativeGoals', 'themeStrategy'];
+                
+                let completed = 0;
+                let total = sections.length;
+                
+                // Simple completion check
+                if (this.storyDNA.genome.primaryGenre) completed++;
+                if (Object.keys(this.storyDNA.characterArcs).length > 0) completed++;
+                if (this.storyDNA.proseComposition.contentWeights) completed++;
+                if (this.storyDNA.narrativeGoals.objective) completed++;
+                if (this.storyDNA.themeStrategy.primaryTheme) completed++;
+                
+                const percentage = Math.round((completed / total) * 100);
+                document.getElementById('completion-fill').style.width = `${percentage}%`;
+                document.getElementById('completion-percent').textContent = `${percentage}%`;
+                
+                // Update completion indicators
+                this.updateCompletionIndicators();
+            },
+
+            updateCompletionIndicators() {
+                const indicators = {
+                    'genome': this.storyDNA.genome.primaryGenre ? 'complete' : 'partial',
+                    'character-arcs': Object.keys(this.storyDNA.characterArcs).length > 0 ? 'complete' : '',
+                    'prose-directives': this.storyDNA.proseComposition.contentWeights ? 'partial' : '',
+                    'narrative-goals': this.storyDNA.narrativeGoals.objective ? 'complete' : ''
+                };
+                
+                Object.entries(indicators).forEach(([view, status]) => {
+                    const navItem = document.querySelector(`[data-view="${view}"]`);
+                    if (navItem) {
+                        const indicator = navItem.querySelector('.completion-indicator');
+                        if (indicator) {
+                            indicator.className = `completion-indicator ${status}`;
+                        }
+                    }
+                });
+            },
+
+            generateAISuggestions() {
+                const genre = this.storyDNA.genome.primaryGenre;
+                const tone = this.storyDNA.genome.primaryTone;
+                
+                if (!genre && !tone) return;
+                
+                let suggestions = [];
+                
+                if (genre === 'mystery' && tone === 'melancholic') {
+                    suggestions = [
+                        'Consider "Gothic" flavor for atmospheric depth',
+                        'Reader experience: "Introspective" and "Unsettling"', 
+                        'Prose delivery: Third person limited for mystery intimacy'
+                    ];
+                } else if (genre === 'sci-fi') {
+                    suggestions = [
+                        'Consider worldbuilding weight of 25-30% for sci-fi',
+                        '"Thought-provoking" reader experience typical for the genre',
+                        'Third person omniscient works well for complex sci-fi worlds'
+                    ];
+                } else {
+                    suggestions = [
+                        `${genre} stories often benefit from character-driven narratives`,
+                        `${tone} tone suggests focus on internal character development`,
+                        'Consider how your choices will guide AI prose generation'
+                    ];
+                }
+                
+                if (suggestions.length > 0) {
+                    this.addAIInsight('Smart Suggestions', suggestions.join('. '));
+                }
+            },
+
+            aiPatternSpotter() {
+                alert('🤖 AI Pattern Spotter\n\nThis feature would:\n\n• Analyze your brainstorm snippets\n• Detect genre, tone, and character patterns\n• Suggest initial DNA categorizations\n• Auto-populate Story DNA fields\n• Learn your preferences over time\n\nComing soon in the full implementation!');
+            },
+
+            exportDNA() {
+                alert('📄 DNA Export\n\nThis would export your Story DNA in:\n\n• Machine-readable JSON for LLM systems\n• Human-readable format for review\n• Structured format for integration\n\nComing in the full multi-section implementation!');
+            }
+        };
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            DNABuilder.init();
+        });
+    </script>
+</body>
+</html>

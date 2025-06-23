@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Care Matrix - Arc Blueprint</title>
+    <style>
+        :root {
+            --primary: #03dac6;
+            --secondary: #bb86fc;
+            --accent: #ffd700;
+            --bg-dark: #0a0a0f;
+            --bg-panel: #1a1a1a;
+            --bg-lighter: #2a2a2a;
+            --border: #444;
+            --text-light: #e0e0e0;
+            --text-dim: #888;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .matrix-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Matrix Navigation */
+        .matrix-nav {
+            width: 280px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .nav-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .nav-subtitle {
+            font-size: 0.9em;
+            color: var(--text-dim);
+        }
+
+        .progress-section {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .progress-label {
+            font-size: 0.9em;
+            color: var(--text-dim);
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--bg-lighter);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 3px;
+            transition: width 0.5s ease;
+            width: 25%;
+        }
+
+        .progress-text {
+            font-size: 0.8em;
+            color: var(--text-dim);
+            text-align: center;
+        }
+
+        .matrix-sections {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .section {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-header {
+            padding: 15px 20px 10px;
+            font-size: 0.9em;
+            font-weight: bold;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .section-item:hover {
+            background: var(--bg-lighter);
+        }
+
+        .section-item.active {
+            background: var(--bg-lighter);
+            border-left: 3px solid var(--primary);
+        }
+
+        .item-icon {
+            margin-right: 10px;
+            opacity: 0.7;
+        }
+
+        .item-text {
+            font-size: 0.9em;
+        }
+
+        .completion-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-dim);
+            margin-left: auto;
+            opacity: 0.3;
+        }
+
+        .completion-dot.complete {
+            background: var(--success);
+            opacity: 1;
+        }
+
+        /* Main Content */
+        .matrix-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-panel);
+        }
+
+        .question-number {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: #000;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .question-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .question-subtitle {
+            color: var(--text-dim);
+            font-size: 0.95em;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .option-card {
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--bg-panel);
+            position: relative;
+        }
+
+        .option-card:hover {
+            border-color: var(--primary);
+            background: var(--bg-lighter);
+        }
+
+        .option-card.selected {
+            border-color: var(--primary);
+            background: var(--bg-lighter);
+        }
+
+        .option-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .option-title {
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 8px;
+            font-size: 1.05em;
+        }
+
+        .option-description {
+            color: var(--text-dim);
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        /* Results Section */
+        .results-section {
+            display: none;
+            padding: 30px;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        .dna-match {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: #000;
+            padding: 25px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .dna-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .dna-theme {
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        .story-templates {
+            margin-bottom: 30px;
+        }
+
+        .templates-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-light);
+        }
+
+        .template-card {
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: var(--bg-panel);
+        }
+
+        .template-card:hover {
+            border-color: var(--primary);
+        }
+
+        .template-card.selected {
+            border-color: var(--success);
+            background: var(--bg-lighter);
+        }
+
+        .template-header {
+            background: var(--bg-lighter);
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .template-name {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: var(--text-light);
+        }
+
+        .template-body {
+            padding: 20px;
+        }
+
+        .template-description {
+            color: var(--text-dim);
+            line-height: 1.6;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+        }
+
+        .select-template-btn {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .select-template-btn:hover {
+            background: var(--secondary);
+        }
+
+        .final-output {
+            background: var(--bg-panel);
+            border: 2px solid var(--success);
+            border-radius: 8px;
+            padding: 25px;
+            display: none;
+        }
+
+        .final-output.active {
+            display: block;
+        }
+
+        .output-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .llm-instructions {
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 20px;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            font-size: 0.85em;
+            line-height: 1.6;
+            color: var(--text-light);
+            white-space: pre-wrap;
+        }
+
+        /* Navigation Footer */
+        .matrix-footer {
+            padding: 20px;
+            border-top: 1px solid var(--border);
+            background: var(--bg-panel);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn.primary {
+            background: var(--primary);
+            color: #000;
+        }
+
+        .nav-btn.secondary {
+            background: var(--bg-lighter);
+            color: var(--text-dim);
+        }
+
+        .nav-btn:hover {
+            opacity: 0.8;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .nav-btn.primary:disabled {
+            background: var(--bg-lighter);
+            color: var(--text-dim);
+        }
+    </style>
+</head>
+<body>
+    <div class="matrix-container">
+        <!-- Navigation Sidebar -->
+        <div class="matrix-nav">
+            <div class="nav-header">
+                <div class="nav-title">Character Care Matrix</div>
+                <div class="nav-subtitle">Story Discovery Tool</div>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-label">Discovery Progress</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="progress-text" id="progress-text">Question 2 of 8</div>
+            </div>
+
+            <div class="matrix-sections">
+                <div class="section">
+                    <div class="section-header">
+                        <span>🎭</span>
+                        <span>Character Investment</span>
+                    </div>
+                    <div class="section-item active">
+                        <span class="item-icon">💖</span>
+                        <span class="item-text">What Makes You Cheer</span>
+                        <div class="completion-dot complete"></div>
+                    </div>
+                    <div class="section-item">
+                        <span class="item-icon">💔</span>
+                        <span class="item-text">What Would Break Your Heart</span>
+                        <div class="completion-dot"></div>
+                    </div>
+                    <div class="section-item">
+                        <span class="item-icon">⚡</span>
+                        <span class="item-text">What Excites You Most</span>
+                        <div class="completion-dot"></div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <span>🌟</span>
+                        <span>Story Moments</span>
+                    </div>
+                    <div class="section-item">
+                        <span class="item-icon">🎯</span>
+                        <span class="item-text">Victory Moment</span>
+                        <div class="completion-dot"></div>
+                    </div>
+                    <div class="section-item">
+                        <span class="item-icon">💡</span>
+                        <span class="item-text">Realization Scene</span>
+                        <div class="completion-dot"></div>
+                    </div>
+                    <div class="section-item">
+                        <span class="item-icon">🔄</span>
+                        <span class="item-text">Transformation Point</span>
+                        <div class="completion-dot"></div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <span>🎨</span>
+                        <span>Story Feeling</span>
+                    </div>
+                    <div class="section-item">
+                        <span class="item-icon">😌</span>
+                        <span class="item-text">Ending Emotion</span>
+                        <div class="completion-dot"></div>
+                    </div>
+                    <div class="section-item">
+                        <span class="item-icon">✨</span>
+                        <span class="item-text">Core Theme</span>
+                        <div class="completion-dot"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="matrix-main">
+            <div class="main-header">
+                <div class="question-number" id="question-number">2</div>
+                <div class="question-title" id="question-title">What would make you CHEER for your character?</div>
+                <div class="question-subtitle" id="question-subtitle">Think about the moment that would make you pump your fist in victory</div>
+            </div>
+
+            <!-- Question Content -->
+            <div class="main-content" id="question-content">
+                <div class="options-grid" id="options-grid">
+                    <div class="option-card" data-value="defeat-enemy">
+                        <div class="option-title">They defeat a powerful enemy</div>
+                        <div class="option-description">Overcoming someone or something that seemed impossible to beat</div>
+                    </div>
+                    
+                    <div class="option-card" data-value="prove-wrong">
+                        <div class="option-title">They prove everyone wrong about them</div>
+                        <div class="option-description">Showing their true worth when others doubted or dismissed them</div>
+                    </div>
+                    
+                    <div class="option-card" data-value="reconnect">
+                        <div class="option-title">They reconnect with someone important</div>
+                        <div class="option-description">Healing a broken relationship or finding their way back to love</div>
+                    </div>
+                    
+                    <div class="option-card" data-value="find-belonging">
+                        <div class="option-title">They find where they truly belong</div>
+                        <div class="option-description">Discovering their tribe, their home, or their true purpose</div>
+                    </div>
+                    
+                    <div class="option-card" data-value="overcome-fear">
+                        <div class="option-title">They overcome their deepest fear</div>
+                        <div class="option-description">Facing what terrifies them most and emerging stronger</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section" id="results-section">
+                <div class="dna-match">
+                    <div class="dna-title">🧬 Story DNA Match</div>
+                    <div class="dna-theme" id="discovered-theme">RECONNECTION & HEALING BROKEN BONDS</div>
+                </div>
+
+                <div class="story-templates">
+                    <div class="templates-title">Stories with similar DNA:</div>
+                    
+                    <div class="template-card" data-template="interstellar">
+                        <div class="template-header">
+                            <div class="template-name">INTERSTELLAR</div>
+                        </div>
+                        <div class="template-body">
+                            <div class="template-description">
+                                Father-daughter connection transcending impossible distances. Love as a force that binds across space and time, with parallel journeys of growth.
+                            </div>
+                            <button class="select-template-btn">Select This Template</button>
+                        </div>
+                    </div>
+
+                    <div class="template-card" data-template="finding-nemo">
+                        <div class="template-header">
+                            <div class="template-name">FINDING NEMO</div>
+                        </div>
+                        <div class="template-body">
+                            <div class="template-description">
+                                Separated characters on parallel journeys of growth, each learning what the other needs, reuniting stronger than before.
+                            </div>
+                            <button class="select-template-btn">Select This Template</button>
+                        </div>
+                    </div>
+
+                    <div class="template-card" data-template="toy-story">
+                        <div class="template-header">
+                            <div class="template-name">TOY STORY 3</div>
+                        </div>
+                        <div class="template-body">
+                            <div class="template-description">
+                                Old friends facing separation, choosing connection over safety. Growing apart in order to grow together.
+                            </div>
+                            <button class="select-template-btn">Select This Template</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="final-output" id="final-output">
+                    <div class="output-title">
+                        🚀 LLM Instructions Generated
+                    </div>
+                    <div class="llm-instructions" id="llm-instructions">STORY THEME: Reconnection & Healing Broken Bonds
+TEMPLATE: Finding Nemo Structure
+
+ARC INSTRUCTIONS:
+• Focus on parallel growth journeys for separated characters
+• Each character learns what the other needs through their journey
+• Comedy/conflict serves emotional beats, not just entertainment
+• Misunderstandings mirror real communication challenges
+• Resolution happens when both characters have grown from separation
+• Every plot point should somehow reflect the relationship dynamic
+
+DIALOGUE FOCUS:
+• Early scenes: Establish what separated them originally
+• Middle: Grudging respect emerging through shared challenges
+• Late: Direct acknowledgment of what they mean to each other
+
+EMOTIONAL BEATS:
+• Opening: Establish the broken connection
+• Midpoint: Moment of almost reconciling, then pulling back
+• Climax: Choosing relationship over being "right"
+• Resolution: Working together again, stronger than before</div>
+                </div>
+            </div>
+
+            <!-- Navigation Footer -->
+            <div class="matrix-footer">
+                <button class="nav-btn secondary" id="prev-btn" disabled>← Previous</button>
+                <button class="nav-btn primary" id="next-btn" disabled>Continue →</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const matrix = {
+            currentQuestion: 2,
+            totalQuestions: 8,
+            responses: {},
+            
+            questions: [
+                {
+                    title: "What first drew you to this story?",
+                    subtitle: "Think about the initial spark that made you excited",
+                    options: [
+                        { value: "character", title: "A character I can't stop thinking about", desc: "Someone who feels real and compelling to you" },
+                        { value: "situation", title: "A fascinating situation or conflict", desc: "An interesting problem or scenario to explore" },
+                        { value: "world", title: "A world I want to explore", desc: "A setting or environment that excites you" },
+                        { value: "theme", title: "Something I need to express", desc: "An idea or feeling you want to communicate" },
+                        { value: "moment", title: "A specific scene or moment", desc: "A particular image or event that resonates" }
+                    ]
+                },
+                {
+                    title: "What would make you CHEER for your character?",
+                    subtitle: "Think about the moment that would make you pump your fist in victory",
+                    options: [
+                        { value: "defeat-enemy", title: "They defeat a powerful enemy", desc: "Overcoming someone or something that seemed impossible to beat" },
+                        { value: "prove-wrong", title: "They prove everyone wrong about them", desc: "Showing their true worth when others doubted or dismissed them" },
+                        { value: "reconnect", title: "They reconnect with someone important", desc: "Healing a broken relationship or finding their way back to love" },
+                        { value: "find-belonging", title: "They find where they truly belong", desc: "Discovering their tribe, their home, or their true purpose" },
+                        { value: "overcome-fear", title: "They overcome their deepest fear", desc: "Facing what terrifies them most and emerging stronger" }
+                    ]
+                },
+                {
+                    title: "What would break your heart for this character?",
+                    subtitle: "The outcome that would genuinely upset you",
+                    options: [
+                        { value: "alone", title: "They end up completely alone", desc: "Isolated from everyone who matters to them" },
+                        { value: "unchanged", title: "They never grow or change", desc: "Staying exactly the same despite everything" },
+                        { value: "lose-hope", title: "They lose all hope", desc: "Giving up on what they care about most" },
+                        { value: "betray-self", title: "They betray their core values", desc: "Compromising who they are for external gain" },
+                        { value: "miss-chance", title: "They miss their one chance", desc: "The opportunity passes them by forever" }
+                    ]
+                }
+            ],
+
+            init() {
+                this.updateDisplay();
+                this.setupEventListeners();
+            },
+
+            setupEventListeners() {
+                document.addEventListener('click', (e) => {
+                    if (e.target.closest('.option-card')) {
+                        this.selectOption(e.target.closest('.option-card'));
+                    }
+                    
+                    if (e.target.closest('#next-btn')) {
+                        this.nextQuestion();
+                    }
+                    
+                    if (e.target.closest('#prev-btn')) {
+                        this.prevQuestion();
+                    }
+
+                    if (e.target.closest('.select-template-btn')) {
+                        this.selectTemplate(e.target.closest('.template-card'));
+                    }
+                });
+            },
+
+            selectOption(card) {
+                document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                this.responses[this.currentQuestion] = card.dataset.value;
+                document.getElementById('next-btn').disabled = false;
+            },
+
+            nextQuestion() {
+                if (this.currentQuestion < this.totalQuestions) {
+                    this.currentQuestion++;
+                    this.updateDisplay();
+                } else {
+                    this.showResults();
+                }
+            },
+
+            prevQuestion() {
+                if (this.currentQuestion > 1) {
+                    this.currentQuestion--;
+                    this.updateDisplay();
+                }
+            },
+
+            updateDisplay() {
+                const progress = ((this.currentQuestion - 1) / (this.totalQuestions - 1)) * 100;
+                document.getElementById('progress-fill').style.width = `${Math.min(progress, 100)}%`;
+                document.getElementById('progress-text').textContent = `Question ${this.currentQuestion} of ${this.totalQuestions}`;
+                
+                document.getElementById('question-number').textContent = this.currentQuestion;
+                
+                const questionIndex = Math.min(this.currentQuestion - 1, this.questions.length - 1);
+                const question = this.questions[questionIndex];
+                
+                document.getElementById('question-title').textContent = question.title;
+                document.getElementById('question-subtitle').textContent = question.subtitle;
+                
+                const optionsGrid = document.getElementById('options-grid');
+                optionsGrid.innerHTML = question.options.map(option => `
+                    <div class="option-card" data-value="${option.value}">
+                        <div class="option-title">${option.title}</div>
+                        <div class="option-description">${option.desc}</div>
+                    </div>
+                `).join('');
+                
+                document.getElementById('prev-btn').disabled = this.currentQuestion === 1;
+                document.getElementById('next-btn').disabled = !this.responses[this.currentQuestion];
+                
+                if (this.currentQuestion === this.totalQuestions) {
+                    document.getElementById('next-btn').textContent = 'See Results →';
+                } else {
+                    document.getElementById('next-btn').textContent = 'Continue →';
+                }
+            },
+
+            showResults() {
+                document.getElementById('question-content').style.display = 'none';
+                document.getElementById('results-section').classList.add('active');
+                document.getElementById('next-btn').style.display = 'none';
+                document.getElementById('prev-btn').textContent = '← Retake Quiz';
+            },
+
+            selectTemplate(templateCard) {
+                document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+                templateCard.classList.add('selected');
+                document.getElementById('final-output').classList.add('active');
+                document.getElementById('final-output').scrollIntoView({ behavior: 'smooth' });
+            }
+        };
+
+        matrix.init();
+    </script>
+</body>
+</html>
