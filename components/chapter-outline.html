@@ -1,0 +1,467 @@
+<!-- Chapter Outline Component Sample -->
+<div class="chapter-outline-sandbox">
+  <div class="chapter-header">
+    <input class="chapter-title" value="Chapter Title" placeholder="Chapter Title" />
+    <input class="chapter-wordcount" type="number" min="0" value="2000" placeholder="Word Count" />
+    <select class="chapter-pov">
+      <option>POV Character</option>
+      <option>Sarah</option>
+      <option>Marcus</option>
+      <option>Narrator</option>
+    </select>
+    <div class="chapter-characters">
+      <label>Characters:</label>
+      <select class="chapter-characters-select" multiple>
+        <option>Sarah</option>
+        <option>Marcus</option>
+        <option>Narrator</option>
+      </select>
+    </div>
+  </div>
+  <div class="chapter-summary-wrap">
+    <label>Summary:</label>
+    <textarea class="chapter-summary" placeholder="General summary of this chapter..."></textarea>
+  </div>
+  <div class="chapter-plotpoints">
+    <div class="plotpoints-header">
+      <span>Plot Points</span>
+      <button class="btn add-plotpoint">+ Add Plot Point</button>
+    </div>
+    <ul class="plotpoints-list"></ul>
+  </div>
+  <div class="chapter-beats">
+    <div class="beats-header">
+      <span>Beats</span>
+      <button class="btn add-beat">+ Add Beat</button>
+    </div>
+    <div class="beats-list"></div>
+  </div>
+</div>
+
+<style>
+:root {
+  --primary: #03dac6;
+  --secondary: #bb86fc;
+  --accent: #ffd700;
+  --bg-dark: #0a0a0f;
+  --bg-panel: #1a1a1a;
+  --bg-lighter: #2a2a2a;
+  --border: #444;
+  --text-light: #e0e0e0;
+  --text-dim: #888;
+  --error: #f44336;
+}
+.chapter-outline-sandbox {
+  background: var(--bg-panel);
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 900px;
+  margin: 40px auto;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  border: 1px solid var(--border);
+}
+.chapter-header {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.chapter-title {
+  font-size: 1.2em;
+  font-weight: bold;
+  background: var(--bg-dark);
+  color: var(--text-light);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  width: 220px;
+}
+.chapter-wordcount {
+  background: var(--bg-lighter);
+  color: var(--text-light);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  width: 120px;
+  font-size: 1em;
+}
+.chapter-pov {
+  background: var(--bg-lighter);
+  color: var(--text-light);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 1em;
+}
+.chapter-characters label {
+  color: var(--text-dim);
+  font-size: 0.98em;
+  margin-right: 4px;
+}
+.chapter-characters-select {
+  background: var(--bg-lighter);
+  color: var(--text-light);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 1em;
+  min-width: 120px;
+}
+.chapter-summary-wrap {
+  margin-bottom: 18px;
+}
+.chapter-summary-wrap label {
+  color: var(--text-dim);
+  font-size: 0.98em;
+  margin-right: 8px;
+}
+.chapter-summary {
+  width: 100%;
+  min-height: 60px;
+  background: var(--bg-lighter);
+  color: var(--text-light);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 1em;
+  margin-top: 4px;
+}
+.chapter-plotpoints {
+  margin-bottom: 24px;
+}
+.plotpoints-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.plotpoints-header span {
+  font-weight: bold;
+  color: var(--primary);
+  font-size: 1.08em;
+}
+.add-plotpoint {
+  background: var(--primary);
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-weight: bold;
+  font-size: 0.98em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.add-plotpoint:hover {
+  background: var(--secondary);
+}
+.plotpoints-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.plotpoint-item {
+  background: var(--bg-lighter);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.plotpoint-input {
+  background: transparent;
+  color: var(--text-light);
+  border: none;
+  font-size: 1em;
+  flex: 1;
+}
+.remove-plotpoint {
+  background: none;
+  color: var(--error);
+  border: none;
+  font-size: 1.1em;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.remove-plotpoint:hover {
+  background: rgba(244,67,54,0.08);
+}
+.chapter-beats {
+  margin-bottom: 10px;
+}
+.beats-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.beats-header span {
+  font-weight: bold;
+  color: var(--primary);
+  font-size: 1.08em;
+}
+.add-beat {
+  background: var(--secondary);
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-weight: bold;
+  font-size: 0.98em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.add-beat:hover {
+  background: var(--primary);
+}
+.beats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.chapter-beat-card {
+  background: var(--bg-panel);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px 12px 18px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  position: relative;
+  cursor: grab;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.chapter-beat-card:active {
+  box-shadow: 0 2px 12px rgba(3,218,198,0.12);
+}
+.beat-title {
+  font-weight: bold;
+  color: var(--primary);
+  margin-bottom: 3px;
+  font-size: 1.08em;
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+}
+.beat-desc {
+  color: var(--text-dim);
+  font-size: 0.98em;
+  background: transparent;
+  border: none;
+  outline: none;
+  margin-bottom: 4px;
+  width: 100%;
+}
+.beat-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin-top: 10px;
+  align-items: center;
+  background: rgba(255,255,255,0.02);
+  border-radius: 8px;
+  padding: 8px 10px 4px 10px;
+}
+.beat-meta label {
+  color: var(--text-dim);
+  font-size: 0.97em;
+  margin-right: 4px;
+}
+.beat-meta select, .beat-meta input[type="text"] {
+  background: var(--bg-lighter);
+  color: var(--text-light);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.98em;
+  margin-right: 4px;
+  transition: border 0.2s;
+}
+.beat-meta select:focus, .beat-meta input[type="text"]:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+.beat-characters {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.beat-character {
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: 4px;
+  font-size: 0.97em;
+}
+.beat-character select {
+  margin-left: 4px;
+  background: var(--bg-lighter);
+  color: var(--text-light);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  font-size: 0.97em;
+  padding: 2px 6px;
+}
+.add-character-btn {
+  background: var(--primary);
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  padding: 2px 10px;
+  font-size: 0.97em;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: 4px;
+  transition: background 0.2s;
+}
+.add-character-btn:hover {
+  background: var(--secondary);
+}
+.beat-character button {
+  background: none;
+  color: var(--error);
+  border: none;
+  font-size: 1.1em;
+  cursor: pointer;
+  margin-left: 2px;
+  padding: 0 2px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.beat-character button:hover {
+  background: rgba(244,67,54,0.08);
+}
+.beat-wordcount {
+  width: 70px;
+  background: var(--bg-lighter);
+  color: var(--text-light);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.98em;
+  margin-left: 4px;
+}
+.remove-beat {
+  background: none;
+  color: var(--error);
+  border: none;
+  font-size: 1.1em;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+.remove-beat:hover {
+  background: rgba(244,67,54,0.08);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Plot Points
+  const plotpointsList = document.querySelector('.plotpoints-list');
+  document.querySelector('.add-plotpoint').onclick = function() {
+    const li = document.createElement('li');
+    li.className = 'plotpoint-item';
+    li.innerHTML = `<input class="plotpoint-input" placeholder="Plot point..." />` +
+      `<button class="remove-plotpoint">✕</button>`;
+    li.querySelector('.remove-plotpoint').onclick = () => li.remove();
+    plotpointsList.appendChild(li);
+  };
+
+  // Beats
+  const beatsList = document.querySelector('.beats-list');
+  document.querySelector('.add-beat').onclick = function() {
+    beatsList.appendChild(createBeatCard());
+  };
+
+  // Drag and drop for beats
+  let draggedBeat = null;
+  beatsList.addEventListener('dragstart', e => {
+    if (e.target.classList.contains('chapter-beat-card')) {
+      draggedBeat = e.target;
+      setTimeout(() => draggedBeat.style.display = 'none', 0);
+    }
+  });
+  beatsList.addEventListener('dragend', e => {
+    if (draggedBeat) draggedBeat.style.display = '';
+    draggedBeat = null;
+  });
+  beatsList.addEventListener('dragover', e => {
+    e.preventDefault();
+    const after = Array.from(beatsList.children).find(child => {
+      return child !== draggedBeat && child.classList.contains('chapter-beat-card');
+    });
+    if (after) beatsList.insertBefore(draggedBeat, after);
+    else beatsList.appendChild(draggedBeat);
+  });
+
+  // Helper to create a beat card
+  function createBeatCard() {
+    const card = document.createElement('div');
+    card.className = 'chapter-beat-card';
+    card.draggable = true;
+    card.innerHTML = `
+      <input class="beat-title" placeholder="Beat Title" />
+      <input class="beat-desc" placeholder="Beat description..." />
+      <div class="beat-meta">
+        <label>Characters:</label>
+        <div class="beat-characters"></div>
+        <button class="add-character-btn">+ Character</button>
+        <label>Tone:</label>
+        <select class="beat-tone">
+          <option>Neutral</option><option>Tense</option><option>Uplifting</option><option>Dark</option><option>Humorous</option><option>Romantic</option><option>Suspenseful</option>
+        </select>
+        <label>Purpose:</label>
+        <input type="text" class="beat-purpose" placeholder="Purpose (goal, reveal, etc)" />
+        <label>Word Count:</label>
+        <input type="number" class="beat-wordcount" min="0" value="200" />
+      </div>
+      <button class="remove-beat">✕</button>
+    `;
+    // Character add
+    const allCharacters = ['Sarah', 'Marcus', 'Narrator'];
+    const emotionOptions = ['Neutral', 'Happy', 'Sad', 'Angry', 'Afraid', 'Hopeful', 'Conflicted'];
+    const charWrap = card.querySelector('.beat-characters');
+    card.querySelector('.add-character-btn').onclick = function() {
+      const charSel = document.createElement('select');
+      allCharacters.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c;
+        charSel.appendChild(opt);
+      });
+      const emoSel = document.createElement('select');
+      emotionOptions.forEach(e => {
+        const opt = document.createElement('option');
+        opt.value = e;
+        opt.textContent = e;
+        emoSel.appendChild(opt);
+      });
+      const charDiv = document.createElement('div');
+      charDiv.className = 'beat-character';
+      charDiv.appendChild(charSel);
+      charDiv.appendChild(document.createTextNode('Emotion:'));
+      charDiv.appendChild(emoSel);
+      // Remove character btn
+      const removeBtn = document.createElement('button');
+      removeBtn.textContent = '✕';
+      removeBtn.onclick = () => charDiv.remove();
+      charDiv.appendChild(removeBtn);
+      charWrap.appendChild(charDiv);
+    };
+    // Remove beat
+    card.querySelector('.remove-beat').onclick = () => card.remove();
+    return card;
+  }
+});
+</script>

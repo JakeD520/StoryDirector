@@ -1,0 +1,509 @@
+<!-- Outline Sandbox Component Sample -->
+<div class="outline-sandbox">
+    <div class="outline-header">
+        <input class="outline-title" value="My Story Outline" />
+        <select class="framework-select">
+            <option>Three-Act Structure</option>
+            <option>Hero's Journey</option>
+            <option>Save the Cat</option>
+            <option>Custom (Start Blank)</option>
+        </select>
+        <button class="btn outline-export">Export</button>
+        <button class="btn outline-import">Import</button>
+    </div>
+    <div class="outline-frameworks">
+        <span class="framework-label">Framework Preview:</span>
+        <span class="framework-desc">Industry templates provide a starting point, but you can edit, add, or remove beats freely.</span>
+    </div>
+    <div class="outline-board">
+        <div class="outline-section" style="border-left: 5px solid var(--primary)">
+            <div class="section-title">Act I: Setup</div>
+            <div class="scene-cards">
+                <div class="scene-card" draggable="true" style="border-color: var(--primary)">
+                    <div class="scene-title">Opening Image</div>
+                    <div class="scene-desc">Show the protagonist’s world before the story changes.</div>
+                </div>
+                <div class="scene-card" draggable="true" style="border-color: var(--primary)">
+                    <div class="scene-title">Inciting Incident</div>
+                    <div class="scene-desc">The event that disrupts the status quo.</div>
+                </div>
+                <button class="btn add-scene">+ Add Beat</button>
+            </div>
+        </div>
+        <div class="outline-section" style="border-left: 5px solid var(--secondary)">
+            <div class="section-title">Act II: Confrontation</div>
+            <div class="scene-cards">
+                <div class="scene-card" draggable="true" style="border-color: var(--secondary)">
+                    <div class="scene-title">Rising Action</div>
+                    <div class="scene-desc">Obstacles and stakes increase for the protagonist.</div>
+                </div>
+                <div class="scene-card" draggable="true" style="border-color: var(--secondary)">
+                    <div class="scene-title">Midpoint</div>
+                    <div class="scene-desc">A major turning point or revelation.</div>
+                </div>
+                <button class="btn add-scene">+ Add Beat</button>
+            </div>
+        </div>
+        <div class="outline-section" style="border-left: 5px solid var(--accent)">
+            <div class="section-title">Act III: Resolution</div>
+            <div class="scene-cards">
+                <div class="scene-card" draggable="true" style="border-color: var(--accent)">
+                    <div class="scene-title">Climax</div>
+                    <div class="scene-desc">The final confrontation and highest tension.</div>
+                </div>
+                <div class="scene-card" draggable="true" style="border-color: var(--accent)">
+                    <div class="scene-title">Denouement</div>
+                    <div class="scene-desc">Wrap up loose ends and show the new status quo.</div>
+                </div>
+                <button class="btn add-scene">+ Add Beat</button>
+            </div>
+        </div>
+    </div>
+    <div class="outline-footer">
+        <button class="btn add-section">+ Add Section</button>
+        <span class="sandbox-tip">Tip: Drag beats to reorder, edit text, or add your own structure. This is your sandbox!</span>
+    </div>
+</div>
+
+<style>
+:root {
+    --primary: #03dac6;
+    --secondary: #bb86fc;
+    --accent: #ffd700;
+    --bg-dark: #0a0a0f;
+    --bg-panel: #1a1a1a;
+    --bg-lighter: #2a2a2a;
+    --border: #444;
+    --text-light: #e0e0e0;
+    --text-dim: #888;
+    --success: #4caf50;
+    --warning: #ff9800;
+    --error: #f44336;
+}
+body {
+    background: var(--bg-dark);
+    color: var(--text-light);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+.outline-sandbox {
+    background: var(--bg-panel);
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 1100px;
+    margin: 40px auto;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    border: 1px solid var(--border);
+}
+.outline-header {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 18px;
+}
+.outline-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    background: var(--bg-dark);
+    color: var(--text-light);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    width: 260px;
+}
+.framework-select {
+    background: var(--bg-lighter);
+    color: var(--text-light);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 1em;
+    transition: border 0.2s;
+}
+.framework-select:focus {
+    border-color: var(--primary);
+    outline: none;
+}
+.outline-export, .outline-import {
+    background: var(--secondary);
+    color: #000;
+    margin-left: 8px;
+    border-radius: 6px;
+    border: none;
+    padding: 8px 18px;
+    font-weight: bold;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.outline-export:hover, .outline-import:hover {
+    background: var(--primary);
+}
+.outline-frameworks {
+    margin-bottom: 18px;
+    color: var(--text-dim);
+    font-size: 0.95em;
+}
+.framework-label {
+    color: var(--primary);
+    font-weight: bold;
+    margin-right: 8px;
+}
+.outline-board {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-bottom: 18px;
+    width: 100%;
+}
+.outline-section {
+    background: var(--bg-lighter);
+    border-radius: 12px;
+    padding: 18px 16px 16px 16px;
+    margin-bottom: 0;
+    border-left-width: 5px;
+    border-left-style: solid;
+    border: 1px solid var(--border);
+    width: 100%;
+    box-sizing: border-box;
+}
+.section-title {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--secondary);
+    margin-bottom: 12px;
+}
+.scene-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.scene-card {
+    background: var(--bg-panel);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px 12px 18px;
+    margin-bottom: 2px;
+    cursor: grab;
+    transition: box-shadow 0.2s, border-color 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    position: relative;
+}
+.scene-card:active {
+    box-shadow: 0 2px 12px rgba(3,218,198,0.12);
+}
+.scene-title {
+    font-weight: bold;
+    color: var(--primary);
+    margin-bottom: 3px;
+    font-size: 1.08em;
+    background: transparent;
+    border: none;
+    outline: none;
+}
+.scene-desc {
+    color: var(--text-dim);
+    font-size: 0.98em;
+    background: transparent;
+    border: none;
+    outline: none;
+    margin-bottom: 4px;
+}
+.add-scene {
+    background: var(--primary);
+    color: #000;
+    margin-top: 8px;
+    font-size: 0.98em;
+    padding: 7px 16px;
+    border-radius: 6px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.add-scene:hover {
+    background: var(--secondary);
+}
+.outline-footer {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-top: 10px;
+}
+.add-section {
+    background: var(--accent);
+    color: #000;
+    font-size: 1em;
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.add-section:hover {
+    background: var(--primary);
+}
+.sandbox-tip {
+    color: var(--text-dim);
+    font-size: 0.95em;
+}
+/* Beat Card Enhancements */
+.beat-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    margin-top: 10px;
+    align-items: center;
+    background: rgba(255,255,255,0.02);
+    border-radius: 8px;
+    padding: 8px 10px 4px 10px;
+}
+.beat-meta label {
+    color: var(--text-dim);
+    font-size: 0.97em;
+    margin-right: 4px;
+}
+.beat-meta select, .beat-meta input[type="text"] {
+    background: var(--bg-lighter);
+    color: var(--text-light);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.98em;
+    margin-right: 4px;
+    transition: border 0.2s;
+}
+.beat-meta select:focus, .beat-meta input[type="text"]:focus {
+    border-color: var(--primary);
+    outline: none;
+}
+.beat-characters {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.beat-character {
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 3px 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-right: 4px;
+    font-size: 0.97em;
+}
+.beat-character select {
+    margin-left: 4px;
+    background: var(--bg-lighter);
+    color: var(--text-light);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    font-size: 0.97em;
+    padding: 2px 6px;
+}
+.add-character-btn {
+    background: var(--primary);
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-size: 0.97em;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 4px;
+    transition: background 0.2s;
+}
+.add-character-btn:hover {
+    background: var(--secondary);
+}
+.beat-character button {
+    background: none;
+    color: var(--error);
+    border: none;
+    font-size: 1.1em;
+    cursor: pointer;
+    margin-left: 2px;
+    padding: 0 2px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+.beat-character button:hover {
+    background: rgba(244,67,54,0.08);
+}
+@media (max-width: 700px) {
+    .outline-sandbox { padding: 10px 2px; }
+    .outline-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .outline-board { flex-direction: column; gap: 12px; }
+    .outline-section { min-width: 0; width: 100%; }
+}
+</style>
+
+<script>
+// Enhanced interactivity for beat meta (characters, emotion, tone, purpose)
+document.addEventListener('DOMContentLoaded', function() {
+    // Drag and drop for scene cards
+    let draggedCard = null;
+    document.querySelectorAll('.scene-card').forEach(card => {
+        card.addEventListener('dragstart', e => {
+            draggedCard = card;
+            setTimeout(() => card.style.display = 'none', 0);
+        });
+        card.addEventListener('dragend', e => {
+            draggedCard = null;
+            card.style.display = '';
+        });
+    });
+    document.querySelectorAll('.scene-cards').forEach(container => {
+        container.addEventListener('dragover', e => {
+            e.preventDefault();
+            const after = Array.from(container.children).find(child => {
+                return child !== draggedCard && child.classList.contains('scene-card');
+            });
+            if (after) container.insertBefore(draggedCard, after);
+            else container.appendChild(draggedCard);
+        });
+    });
+    // Add Beat
+    document.querySelectorAll('.add-scene').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const cards = btn.parentElement;
+            const newCard = document.createElement('div');
+            newCard.className = 'scene-card';
+            newCard.draggable = true;
+            newCard.innerHTML = `<div class="scene-title" contenteditable="true">New Beat</div><div class="scene-desc" contenteditable="true">Describe this beat...</div>`;
+            cards.insertBefore(newCard, btn);
+            enhanceBeatCard(newCard);
+        });
+    });
+    // Add Section
+    document.querySelector('.add-section').addEventListener('click', function() {
+        const board = document.querySelector('.outline-board');
+        const section = document.createElement('div');
+        section.className = 'outline-section';
+        section.style.borderLeft = '5px solid var(--secondary)';
+        section.innerHTML = `<div class="section-title" contenteditable="true">New Section</div><div class="scene-cards"><button class="btn add-scene">+ Add Beat</button></div>`;
+        board.appendChild(section);
+        // Enhance add-beat in new section
+        section.querySelector('.add-scene').addEventListener('click', function() {
+            const cards = section.querySelector('.scene-cards');
+            const newCard = document.createElement('div');
+            newCard.className = 'scene-card';
+            newCard.draggable = true;
+            newCard.innerHTML = `<div class="scene-title" contenteditable="true">New Beat</div><div class="scene-desc" contenteditable="true">Describe this beat...</div>`;
+            cards.insertBefore(newCard, section.querySelector('.add-scene'));
+            enhanceBeatCard(newCard);
+        });
+    });
+    // Demo character list (could be loaded from project)
+    const allCharacters = ['Sarah', 'Marcus', 'Narrator'];
+    const emotionOptions = ['Neutral', 'Happy', 'Sad', 'Angry', 'Afraid', 'Hopeful', 'Conflicted'];
+    const toneOptions = ['Neutral', 'Tense', 'Uplifting', 'Dark', 'Humorous', 'Romantic', 'Suspenseful'];
+
+    // Enhance all scene-cards with meta fields
+    function enhanceBeatCard(card) {
+        // Only enhance once
+        if (card.querySelector('.beat-meta')) return;
+        const meta = document.createElement('div');
+        meta.className = 'beat-meta';
+        // Characters
+        const charLabel = document.createElement('label');
+        charLabel.textContent = 'Characters:';
+        meta.appendChild(charLabel);
+        const charWrap = document.createElement('div');
+        charWrap.className = 'beat-characters';
+        meta.appendChild(charWrap);
+        // Add character button
+        const addCharBtn = document.createElement('button');
+        addCharBtn.className = 'add-character-btn';
+        addCharBtn.textContent = '+ Character';
+        addCharBtn.onclick = function() {
+            const charSel = document.createElement('select');
+            allCharacters.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = c;
+                charSel.appendChild(opt);
+            });
+            const emoSel = document.createElement('select');
+            emotionOptions.forEach(e => {
+                const opt = document.createElement('option');
+                opt.value = e;
+                opt.textContent = e;
+                emoSel.appendChild(opt);
+            });
+            const charDiv = document.createElement('div');
+            charDiv.className = 'beat-character';
+            charDiv.appendChild(charSel);
+            charDiv.appendChild(document.createTextNode('Emotion:'));
+            charDiv.appendChild(emoSel);
+            // Remove character btn
+            const removeBtn = document.createElement('button');
+            removeBtn.textContent = '✕';
+            removeBtn.style.background = 'none';
+            removeBtn.style.color = 'var(--error)';
+            removeBtn.style.border = 'none';
+            removeBtn.style.cursor = 'pointer';
+            removeBtn.onclick = () => charDiv.remove();
+            charDiv.appendChild(removeBtn);
+            charWrap.appendChild(charDiv);
+        };
+        meta.appendChild(addCharBtn);
+        // Tone
+        const toneLabel = document.createElement('label');
+        toneLabel.textContent = 'Tone:';
+        meta.appendChild(toneLabel);
+        const toneSel = document.createElement('select');
+        toneOptions.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t;
+            opt.textContent = t;
+            toneSel.appendChild(opt);
+        });
+        meta.appendChild(toneSel);
+        // Purpose
+        const purposeLabel = document.createElement('label');
+        purposeLabel.textContent = 'Purpose:';
+        meta.appendChild(purposeLabel);
+        const purposeInput = document.createElement('input');
+        purposeInput.type = 'text';
+        purposeInput.placeholder = 'Beat purpose (goal, reveal, etc)';
+        meta.appendChild(purposeInput);
+        card.appendChild(meta);
+    }
+    // Enhance all existing cards
+    document.querySelectorAll('.scene-card').forEach(enhanceBeatCard);
+    // Enhance new cards on add
+    document.querySelectorAll('.add-scene').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const cards = btn.parentElement;
+            const newCard = document.createElement('div');
+            newCard.className = 'scene-card';
+            newCard.draggable = true;
+            newCard.innerHTML = `<div class="scene-title" contenteditable="true">New Beat</div><div class="scene-desc" contenteditable="true">Describe this beat...</div>`;
+            cards.insertBefore(newCard, btn);
+            enhanceBeatCard(newCard);
+        });
+    });
+    // Enhance cards in new sections
+    document.querySelector('.add-section').addEventListener('click', function() {
+        const board = document.querySelector('.outline-board');
+        const section = document.createElement('div');
+        section.className = 'outline-section';
+        section.style.borderLeft = '5px solid var(--secondary)';
+        section.innerHTML = `<div class="section-title" contenteditable="true">New Section</div><div class="scene-cards"><button class="btn add-scene">+ Add Beat</button></div>`;
+        board.appendChild(section);
+        // Enhance add-beat in new section
+        section.querySelector('.add-scene').addEventListener('click', function() {
+            const cards = section.querySelector('.scene-cards');
+            const newCard = document.createElement('div');
+            newCard.className = 'scene-card';
+            newCard.draggable = true;
+            newCard.innerHTML = `<div class="scene-title" contenteditable="true">New Beat</div><div class="scene-desc" contenteditable="true">Describe this beat...</div>`;
+            cards.insertBefore(newCard, section.querySelector('.add-scene'));
+            enhanceBeatCard(newCard);
+        });
+    });
+});
+</script>
