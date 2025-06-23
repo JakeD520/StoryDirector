@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User-Defined Behavioral Constraints</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #1a1a1a;
+            --bg-medium: #2a2a2a;
+            --bg-light: #3a3a3a;
+            --accent: #03dac6;
+            --accent-dim: #018786;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --text-muted: #888888;
+            --border: #404040;
+            --danger: #cf6679;
+            --warning: #ffb74d;
+            --success: #81c784;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .behavior-builder {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--accent), #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 30px;
+        }
+
+        /* Left Panel - User Behaviors */
+        .behavior-categories {
+            background: var(--bg-medium);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid var(--border);
+            height: fit-content;
+        }
+
+        .panel-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .add-behavior-section {
+            background: var(--bg-light);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 2px dashed var(--border);
+        }
+
+        .add-behavior-title {
+            font-size: 1em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--accent);
+        }
+
+        .add-behavior-input {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .add-behavior-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(3, 218, 198, 0.2);
+        }
+
+        .add-behavior-description {
+            width: 100%;
+            min-height: 80px;
+            padding: 12px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .add-behavior-description:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(3, 218, 198, 0.2);
+        }
+
+        .add-behavior-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent);
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .add-behavior-btn:hover {
+            background: var(--accent-dim);
+            transform: translateY(-1px);
+        }
+
+        .behavior-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .behavior-item {
+            background: var(--bg-dark);
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .behavior-item:hover {
+            background: var(--bg-light);
+            border-left-color: var(--accent);
+            transform: translateX(4px);
+        }
+
+        .behavior-item.selected {
+            border-left-color: var(--warning);
+            background: var(--bg-light);
+        }
+
+        .behavior-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .behavior-description {
+            font-size: 0.8em;
+            color: var(--text-muted);
+            line-height: 1.3;
+        }
+
+        /* Right Panel - Constraint Builder */
+        .constraint-panel {
+            background: var(--bg-medium);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid var(--border);
+        }
+
+        .selected-behavior-display {
+            background: var(--bg-dark);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-left: 4px solid var(--warning);
+        }
+
+        .behavior-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .behavior-full-description {
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .constraint-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .intensity-section {
+            background: var(--bg-light);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .intensity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+
+        .intensity-option {
+            background: var(--bg-dark);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .intensity-option:hover {
+            border-color: var(--accent);
+        }
+
+        .intensity-option.selected {
+            border-color: var(--accent);
+            background: rgba(3, 218, 198, 0.1);
+        }
+
+        .intensity-option.forbidden {
+            border-color: var(--danger);
+        }
+
+        .intensity-option.forbidden.selected {
+            background: rgba(207, 102, 121, 0.1);
+            border-color: var(--danger);
+        }
+
+        .intensity-icon {
+            font-size: 1.5em;
+            margin-bottom: 8px;
+        }
+
+        .intensity-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .intensity-desc {
+            font-size: 0.8em;
+            color: var(--text-muted);
+            line-height: 1.2;
+        }
+
+        .context-section {
+            background: var(--bg-light);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .context-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .context-tag {
+            padding: 8px 15px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s ease;
+        }
+
+        .context-tag.selected {
+            background: var(--accent);
+            color: var(--bg-dark);
+            border-color: var(--accent);
+        }
+
+        .save-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--success);
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .save-btn:hover {
+            background: #66bb6a;
+            transform: translateY(-2px);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 40px;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="behavior-builder">
+        <div class="header">
+            <h1>🎭 Behavioral Constraint Builder</h1>
+            <p>Define your own writing behaviors and control how the LLM handles them</p>
+        </div>
+
+        <div class="main-grid">
+            <!-- Left Panel: User Behaviors -->
+            <div class="behavior-categories">
+                <div class="panel-title">
+                    <span>📝</span>
+                    <span>Your Behavioral Rules</span>
+                </div>
+
+                <div class="add-behavior-section">
+                    <div class="add-behavior-title">Create New Behavioral Constraint</div>
+                    <input 
+                        type="text" 
+                        class="add-behavior-input" 
+                        id="behavior-name-input"
+                        placeholder="Label (e.g., 'Exposition', 'Foreshadowing', 'Romance')"
+                    >
+                    <textarea 
+                        class="add-behavior-description" 
+                        id="behavior-description-input"
+                        placeholder="Describe what you want the LLM to do or avoid (e.g., 'Do not use exposition, show don't tell', 'Avoid romantic tension between characters', 'Never hint at future events')"
+                    ></textarea>
+                    <button class="add-behavior-btn" onclick="addBehavior()">Add Constraint</button>
+                </div>
+
+                <div class="behavior-list" id="behavior-list">
+                    <!-- Sample behaviors -->
+                    <div class="behavior-item" onclick="selectBehavior(this)" data-behavior="exposition">
+                        <div class="behavior-name">Exposition</div>
+                        <div class="behavior-description">Do not use exposition, show don't tell</div>
+                    </div>
+                    <div class="behavior-item" onclick="selectBehavior(this)" data-behavior="foreshadowing">
+                        <div class="behavior-name">Foreshadowing</div>
+                        <div class="behavior-description">Never hint at future events or create ominous implications</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Constraint Builder -->
+            <div class="constraint-panel">
+                <div id="constraint-content">
+                    <div class="empty-state">
+                        <h3>Select a behavioral constraint to configure</h3>
+                        <p>Choose a behavior from the left to set its intensity and context, or create a new one.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let userBehaviors = [
+            { id: 'exposition', name: 'Exposition', description: 'Do not use exposition, show don\'t tell' },
+            { id: 'foreshadowing', name: 'Foreshadowing', description: 'Never hint at future events or create ominous implications' }
+        ];
+        
+        let selectedBehavior = null;
+        let selectedIntensity = null;
+        let selectedContexts = [];
+
+        const intensityLevels = {
+            forbidden: { icon: '🚫', name: 'Forbidden', desc: 'Never do this behavior', color: 'danger' },
+            minimal: { icon: '⚠️', name: 'Minimal', desc: 'Only when explicitly directed', color: 'warning' },
+            limited: { icon: '📏', name: 'Limited', desc: 'Sparingly and naturally', color: 'accent' },
+            allowed: { icon: '✅', name: 'Allowed', desc: 'Use when appropriate', color: 'success' }
+        };
+
+        const contexts = ['Dialogue', 'Narration', 'Character Thoughts', 'Scene Descriptions', 'Action Scenes'];
+
+        function addBehavior() {
+            const nameInput = document.getElementById('behavior-name-input');
+            const descInput = document.getElementById('behavior-description-input');
+            
+            const name = nameInput.value.trim();
+            const description = descInput.value.trim();
+            
+            if (!name || !description) {
+                alert('Please provide both a name and description for the behavior');
+                return;
+            }
+            
+            const id = name.toLowerCase().replace(/\s+/g, '-');
+            const behavior = { id, name, description };
+            
+            userBehaviors.push(behavior);
+            renderBehaviorList();
+            
+            nameInput.value = '';
+            descInput.value = '';
+        }
+
+        function renderBehaviorList() {
+            const container = document.getElementById('behavior-list');
+            container.innerHTML = userBehaviors.map(behavior => `
+                <div class="behavior-item" onclick="selectBehavior(this)" data-behavior="${behavior.id}">
+                    <div class="behavior-name">${behavior.name}</div>
+                    <div class="behavior-description">${behavior.description}</div>
+                </div>
+            `).join('');
+        }
+
+        function selectBehavior(element) {
+            // Update selection
+            document.querySelectorAll('.behavior-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            
+            const behaviorId = element.dataset.behavior;
+            selectedBehavior = userBehaviors.find(b => b.id === behaviorId);
+            renderConstraintBuilder(selectedBehavior);
+        }
+
+        function renderConstraintBuilder(behavior) {
+            const content = document.getElementById('constraint-content');
+            
+            content.innerHTML = `
+                <div class="selected-behavior-display">
+                    <div class="behavior-title">${behavior.name}</div>
+                    <div class="behavior-full-description">${behavior.description}</div>
+                </div>
+
+                <div class="constraint-controls">
+                    <div class="intensity-section">
+                        <div class="section-title">
+                            <span>🎚️</span>
+                            <span>How strictly should this be controlled?</span>
+                        </div>
+                        <div class="intensity-grid">
+                            ${Object.entries(intensityLevels).map(([key, level]) => `
+                                <div class="intensity-option ${key === 'forbidden' ? 'forbidden' : ''}" 
+                                     onclick="selectIntensity('${key}')" data-intensity="${key}">
+                                    <div class="intensity-icon">${level.icon}</div>
+                                    <div class="intensity-name">${level.name}</div>
+                                    <div class="intensity-desc">${level.desc}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="context-section">
+                        <div class="section-title">
+                            <span>🎯</span>
+                            <span>Apply to which contexts?</span>
+                        </div>
+                        <div class="context-grid">
+                            ${contexts.map(context => `
+                                <div class="context-tag" onclick="toggleContext('${context}')" data-context="${context}">
+                                    ${context}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <button class="save-btn" onclick="saveConstraint()">Save Behavioral Constraint</button>
+                </div>
+            `;
+
+            // Reset selections
+            selectedIntensity = null;
+            selectedContexts = [];
+        }
+
+        function selectIntensity(intensity) {
+            selectedIntensity = intensity;
+            
+            document.querySelectorAll('.intensity-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.querySelector(`[data-intensity="${intensity}"]`).classList.add('selected');
+        }
+
+        function toggleContext(context) {
+            const element = document.querySelector(`[data-context="${context}"]`);
+            
+            if (selectedContexts.includes(context)) {
+                selectedContexts = selectedContexts.filter(c => c !== context);
+                element.classList.remove('selected');
+            } else {
+                selectedContexts.push(context);
+                element.classList.add('selected');
+            }
+        }
+
+        function saveConstraint() {
+            if (!selectedBehavior || !selectedIntensity) {
+                alert('Please select a behavior and intensity level');
+                return;
+            }
+            
+            const constraint = {
+                behavior: selectedBehavior.id,
+                behaviorName: selectedBehavior.name,
+                behaviorDescription: selectedBehavior.description,
+                intensity: selectedIntensity,
+                contexts: selectedContexts
+            };
+            
+            console.log('Behavioral constraint saved:', constraint);
+            alert(`Behavioral constraint saved!\n\n${selectedBehavior.name} → ${intensityLevels[selectedIntensity].name}\n\nDescription: ${selectedBehavior.description}`);
+        }
+    </script>
+</body>
+</html>

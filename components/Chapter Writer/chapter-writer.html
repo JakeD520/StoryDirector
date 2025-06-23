@@ -1,0 +1,274 @@
+<!-- Chapter Writer (Discovery/Output) Component Sample -->
+<div class="chapter-writer">
+  <div class="chapter-writer-header">
+    <div class="chapter-title">Chapter 1: The Arrival</div>
+    <div class="chapter-nav">
+      <button class="btn prev-beat">⟵ Prev</button>
+      <span class="beat-indicator">Beat 1 of 3</span>
+      <button class="btn next-beat">Next ⟶</button>
+    </div>
+  </div>
+  <div class="chapter-beats-view">
+    <!-- Beats will be rendered here -->
+  </div>
+</div>
+
+<style>
+:root {
+  --primary: #03dac6;
+  --secondary: #bb86fc;
+  --accent: #ffd700;
+  --bg-dark: #0a0a0f;
+  --bg-panel: #1a1a1a;
+  --bg-lighter: #2a2a2a;
+  --border: #444;
+  --text-light: #e0e0e0;
+  --text-dim: #888;
+  --success: #4caf50;
+  --error: #f44336;
+}
+.chapter-writer {
+  background: var(--bg-panel);
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 900px;
+  margin: 40px auto;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  border: 1px solid var(--border);
+}
+.chapter-writer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.chapter-title {
+  font-size: 1.3em;
+  font-weight: bold;
+  color: var(--primary);
+}
+.chapter-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.beat-indicator {
+  color: var(--text-dim);
+  font-size: 1em;
+}
+.btn {
+  background: var(--secondary);
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-weight: bold;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn:hover {
+  background: var(--primary);
+}
+.chapter-beats-view {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+.beat-card {
+  background: var(--bg-lighter);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 24px 24px 18px 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  position: relative;
+}
+.beat-label {
+  color: var(--secondary);
+  font-weight: bold;
+  font-size: 1.05em;
+  margin-bottom: 8px;
+}
+.beat-prose {
+  font-size: 1.13em;
+  line-height: 1.7;
+  color: var(--text-light);
+  margin-bottom: 12px;
+  white-space: pre-line;
+}
+.dialogue {
+  display: inline;
+  font-weight: bold;
+  padding: 0 2px;
+  border-radius: 4px;
+}
+.dialogue.sarah { color: var(--primary); }
+.dialogue.marcus { color: var(--secondary); }
+.dialogue.narrator { color: var(--accent); }
+.beat-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.keep-btn, .regen-btn {
+  background: var(--primary);
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-weight: bold;
+  font-size: 0.98em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.keep-btn.selected {
+  background: var(--success);
+  color: #fff;
+}
+.regen-btn.selected {
+  background: var(--error);
+  color: #fff;
+}
+.keep-btn:hover, .regen-btn:hover {
+  background: var(--secondary);
+}
+.beat-notes-toggle {
+  background: none;
+  color: var(--accent);
+  border: none;
+  font-size: 1em;
+  cursor: pointer;
+  margin-left: 8px;
+  text-decoration: underline;
+}
+.beat-notes {
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-top: 8px;
+  color: var(--text-light);
+  font-size: 0.98em;
+  display: none;
+}
+.beat-notes.active {
+  display: block;
+}
+.beat-notes-label {
+  color: var(--accent);
+  font-weight: bold;
+  margin-bottom: 4px;
+  display: block;
+}
+</style>
+
+<script>
+// Sample data for demo
+const beats = [
+  {
+    label: 'Beat 1: Arrival',
+    prose: 'Sarah stepped off the train, the city lights flickering in the rain.\n\n"We made it," she whispered.\n\nMarcus grinned. "Barely. But we did."',
+    notes: '',
+    status: 'keep',
+  },
+  {
+    label: 'Beat 2: Confrontation',
+    prose: 'The stranger blocked their path.\n\n"You shouldn\'t be here," the man growled.\n\nSarah squared her shoulders. "We have every right."',
+    notes: '',
+    status: 'regen',
+  },
+  {
+    label: 'Beat 3: Revelation',
+    prose: 'Marcus glanced at Sarah, fear in his eyes.\n\n"Did you know?" he asked.\n\nSarah shook her head, her voice trembling. "No. Not until now."',
+    notes: '',
+    status: '',
+  },
+];
+const characterColors = {
+  'Sarah': 'sarah',
+  'Marcus': 'marcus',
+  'Narrator': 'narrator',
+};
+
+function renderBeats() {
+  const container = document.querySelector('.chapter-beats-view');
+  container.innerHTML = '';
+  beats.forEach((beat, i) => {
+    const card = document.createElement('div');
+    card.className = 'beat-card';
+    // Beat label
+    const label = document.createElement('div');
+    label.className = 'beat-label';
+    label.textContent = beat.label;
+    card.appendChild(label);
+    // Prose with color-coded dialogue
+    const prose = document.createElement('div');
+    prose.className = 'beat-prose';
+    prose.innerHTML = colorDialogue(beat.prose);
+    card.appendChild(prose);
+    // Actions
+    const actions = document.createElement('div');
+    actions.className = 'beat-actions';
+    // Keep button
+    const keepBtn = document.createElement('button');
+    keepBtn.className = 'keep-btn btn' + (beat.status === 'keep' ? ' selected' : '');
+    keepBtn.textContent = 'Keep';
+    keepBtn.onclick = () => {
+      beat.status = beat.status === 'keep' ? '' : 'keep';
+      if (beat.status === 'keep') beat.notes = '';
+      renderBeats();
+    };
+    actions.appendChild(keepBtn);
+    // Regen button
+    const regenBtn = document.createElement('button');
+    regenBtn.className = 'regen-btn btn' + (beat.status === 'regen' ? ' selected' : '');
+    regenBtn.textContent = 'Regenerate';
+    regenBtn.onclick = () => {
+      beat.status = beat.status === 'regen' ? '' : 'regen';
+      renderBeats();
+    };
+    actions.appendChild(regenBtn);
+    // Notes toggle
+    const notesToggle = document.createElement('button');
+    notesToggle.className = 'beat-notes-toggle';
+    notesToggle.textContent = 'Notes';
+    notesToggle.onclick = () => {
+      notesDiv.classList.toggle('active');
+    };
+    actions.appendChild(notesToggle);
+    card.appendChild(actions);
+    // Notes section
+    const notesDiv = document.createElement('div');
+    notesDiv.className = 'beat-notes' + (beat.status === 'regen' ? ' active' : '');
+    const notesLabel = document.createElement('span');
+    notesLabel.className = 'beat-notes-label';
+    notesLabel.textContent = 'Notes for Regeneration:';
+    notesDiv.appendChild(notesLabel);
+    const notesInput = document.createElement('textarea');
+    notesInput.value = beat.notes;
+    notesInput.placeholder = 'Add direction for the LLM to improve this beat...';
+    notesInput.oninput = (e) => {
+      beat.notes = notesInput.value;
+    };
+    // Only allow notes if regen is selected
+    notesInput.disabled = beat.status !== 'regen';
+    notesDiv.appendChild(notesInput);
+    card.appendChild(notesDiv);
+    container.appendChild(card);
+  });
+}
+// Color dialogue by character name (simple demo)
+function colorDialogue(text) {
+  // Replace "Sarah:" or "Marcus:" at start of line with colored span
+  return text.replace(/("[^"]+"|\'[^']+\')/g, (match) => {
+    // Guess character by previous line or context (simple demo)
+    if (match.includes('Sarah')) return `<span class="dialogue sarah">${match}</span>`;
+    if (match.includes('Marcus')) return `<span class="dialogue marcus">${match}</span>`;
+    return `<span class="dialogue narrator">${match}</span>`;
+  });
+}
+document.addEventListener('DOMContentLoaded', () => {
+  renderBeats();
+});
+</script>

@@ -1,0 +1,233 @@
+<!-- Revision Tool Sample -->
+<div class="revision-tool">
+  <div class="revision-header">
+    <div class="revision-title">Revision Mode: Chapter 1</div>
+    <div class="revision-toolbar">
+      <button class="btn ai-suggest">AI Suggestion</button>
+      <button class="btn thesaurus">Thesaurus</button>
+      <button class="btn dictionary">Dictionary</button>
+      <button class="btn markup">Markup</button>
+      <button class="btn version">History</button>
+    </div>
+  </div>
+  <div class="revision-main">
+    <div class="revision-sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Beats</div>
+        <ul class="sidebar-beats">
+          <li class="active">Beat 1: Arrival</li>
+          <li>Beat 2: Confrontation</li>
+          <li>Beat 3: Revelation</li>
+        </ul>
+      </div>
+      <div class="sidebar-section thesaurus-dict" style="display:none;">
+        <div class="sidebar-label">Thesaurus/Dictionary</div>
+        <div class="sidebar-content">Select a word to see synonyms, antonyms, or definitions here.</div>
+      </div>
+      <div class="sidebar-section markup-panel" style="display:none;">
+        <div class="sidebar-label">Markup/Comments</div>
+        <div class="sidebar-content">Highlight text and add comments or tags for later review.</div>
+      </div>
+      <div class="sidebar-section version-panel" style="display:none;">
+        <div class="sidebar-label">History</div>
+        <div class="sidebar-content">View and restore previous versions here.</div>
+      </div>
+    </div>
+    <div class="revision-content">
+      <div class="beat-editor" contenteditable="true">
+        <span class="beat-label">Beat 1: Arrival</span>
+        <p>Sarah stepped off the train, the city lights flickering in the rain.</p>
+        <p><span class="dialogue sarah">"We made it," she whispered.</span></p>
+        <p><span class="dialogue marcus">Marcus grinned. "Barely. But we did."</span></p>
+      </div>
+      <div class="ai-assistant-panel" style="display:none;">
+        <div class="ai-label">AI Assistant</div>
+        <div class="ai-suggestion-content">AI suggestions for selected text or the whole beat will appear here. Accept, reject, or tweak as needed.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+:root {
+  --primary: #03dac6;
+  --secondary: #bb86fc;
+  --accent: #ffd700;
+  --bg-dark: #0a0a0f;
+  --bg-panel: #1a1a1a;
+  --bg-lighter: #2a2a2a;
+  --border: #444;
+  --text-light: #e0e0e0;
+  --text-dim: #888;
+  --success: #4caf50;
+  --error: #f44336;
+}
+.revision-tool {
+  background: var(--bg-panel);
+  border-radius: 12px;
+  padding: 0;
+  max-width: 1100px;
+  margin: 40px auto;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  min-height: 600px;
+}
+.revision-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 32px 12px 32px;
+  border-bottom: 1px solid var(--border);
+}
+.revision-title {
+  font-size: 1.3em;
+  font-weight: bold;
+  color: var(--primary);
+}
+.revision-toolbar {
+  display: flex;
+  gap: 12px;
+}
+.btn {
+  background: var(--secondary);
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-weight: bold;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn:hover {
+  background: var(--primary);
+}
+.revision-main {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+.revision-sidebar {
+  width: 220px;
+  background: var(--bg-lighter);
+  border-right: 1px solid var(--border);
+  padding: 24px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.sidebar-section {
+  padding: 0 18px 18px 18px;
+}
+.sidebar-label {
+  color: var(--primary);
+  font-weight: bold;
+  margin-bottom: 8px;
+  display: block;
+}
+.sidebar-beats {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.sidebar-beats li {
+  padding: 7px 10px;
+  border-radius: 6px;
+  color: var(--text-light);
+  cursor: pointer;
+  margin-bottom: 4px;
+  transition: background 0.2s;
+}
+.sidebar-beats li.active, .sidebar-beats li:hover {
+  background: var(--primary);
+  color: #000;
+}
+.revision-content {
+  flex: 1;
+  padding: 32px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+.beat-editor {
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px 24px 18px 24px;
+  min-height: 180px;
+  color: var(--text-light);
+  font-size: 1.13em;
+  line-height: 1.7;
+  outline: none;
+}
+.beat-label {
+  color: var(--secondary);
+  font-weight: bold;
+  font-size: 1.05em;
+  margin-bottom: 8px;
+  display: block;
+}
+.dialogue.sarah { color: var(--primary); font-weight: bold; }
+.dialogue.marcus { color: var(--secondary); font-weight: bold; }
+.dialogue.narrator { color: var(--accent); font-weight: bold; }
+.ai-assistant-panel {
+  background: var(--bg-lighter);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  color: var(--text-light);
+}
+.ai-label {
+  color: var(--accent);
+  font-weight: bold;
+  margin-bottom: 6px;
+  display: block;
+}
+@media (max-width: 900px) {
+  .revision-main { flex-direction: column; }
+  .revision-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); flex-direction: row; gap: 0; }
+  .sidebar-section { padding: 12px 8px; }
+  .revision-content { padding: 18px 8px; }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Toolbar toggles for sidebar panels
+  document.querySelector('.btn.thesaurus').onclick = function() {
+    togglePanel('thesaurus-dict');
+  };
+  document.querySelector('.btn.dictionary').onclick = function() {
+    togglePanel('thesaurus-dict');
+  };
+  document.querySelector('.btn.markup').onclick = function() {
+    togglePanel('markup-panel');
+  };
+  document.querySelector('.btn.version').onclick = function() {
+    togglePanel('version-panel');
+  };
+  document.querySelector('.btn.ai-suggest').onclick = function() {
+    document.querySelector('.ai-assistant-panel').style.display = 'block';
+  };
+  function togglePanel(cls) {
+    document.querySelectorAll('.sidebar-section').forEach(sec => {
+      if (sec.classList.contains(cls)) {
+        sec.style.display = sec.style.display === 'none' ? 'block' : 'none';
+      } else if (['thesaurus-dict','markup-panel','version-panel'].some(c => sec.classList.contains(c))) {
+        sec.style.display = 'none';
+      }
+    });
+  }
+  // Sidebar beat navigation (demo only)
+  document.querySelectorAll('.sidebar-beats li').forEach(li => {
+    li.onclick = function() {
+      document.querySelectorAll('.sidebar-beats li').forEach(x => x.classList.remove('active'));
+      li.classList.add('active');
+      // In a real app, would load the correct beat into the editor
+    };
+  });
+});
+</script>

@@ -1,0 +1,239 @@
+<!-- Project Settings Component for StoryDirector -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Project Settings</title>
+  <style>
+    :root {
+      --primary: #03dac6;
+      --secondary: #bb86fc;
+      --accent: #ffd700;
+      --bg-dark: #0a0a0f;
+      --bg-panel: #1a1a1a;
+      --bg-lighter: #2a2a2a;
+      --border: #444;
+      --text-light: #e0e0e0;
+      --text-dim: #888;
+    }
+    body {
+      background: var(--bg-dark);
+      color: var(--text-light);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .settings-container {
+      background: var(--bg-panel);
+      border-radius: 12px;
+      max-width: 480px;
+      margin: 40px auto;
+      padding: 32px 32px 24px 32px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+      border: 1px solid var(--border);
+    }
+    .settings-title {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+    .settings-label {
+      display: block;
+      margin-top: 18px;
+      margin-bottom: 6px;
+      color: var(--secondary);
+      font-size: 0.98em;
+      font-weight: 500;
+    }
+    .settings-input, .settings-textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg-lighter);
+      color: var(--text-light);
+      font-size: 1em;
+      margin-bottom: 4px;
+      box-sizing: border-box;
+    }
+    .settings-textarea {
+      min-height: 60px;
+      resize: vertical;
+    }
+    .settings-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      background: var(--primary);
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 20px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1em;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      background: var(--secondary);
+      color: #fff;
+    }
+    .project-list {
+      margin-top: 28px;
+      background: var(--bg-lighter);
+      border-radius: 8px;
+      padding: 12px 10px;
+      border: 1px solid var(--border);
+    }
+    .project-list-title {
+      color: var(--accent);
+      font-weight: bold;
+      margin-bottom: 8px;
+      font-size: 1em;
+    }
+    .project-item {
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .project-item:last-child {
+      border-bottom: none;
+    }
+    .project-item.active, .project-item:hover {
+      color: var(--primary);
+      font-weight: bold;
+    }
+    .status-message {
+      margin-top: 10px;
+      color: var(--secondary);
+      font-size: 0.95em;
+      min-height: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="settings-container">
+    <div class="settings-title">Project Settings</div>
+    <form id="project-form" autocomplete="off">
+      <label class="settings-label" for="project-name">Project Name</label>
+      <input class="settings-input" id="project-name" name="projectName" required maxlength="64" placeholder="Enter project name...">
+      <label class="settings-label" for="project-desc">Description</label>
+      <textarea class="settings-textarea" id="project-desc" name="projectDesc" maxlength="256" placeholder="Short description (optional)"></textarea>
+      <div class="settings-actions">
+        <button type="submit" class="btn">Create / Save</button>
+        <button type="button" class="btn" id="rename-btn">Rename</button>
+        <button type="button" class="btn" id="export-btn">Export</button>
+      </div>
+      <div class="status-message" id="status-message"></div>
+    </form>
+    <div class="project-list" id="project-list">
+      <div class="project-list-title">Available Projects</div>
+      <!-- Project items will be injected here -->
+    </div>
+  </div>
+  <script>
+    // Simple localStorage-based project management
+    const form = document.getElementById('project-form');
+    const nameInput = document.getElementById('project-name');
+    const descInput = document.getElementById('project-desc');
+    const statusMsg = document.getElementById('status-message');
+    const projectList = document.getElementById('project-list');
+    let currentProject = null;
+
+    function getProjects() {
+      return JSON.parse(localStorage.getItem('sd-projects') || '[]');
+    }
+    function saveProjects(projects) {
+      localStorage.setItem('sd-projects', JSON.stringify(projects));
+    }
+    function renderProjectList() {
+      const projects = getProjects();
+      let html = '<div class="project-list-title">Available Projects</div>';
+      if (projects.length === 0) {
+        html += '<div style="color:var(--text-dim);font-size:0.95em;">No projects yet.</div>';
+      } else {
+        projects.forEach((proj, idx) => {
+          html += `<div class="project-item${currentProject && proj.id === currentProject.id ? ' active' : ''}" data-idx="${idx}">${proj.name}</div>`;
+        });
+      }
+      projectList.innerHTML = html;
+      document.querySelectorAll('.project-item').forEach(item => {
+        item.onclick = () => {
+          const idx = +item.dataset.idx;
+          loadProject(idx);
+        };
+      });
+    }
+    function showStatus(msg, timeout=1800) {
+      statusMsg.textContent = msg;
+      if (timeout) setTimeout(() => statusMsg.textContent = '', timeout);
+    }
+    function loadProject(idx) {
+      const projects = getProjects();
+      if (projects[idx]) {
+        currentProject = projects[idx];
+        nameInput.value = currentProject.name;
+        descInput.value = currentProject.desc || '';
+        showStatus('Project loaded.');
+        renderProjectList();
+      }
+    }
+    form.onsubmit = e => {
+      e.preventDefault();
+      const name = nameInput.value.trim();
+      if (!name) return showStatus('Project name required.');
+      const desc = descInput.value.trim();
+      let projects = getProjects();
+      if (currentProject) {
+        // Update existing
+        currentProject.name = name;
+        currentProject.desc = desc;
+        projects = projects.map(p => p.id === currentProject.id ? currentProject : p);
+        showStatus('Project saved.');
+      } else {
+        // Create new
+        const id = 'proj-' + Date.now();
+        const newProj = { id, name, desc };
+        projects.push(newProj);
+        currentProject = newProj;
+        showStatus('Project created.');
+      }
+      saveProjects(projects);
+      renderProjectList();
+    };
+    document.getElementById('rename-btn').onclick = () => {
+      if (!currentProject) return showStatus('Load a project first.');
+      const newName = prompt('Enter new project name:', currentProject.name);
+      if (newName && newName.trim()) {
+        currentProject.name = newName.trim();
+        saveProjects(getProjects().map(p => p.id === currentProject.id ? currentProject : p));
+        nameInput.value = currentProject.name;
+        showStatus('Project renamed.');
+        renderProjectList();
+      }
+    };
+    document.getElementById('export-btn').onclick = () => {
+      if (!currentProject) return showStatus('Load a project first.');
+      const data = JSON.stringify(currentProject, null, 2);
+      const blob = new Blob([data], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${currentProject.name.replace(/\s+/g,'_') || 'project'}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showStatus('Project exported.');
+    };
+    // Initial render
+    renderProjectList();
+  </script>
+</body>
+</html>
