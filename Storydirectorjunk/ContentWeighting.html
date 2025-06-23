@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Weighting - StorDNA</title>
+    <style>
+        :root {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-panel: #242424;
+            --bg-lighter: #363636;
+            --accent: #bb86fc;
+            --secondary: #bb86fc;
+            --text-light: #e8eaed;
+            --text-dim: #9aa0a6;
+            --border: #404040;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        .content-weighting-container {
+            display: flex;
+            height: 100vh;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .weighting-panel {
+            flex: 1;
+            background: var(--bg-panel);
+            border-radius: 12px;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .preview-panel {
+            flex: 1;
+            background: var(--bg-panel);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-icon {
+            font-size: 1.5em;
+        }
+
+        .panel-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: var(--text-light);
+        }
+
+        .panel-subtitle {
+            font-size: 0.9em;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+
+        /* Category Library */
+        .category-library {
+            margin-bottom: 32px;
+        }
+
+        .library-section {
+            margin-bottom: 24px;
+        }
+
+        .library-section-title {
+            font-size: 1em;
+            font-weight: 600;
+            color: var(--secondary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 0.5px;
+        }
+
+        .category-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .category-tag {
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .category-tag:hover {
+            border-color: var(--secondary);
+            background: rgba(187, 134, 252, 0.1);
+        }
+
+        .category-tag.selected {
+            background: var(--secondary);
+            color: var(--bg-primary);
+            border-color: var(--secondary);
+        }
+
+        /* Custom Category Input */
+        .custom-category {
+            margin-top: 16px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .custom-input {
+            flex: 1;
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px 12px;
+            color: var(--text-light);
+            font-size: 0.9em;
+        }
+
+        .custom-input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .add-custom-btn {
+            background: var(--secondary);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 6px;
+            padding: 10px 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .add-custom-btn:hover {
+            opacity: 0.8;
+        }
+
+        /* Active Categories Matrix */
+        .active-categories {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .matrix-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .matrix-title {
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .total-weight {
+            font-size: 0.9em;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-weight: 600;
+        }
+
+        .total-weight.valid {
+            background: rgba(76, 175, 80, 0.2);
+            color: var(--success);
+        }
+
+        .total-weight.invalid {
+            background: rgba(244, 67, 54, 0.2);
+            color: var(--error);
+        }
+
+        .category-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding: 12px;
+            background: var(--bg-lighter);
+            border-radius: 6px;
+        }
+
+        .category-name {
+            flex: 1;
+            font-size: 0.9em;
+        }
+
+        .weight-slider {
+            width: 120px;
+            margin: 0 8px;
+        }
+
+        .weight-input {
+            width: 60px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 4px 8px;
+            color: var(--text-light);
+            text-align: center;
+            font-size: 0.85em;
+        }
+
+        .remove-category {
+            background: var(--error);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 0.75em;
+        }
+
+        /* Preview Section */
+        .preview-controls {
+            margin-bottom: 20px;
+        }
+
+        .scenario-select {
+            width: 100%;
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px 12px;
+            color: var(--text-light);
+            margin-bottom: 12px;
+        }
+
+        .preview-btn {
+            width: 100%;
+            background: var(--secondary);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .preview-btn:hover {
+            opacity: 0.8;
+        }
+
+        .preview-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .preview-content {
+            flex: 1;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .preview-text {
+            line-height: 1.8;
+            font-size: 0.95em;
+            color: var(--text-light);
+        }
+
+        .preview-placeholder {
+            color: var(--text-dim);
+            font-style: italic;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .loading {
+            color: var(--secondary);
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0%, 33% { content: '.'; }
+            34%, 66% { content: '..'; }
+            67%, 100% { content: '...'; }
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .content-weighting-container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .preview-panel {
+                min-height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="content-weighting-container">
+        <!-- Weighting Panel -->
+        <div class="weighting-panel">
+            <div class="panel-header">
+                <span class="panel-icon">📊</span>
+                <div>
+                    <div class="panel-title">Content Weighting</div>
+                    <div class="panel-subtitle">Define your prose recipe</div>
+                </div>
+            </div>
+
+            <!-- Category Library -->
+            <div class="category-library">
+                <div class="library-section">
+                    <div class="library-section-title">Narrative Elements</div>
+                    <div class="category-tags">
+                        <div class="category-tag" data-category="Plot Progression">Plot Progression</div>
+                        <div class="category-tag" data-category="Pacing Beats">Pacing Beats</div>
+                        <div class="category-tag" data-category="Tension Building">Tension Building</div>
+                        <div class="category-tag" data-category="Story Reveals">Story Reveals</div>
+                        <div class="category-tag" data-category="Cliffhangers">Cliffhangers</div>
+                    </div>
+                </div>
+
+                <div class="library-section">
+                    <div class="library-section-title">Character Elements</div>
+                    <div class="category-tags">
+                        <div class="category-tag" data-category="Internal Thoughts">Internal Thoughts</div>
+                        <div class="category-tag" data-category="Character Backstory">Character Backstory</div>
+                        <div class="category-tag" data-category="Character Interactions">Character Interactions</div>
+                        <div class="category-tag" data-category="Emotional Depth">Emotional Depth</div>
+                        <div class="category-tag" data-category="Character Growth">Character Growth</div>
+                    </div>
+                </div>
+
+                <div class="library-section">
+                    <div class="library-section-title">Dialogue Types</div>
+                    <div class="category-tags">
+                        <div class="category-tag" data-category="Character Banter">Character Banter</div>
+                        <div class="category-tag" data-category="Philosophical Dialogue">Philosophical Dialogue</div>
+                        <div class="category-tag" data-category="Exposition Dialogue">Exposition Dialogue</div>
+                        <div class="category-tag" data-category="Emotional Confrontation">Emotional Confrontation</div>
+                        <div class="category-tag" data-category="Witty Exchanges">Witty Exchanges</div>
+                    </div>
+                </div>
+
+                <div class="library-section">
+                    <div class="library-section-title">Descriptive Elements</div>
+                    <div class="category-tags">
+                        <div class="category-tag" data-category="Setting Atmosphere">Setting Atmosphere</div>
+                        <div class="category-tag" data-category="Sensory Details">Sensory Details</div>
+                        <div class="category-tag" data-category="Worldbuilding Texture">Worldbuilding Texture</div>
+                        <div class="category-tag" data-category="Visual Imagery">Visual Imagery</div>
+                        <div class="category-tag" data-category="Environmental Storytelling">Environmental Storytelling</div>
+                    </div>
+                </div>
+
+                <div class="library-section">
+                    <div class="library-section-title">Emotional/Tonal</div>
+                    <div class="category-tags">
+                        <div class="category-tag" data-category="Dark Humor">Dark Humor</div>
+                        <div class="category-tag" data-category="Melancholy">Melancholy</div>
+                        <div class="category-tag" data-category="Suspense">Suspense</div>
+                        <div class="category-tag" data-category="Whimsy">Whimsy</div>
+                        <div class="category-tag" data-category="Romantic Tension">Romantic Tension</div>
+                        <div class="category-tag" data-category="Existential Dread">Existential Dread</div>
+                    </div>
+                </div>
+
+                <div class="library-section">
+                    <div class="library-section-title">Experimental</div>
+                    <div class="category-tags">
+                        <div class="category-tag" data-category="Stream of Consciousness">Stream of Consciousness</div>
+                        <div class="category-tag" data-category="Fragmented Narrative">Fragmented Narrative</div>
+                        <div class="category-tag" data-category="Meta Commentary">Meta Commentary</div>
+                        <div class="category-tag" data-category="Surreal Elements">Surreal Elements</div>
+                        <div class="category-tag" data-category="Alien Physicality">Alien Physicality</div>
+                    </div>
+                </div>
+
+                <div class="custom-category">
+                    <input type="text" class="custom-input" placeholder="Create custom category..." id="custom-category-input">
+                    <button class="add-custom-btn" onclick="addCustomCategory()">Add</button>
+                </div>
+            </div>
+
+            <!-- Active Categories Matrix -->
+            <div class="active-categories">
+                <div class="matrix-header">
+                    <div class="matrix-title">Your Prose Recipe</div>
+                    <div class="total-weight" id="total-weight">0%</div>
+                </div>
+                <div id="category-matrix">
+                    <div class="preview-placeholder">Select categories above to build your recipe</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Panel -->
+        <div class="preview-panel">
+            <div class="panel-header">
+                <span class="panel-icon">👁️</span>
+                <div>
+                    <div class="panel-title">Prose Preview</div>
+                    <div class="panel-subtitle">See your weightings in action</div>
+                </div>
+            </div>
+
+            <div class="preview-controls">
+                <select class="scenario-select" id="preview-scenario">
+                    <option value="tavern-meeting">Two characters meeting in a tavern</option>
+                    <option value="ancient-ruins">Character exploring ancient ruins</option>
+                    <option value="tense-confrontation">Heated argument between allies</option>
+                    <option value="mystery-discovery">Discovering a crucial clue</option>
+                    <option value="quiet-reflection">Character in contemplative moment</option>
+                </select>
+                <button class="preview-btn" id="generate-preview" onclick="generatePreview()">Generate Preview</button>
+            </div>
+
+            <div class="preview-content" id="preview-content">
+                <div class="preview-placeholder">
+                    Build your content recipe, then click "Generate Preview" to see your prose style in action.
+                    <br><br>
+                    The preview will show how your weightings influence the narrative voice, pacing, and focus.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ContentWeighting = {
+            activeCategories: {},
+            
+            init() {
+                this.setupEventListeners();
+                this.updateMatrix();
+            },
+
+            setupEventListeners() {
+                // Category tag selection
+                document.querySelectorAll('.category-tag').forEach(tag => {
+                    tag.addEventListener('click', () => {
+                        const category = tag.dataset.category;
+                        this.toggleCategory(category);
+                        tag.classList.toggle('selected');
+                    });
+                });
+
+                // Custom category input
+                document.getElementById('custom-category-input').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.addCustomCategory();
+                    }
+                });
+            },
+
+            toggleCategory(category) {
+                if (this.activeCategories[category]) {
+                    delete this.activeCategories[category];
+                } else {
+                    this.activeCategories[category] = 10; // Default 10%
+                }
+                this.updateMatrix();
+            },
+
+            addCustomCategory() {
+                const input = document.getElementById('custom-category-input');
+                const category = input.value.trim();
+                
+                if (category && !this.activeCategories[category]) {
+                    this.activeCategories[category] = 10;
+                    input.value = '';
+                    this.updateMatrix();
+                }
+            },
+
+            removeCategory(category) {
+                delete this.activeCategories[category];
+                
+                // Unselect tag if it exists
+                const tag = document.querySelector(`[data-category="${category}"]`);
+                if (tag) {
+                    tag.classList.remove('selected');
+                }
+                
+                this.updateMatrix();
+            },
+
+            updateCategoryWeight(category, weight) {
+                this.activeCategories[category] = Math.max(0, Math.min(100, parseInt(weight) || 0));
+                this.updateMatrix();
+            },
+
+            updateMatrix() {
+                const container = document.getElementById('category-matrix');
+                const totalWeight = Object.values(this.activeCategories).reduce((sum, weight) => sum + weight, 0);
+                
+                // Update total weight display
+                const totalDisplay = document.getElementById('total-weight');
+                totalDisplay.textContent = `${totalWeight}%`;
+                totalDisplay.className = `total-weight ${totalWeight === 100 ? 'valid' : 'invalid'}`;
+                
+                if (Object.keys(this.activeCategories).length === 0) {
+                    container.innerHTML = '<div class="preview-placeholder">Select categories above to build your recipe</div>';
+                    return;
+                }
+
+                // Generate category rows
+                container.innerHTML = Object.entries(this.activeCategories)
+                    .map(([category, weight]) => `
+                        <div class="category-row">
+                            <div class="category-name">${category}</div>
+                            <input type="range" 
+                                   class="weight-slider" 
+                                   min="0" 
+                                   max="100" 
+                                   value="${weight}"
+                                   onchange="ContentWeighting.updateCategoryWeight('${category}', this.value)">
+                            <input type="number" 
+                                   class="weight-input" 
+                                   min="0" 
+                                   max="100" 
+                                   value="${weight}"
+                                   onchange="ContentWeighting.updateCategoryWeight('${category}', this.value)">
+                            <span>%</span>
+                            <button class="remove-category" 
+                                    onclick="ContentWeighting.removeCategory('${category}')">×</button>
+                        </div>
+                    `).join('');
+            },
+
+            generatePreview() {
+                const scenario = document.getElementById('preview-scenario').value;
+                const previewContent = document.getElementById('preview-content');
+                const generateBtn = document.getElementById('generate-preview');
+                
+                if (Object.keys(this.activeCategories).length === 0) {
+                    alert('Please select at least one content category before generating a preview.');
+                    return;
+                }
+
+                generateBtn.disabled = true;
+                previewContent.innerHTML = '<div class="loading">Generating prose with your weightings</div>';
+
+                // Simulate generation delay
+                setTimeout(() => {
+                    const preview = this.createMockPreview(scenario);
+                    previewContent.innerHTML = `<div class="preview-text">${preview}</div>`;
+                    generateBtn.disabled = false;
+                }, 2000);
+            },
+
+            createMockPreview(scenario) {
+                const scenarios = {
+                    'tavern-meeting': this.generateTavernScene(),
+                    'ancient-ruins': this.generateRuinsScene(),
+                    'tense-confrontation': this.generateConfrontationScene(),
+                    'mystery-discovery': this.generateDiscoveryScene(),
+                    'quiet-reflection': this.generateReflectionScene()
+                };
+
+                return scenarios[scenario] || scenarios['tavern-meeting'];
+            },
+
+            generateTavernScene() {
+                let text = '';
+                const weights = this.activeCategories;
+                
+                // High atmosphere weighting
+                if (weights['Setting Atmosphere'] > 20) {
+                    text += "The tavern's smoke-stained beams hung low over clusters of weathered tables, while firelight danced across faces half-hidden in shadow. ";
+                }
+                
+                // High dialogue weighting
+                if (weights['Character Banter'] > 20 || weights['Philosophical Dialogue'] > 20) {
+                    text += '"You\'re late," Marcus said, not looking up from his ale. "Traffic," Sarah replied, sliding into the opposite seat. "Or perhaps you\'re questioning the nature of punctuality itself?" ';
+                }
+                
+                // High internal thoughts
+                if (weights['Internal Thoughts'] > 20) {
+                    text += 'Sarah studied his face, noting the tension around his eyes. *Something\'s wrong. He never philosophizes when he\'s relaxed.* ';
+                }
+                
+                // Sensory details
+                if (weights['Sensory Details'] > 15) {
+                    text += 'The scent of roasted meat and spilled wine mingled with something else—fear, perhaps. Or just old leather and unwashed bodies. ';
+                }
+                
+                // Dark humor
+                if (weights['Dark Humor'] > 15) {
+                    text += '"Well," Marcus continued, "at least if we die tonight, the ale here is terrible enough that death might be an improvement." ';
+                }
+                
+                // Default fallback
+                if (!text) {
+                    text = 'The two figures sat across from each other in the dimly lit tavern, their conversation carrying undertones of urgency that neither quite acknowledged aloud.';
+                }
+                
+                return text + ' The weight of unspoken words settled between them like dust on ancient books—heavy, thick, and impossible to simply brush away.';
+            },
+
+            generateRuinsScene() {
+                let text = '';
+                const weights = this.activeCategories;
+                
+                if (weights['Environmental Storytelling'] > 20) {
+                    text += "Every stone told a story of collapse—not the violent destruction of war, but the slow surrender of a civilization that had simply... stopped trying. ";
+                }
+                
+                if (weights['Internal Thoughts'] > 20) {
+                    text += '*How long since anyone walked these halls?* Elena wondered, her footsteps echoing with hollow authority. ';
+                }
+                
+                if (weights['Sensory Details'] > 15) {
+                    text += 'Dust motes danced in shafts of light that cut through gaps in the ancient ceiling, and somewhere in the distance, water dripped with metronomic persistence. ';
+                }
+                
+                return text || 'The explorer moved carefully through the ruins, each step revealing new mysteries carved in stone and shadow.';
+            },
+
+            generateConfrontationScene() {
+                let text = '';
+                const weights = this.activeCategories;
+                
+                if (weights['Emotional Confrontation'] > 20) {
+                    text += '"You knew!" Sarah\'s voice cracked like a whip. "You knew all along and you let me—" "Let you what?" David\'s calm only made it worse. ';
+                }
+                
+                if (weights['Tension Building'] > 20) {
+                    text += 'The space between them seemed to shrink and expand simultaneously, charged with years of unspoken resentment. ';
+                }
+                
+                if (weights['Internal Thoughts'] > 20) {
+                    text += '*This is it,* David thought. *The moment everything falls apart.* ';
+                }
+                
+                return text || 'The argument had been building for weeks, and now it erupted with the force of a dam breaking.';
+            },
+
+            generateDiscoveryScene() {
+                let text = '';
+                const weights = this.activeCategories;
+                
+                if (weights['Story Reveals'] > 20) {
+                    text += 'The photograph changed everything. Not just the case, not just the investigation—everything Sarah thought she knew about her own life. ';
+                }
+                
+                if (weights['Suspense'] > 15) {
+                    text += 'Her hands trembled as she turned it over, knowing that whatever was written on the back would either save her or destroy her completely. ';
+                }
+                
+                return text || 'The evidence lay before her, undeniable and terrifying in its implications.';
+            },
+
+            generateReflectionScene() {
+                let text = '';
+                const weights = this.activeCategories;
+                
+                if (weights['Internal Thoughts'] > 25) {
+                    text += '*Twenty years,* Marcus thought, watching the sunset paint the city in shades of amber and regret. *Twenty years of choices that led to this exact moment.* ';
+                }
+                
+                if (weights['Melancholy'] > 20) {
+                    text += 'The weight of accumulated decisions settled on his shoulders like a familiar coat—comfortable in its heaviness, worn smooth by repetition. ';
+                }
+                
+                if (weights['Philosophical Dialogue'] > 15) {
+                    text += 'He spoke to the empty room: "If we are the sum of our choices, then what does that make someone who chose nothing at all?" ';
+                }
+                
+                return text || 'In the quiet moments, the weight of the past always felt heaviest.';
+            }
+        };
+
+        // Global functions for HTML onclick events
+        function addCustomCategory() {
+            ContentWeighting.addCustomCategory();
+        }
+
+        function generatePreview() {
+            ContentWeighting.generatePreview();
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            ContentWeighting.init();
+        });
+    </script>
+</body>
+</html>

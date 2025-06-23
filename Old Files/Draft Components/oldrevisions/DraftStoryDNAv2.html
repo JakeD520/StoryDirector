@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Story DNA - StoryDirector</title>
+    <style>
+        :root {
+            --primary: #03dac6;
+            --secondary: #bb86fc;
+            --accent: #ffd700;
+            --bg-dark: #0a0a0f;
+            --bg-panel: #1a1a1a;
+            --bg-lighter: #2a2a2a;
+            --border: #444;
+            --text-light: #e0e0e0;
+            --text-dim: #888;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+            
+            --genome-color: #03dac6;
+            --character-color: #bb86fc;
+            --prose-color: #ffd700;
+            --narrative-color: #ff5722;
+            --thematic-color: #4caf50;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .dna-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Navigation Sidebar */
+        .dna-nav {
+            width: 280px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .nav-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .nav-subtitle {
+            font-size: 0.9em;
+            color: var(--text-dim);
+        }
+
+        .genome-section {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-header {
+            padding: 15px 20px 10px;
+            font-size: 0.9em;
+            font-weight: bold;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .section-header:hover {
+            color: var(--primary);
+        }
+
+        .section-header.active {
+            color: var(--primary);
+        }
+
+        .nav-items {
+            padding-bottom: 10px;
+        }
+
+        .nav-item {
+            padding: 8px 35px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-lighter);
+        }
+
+        .nav-item.active {
+            background: rgba(3, 218, 198, 0.1);
+            border-right: 3px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .completion-indicator {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-dim);
+            margin-left: auto;
+        }
+
+        .completion-indicator.complete {
+            background: var(--success);
+        }
+
+        .completion-indicator.partial {
+            background: var(--warning);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-panel);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .content-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .content-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .dna-completion {
+            background: var(--bg-lighter);
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 0.8em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .completion-bar {
+            width: 60px;
+            height: 4px;
+            background: var(--bg-dark);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .completion-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #000;
+            font-weight: bold;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: #fff;
+        }
+
+        .content-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        /* DNA Section Views */
+        .dna-section {
+            max-width: 900px;
+            margin: 0 auto;
+            display: none;
+        }
+
+        .dna-section.active {
+            display: block;
+        }
+
+        .section-intro {
+            background: var(--bg-panel);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-left: 4px solid;
+        }
+
+        .section-intro.genome { border-left-color: var(--genome-color); }
+        .section-intro.character { border-left-color: var(--character-color); }
+        .section-intro.prose { border-left-color: var(--prose-color); }
+        .section-intro.narrative { border-left-color: var(--narrative-color); }
+        .section-intro.thematic { border-left-color: var(--thematic-color); }
+
+        .intro-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .intro-description {
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        .dna-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .dna-panel {
+            background: var(--bg-panel);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .panel-title {
+            font-size: 1em;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            color: var(--text-dim);
+            font-weight: bold;
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px;
+            color: var(--text-light);
+            font-size: 0.9em;
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .tag-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .tag {
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 4px 12px;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tag.active {
+            border-color: var(--primary);
+            background: rgba(3, 218, 198, 0.1);
+            color: var(--primary);
+        }
+
+        .percentage-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .percentage-label {
+            flex: 1;
+            font-size: 0.9em;
+        }
+
+        .percentage-slider {
+            flex: 2;
+            height: 4px;
+            background: var(--bg-lighter);
+            border-radius: 2px;
+            outline: none;
+            appearance: none;
+        }
+
+        .percentage-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+        }
+
+        .percentage-value {
+            width: 40px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .character-arc-builder {
+            background: var(--bg-lighter);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .arc-stage {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .stage-indicator {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--character-color);
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .stage-content {
+            flex: 1;
+        }
+
+        .stage-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stage-input {
+            width: 100%;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 8px;
+            color: var(--text-light);
+            font-size: 0.8em;
+        }
+
+        .ai-suggestions {
+            background: rgba(187, 134, 252, 0.1);
+            border: 1px solid var(--secondary);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .suggestions-title {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .suggestion-item {
+            background: var(--bg-panel);
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 8px;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .suggestion-item:hover {
+            background: var(--bg-lighter);
+        }
+
+        .wide-panel {
+            grid-column: 1 / -1;
+        }
+
+        .constraint-builder {
+            background: var(--bg-lighter);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .constraint-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .constraint-type {
+            width: 100px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 5px;
+            font-size: 0.8em;
+        }
+
+        .constraint-text {
+            flex: 1;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 5px;
+            font-size: 0.8em;
+        }
+
+        .add-constraint-btn {
+            background: var(--secondary);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 0.8em;
+            cursor: pointer;
+        }
+
+        .export-preview {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            font-family: monospace;
+            font-size: 0.8em;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="dna-container">
+        <!-- Navigation Sidebar -->
+        <div class="dna-nav">
+            <div class="nav-header">
+                <div class="nav-title">Story DNA Builder</div>
+                <div class="nav-subtitle">Comprehensive narrative genetics</div>
+            </div>
+
+            <div class="genome-section">
+                <div class="section-header active" data-section="genome">
+                    <span>🧬</span>
+                    <span>Story Genome</span>
+                </div>
+                <div class="nav-items">
+                    <div class="nav-item active" data-view="genome">
+                        <span>📋</span>
+                        <span>Core Identity</span>
+                        <div class="completion-indicator partial"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="genome-section">
+                <div class="section-header" data-section="character">
+                    <span>👥</span>
+                    <span>Character Arcs</span>
+                </div>
+                <div class="nav-items">
+                    <div class="nav-item" data-view="character-arcs">
+                        <span>🎭</span>
+                        <span>Arc Blueprint</span>
+                        <div class="completion-indicator"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="genome-section">
+                <div class="section-header" data-section="prose">
+                    <span>✍️</span>
+                    <span>Prose Composition</span>
+                </div>
+                <div class="nav-items">
+                    <div class="nav-item" data-view="prose-directives">
+                        <span>📊</span>
+                        <span>Content Weighting</span>
+                        <div class="completion-indicator"></div>
+                    </div>
+                    <div class="nav-item" data-view="prose-constraints">
+                        <span>📏</span>
+                        <span>Style Constraints</span>
+                        <div class="completion-indicator"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="genome-section">
+                <div class="section-header" data-section="narrative">
+                    <span>🎯</span>
+                    <span>Narrative Strategy</span>
+                </div>
+                <div class="nav-items">
+                    <div class="nav-item" data-view="narrative-goals">
+                        <span>🎯</span>
+                        <span>Book Goals</span>
+                        <div class="completion-indicator"></div>
+                    </div>
+                    <div class="nav-item" data-view="pacing-arc">
+                        <span>⚡</span>
+                        <span>Pacing Arc</span>
+                        <div class="completion-indicator"></div>
+                    </div>
+                    <div class="nav-item" data-view="revelation-cadence">
+                        <span>🔍</span>
+                        <span>Foreshadowing</span>
+                        <div class="completion-indicator"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="genome-section">
+                <div class="section-header" data-section="thematic">
+                    <span>💫</span>
+                    <span>Thematic Layer</span>
+                </div>
+                <div class="nav-items">
+                    <div class="nav-item" data-view="theme-strategy">
+                        <span>🎨</span>
+                        <span>Theme Strategy</span>
+                        <div class="completion-indicator"></div>
+                    </div>
+                    <div class="nav-item" data-view="symbolism">
+                        <span>🔮</span>
+                        <span>Symbolism</span>
+                        <div class="completion-indicator"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="genome-section">
+                <div class="section-header" data-section="output">
+                    <span>📄</span>
+                    <span>DNA Export</span>
+                </div>
+                <div class="nav-items">
+                    <div class="nav-item" data-view="dna-export">
+                        <span>📋</span>
+                        <span>Review & Export</span>
+                        <div class="completion-indicator"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="content-header">
+                <div class="content-title" id="content-title">Story Genome</div>
+                <div class="content-actions">
+                    <div class="dna-completion">
+                        <span>DNA Complete:</span>
+                        <div class="completion-bar">
+                            <div class="completion-fill" id="completion-fill" style="width: 25%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prose Directives Section -->
+                <div id="prose-directives-section" class="dna-section">
+                    <div class="section-intro prose">
+                        <div class="intro-title">Prose Composition Directives</div>
+                        <div class="intro-description">
+                            Define the weighted emphasis and proportion of different narrative elements. This is your prose "recipe" - the percentages that guide what the LLM focuses on.
+                        </div>
+                    </div>
+
+                    <div class="dna-grid">
+                        <div class="dna-panel wide-panel">
+                            <div class="panel-title">
+                                <span>📊</span>
+                                <span>Content Weighting (Must Total 100%)</span>
+                            </div>
+                            <div id="content-weights">
+                                <div class="percentage-input">
+                                    <div class="percentage-label">Narrative Flow/Plot Progression</div>
+                                    <input type="range" class="percentage-slider" min="0" max="100" value="30" data-category="narrative-flow">
+                                    <div class="percentage-value">30%</div>
+                                </div>
+                                <div class="percentage-input">
+                                    <div class="percentage-label">Character Development/Internal Life</div>
+                                    <input type="range" class="percentage-slider" min="0" max="100" value="25" data-category="character-dev">
+                                    <div class="percentage-value">25%</div>
+                                </div>
+                                <div class="percentage-input">
+                                    <div class="percentage-label">Dialogue & Character Interaction</div>
+                                    <input type="range" class="percentage-slider" min="0" max="100" value="20" data-category="dialogue">
+                                    <div class="percentage-value">20%</div>
+                                </div>
+                                <div class="percentage-input">
+                                    <div class="percentage-label">Worldbuilding & Setting Description</div>
+                                    <input type="range" class="percentage-slider" min="0" max="100" value="15" data-category="worldbuilding">
+                                    <div class="percentage-value">15%</div>
+                                </div>
+                                <div class="percentage-input">
+                                    <div class="percentage-label">Thematic Exploration & Subtext</div>
+                                    <input type="range" class="percentage-slider" min="0" max="100" value="10" data-category="themes">
+                                    <div class="percentage-value">10%</div>
+                                </div>
+                            </div>
+                            <div style="text-align: center; margin-top: 15px;">
+                                <span>Total: <strong id="total-percentage">100%</strong></span>
+                                <button class="btn btn-secondary" style="margin-left: 15px;" onclick="DNABuilder.addCustomCategory()">+ Add Custom Category</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prose Constraints Section -->
+                <div id="prose-constraints-section" class="dna-section">
+                    <div class="section-intro prose">
+                        <div class="intro-title">Prose Constraint Language (PCL)</div>
+                        <div class="intro-description">
+                            Define specific, granular stylistic rules using natural language. These constraints apply book-wide and give you precise control over prose generation.
+                        </div>
+                    </div>
+
+                    <div class="dna-grid">
+                        <div class="dna-panel wide-panel">
+                            <div class="panel-title">
+                                <span>📏</span>
+                                <span>Style Constraints</span>
+                            </div>
+                            <div class="constraint-builder" id="constraints-builder">
+                                <div class="constraint-item">
+                                    <select class="constraint-type">
+                                        <option value="inclusion">Must Do</option>
+                                        <option value="exclusion">Must Not</option>
+                                        <option value="preference">Prefer</option>
+                                    </select>
+                                    <input type="text" class="constraint-text" placeholder="e.g., 'Vary sentence length but lean towards simple declarative'">
+                                    <button class="add-constraint-btn" onclick="DNABuilder.removeConstraint(this)">✕</button>
+                                </div>
+                                <div class="constraint-item">
+                                    <select class="constraint-type">
+                                        <option value="exclusion">Must Not</option>
+                                        <option value="inclusion">Must Do</option>
+                                        <option value="preference">Prefer</option>
+                                    </select>
+                                    <input type="text" class="constraint-text" placeholder="e.g., 'Avoid adverbs ending in -ly in action sequences'">
+                                    <button class="add-constraint-btn" onclick="DNABuilder.removeConstraint(this)">✕</button>
+                                </div>
+                            </div>
+                            <button class="btn btn-secondary" onclick="DNABuilder.addConstraint()">+ Add Constraint</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Narrative Goals Section -->
+                <div id="narrative-goals-section" class="dna-section">
+                    <div class="section-intro narrative">
+                        <div class="intro-title">Narrative Goal Setter</div>
+                        <div class="intro-description">
+                            Define the explicit overarching purpose for your entire narrative. This guides the LLM in crafting prose that serves deliberate storytelling functions.
+                        </div>
+                    </div>
+
+                    <div class="dna-grid">
+                        <div class="dna-panel">
+                            <div class="panel-title">
+                                <span>🎯</span>
+                                <span>Primary Objective</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Overall Narrative Aim</label>
+                                <textarea class="form-textarea" id="narrative-objective" placeholder="e.g., 'To explore themes of identity and belonging through a character's journey home'"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Success Metrics</label>
+                                <textarea class="form-textarea" id="success-metrics" placeholder="How will you know if the narrative achieves its goal?"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="dna-panel">
+                            <div class="panel-title">
+                                <span>💭</span>
+                                <span>Emotional Target</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Reader Emotional State</label>
+                                <div class="tag-selector">
+                                    <div class="tag" data-emotion="hopeful">Hopeful</div>
+                                    <div class="tag" data-emotion="contemplative">Contemplative</div>
+                                    <div class="tag" data-emotion="satisfied">Satisfied</div>
+                                    <div class="tag" data-emotion="unsettled">Unsettled</div>
+                                    <div class="tag" data-emotion="cathartic">Cathartic</div>
+                                    <div class="tag" data-emotion="enlightened">Enlightened</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Emotional Journey</label>
+                                <textarea class="form-textarea" id="emotional-target" placeholder="Describe the emotional arc for readers..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="dna-panel wide-panel">
+                            <div class="panel-title">
+                                <span>📖</span>
+                                <span>Information Revelation Strategy</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Revelation Approach</label>
+                                <select class="form-select" id="revelation-approach">
+                                    <option value="">Select approach...</option>
+                                    <option value="gradual-unveiling">Gradual Unveiling</option>
+                                    <option value="layered-mysteries">Layered Mysteries</option>
+                                    <option value="dramatic-reveals">Dramatic Reveals</option>
+                                    <option value="character-driven">Character-Driven Discovery</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Information Categories & Timing</label>
+                                <textarea class="form-textarea" id="information-strategy" placeholder="Define what types of secrets/revelations exist and when they should generally be revealed..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pacing Arc Section -->
+                <div id="pacing-arc-section" class="dna-section">
+                    <div class="section-intro narrative">
+                        <div class="intro-title">Book-Level Pacing Arc</div>
+                        <div class="intro-description">
+                            Define the macro blueprint for rhythm and speed across your entire narrative. This guides overall pacing without micromanaging individual scenes.
+                        </div>
+                    </div>
+
+                    <div class="dna-grid">
+                        <div class="dna-panel">
+                            <div class="panel-title">
+                                <span>⚡</span>
+                                <span>Pacing Trajectory</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Overall Pace</label>
+                                <select class="form-select" id="overall-pace">
+                                    <option value="slow">Slow & Contemplative</option>
+                                    <option value="moderate">Moderate & Steady</option>
+                                    <option value="fast">Fast & Energetic</option>
+                                    <option value="variable">Variable</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Pacing Evolution</label>
+                                <textarea class="form-textarea" id="pacing-evolution" placeholder="e.g., 'Starts slow and introspective, builds to frantic pace, then lingering resolution'"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="dna-panel">
+                            <div class="panel-title">
+                                <span>🎼</span>
+                                <span>Rhythm Patterns</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Sentence Rhythm</label>
+                                <div class="tag-selector">
+                                    <div class="tag" data-rhythm="varied">Varied Length</div>
+                                    <div class="tag" data-rhythm="short-punchy">Short & Punchy</div>
+                                    <div class="tag" data-rhythm="flowing">Long & Flowing</div>
+                                    <div class="tag" data-rhythm="staccato">Staccato</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Chapter Rhythm</label>
+                                <textarea class="form-textarea" id="chapter-rhythm" placeholder="How should chapter lengths and intensity vary?"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Revelation Cadence Section -->
+                <div id="revelation-cadence-section" class="dna-section">
+                    <div class="section-intro narrative">
+                        <div class="intro-title">Foreshadowing & Revelation Cadence</div>
+                        <div class="intro-description">
+                            Plan your book-wide strategy for introducing clues, building mystery, and delivering reveals. This ensures proper narrative tension and reader engagement.
+                        </div>
+                    </div>
+
+                    <div class="dna-grid">
+                        <div class="dna-panel wide-panel">
+                            <div class="panel-title">
+                                <span>🔍</span>
+                                <span>Mystery & Revelation Planning</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Major Secrets/Mysteries</label>
+                                <textarea class="form-textarea" id="major-secrets" placeholder="List the main secrets or mysteries that need to be revealed..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Foreshadowing Strategy</label>
+                                <div class="tag-selector">
+                                    <div class="tag" data-foreshadow="subtle-hints">Subtle Hints</div>
+                                    <div class="tag" data-foreshadow="recurring-motifs">Recurring Motifs</div>
+                                    <div class="tag" data-foreshadow="symbolic-clues">Symbolic Clues</div>
+                                    <div class="tag" data-foreshadow="character-behavior">Character Behavior</div>
+                                    <div class="tag" data-foreshadow="environmental">Environmental</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Revelation Method</label>
+                                <select class="form-select" id="revelation-method">
+                                    <option value="">How are secrets generally revealed?</option>
+                                    <option value="dialogue">Primarily Through Dialogue</option>
+                                    <option value="action">Through Character Actions</option>
+                                    <option value="environmental">Via Environmental Clues</option>
+                                    <option value="internal">Character Realizations</option>
+                                    <option value="mixed">Mixed Methods</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Theme Strategy Section -->
+                <div id="theme-strategy-section" class="dna-section">
+                    <div class="section-intro thematic">
+                        <div class="intro-title">Thematic Reinforcement Strategy</div>
+                        <div class="intro-description">
+                            Plan how core themes are woven throughout your narrative. This ensures consistent thematic depth without heavy-handed messaging.
+                        </div>
+                    </div>
+
+                    <div class="dna-grid">
+                        <div class="dna-panel">
+                            <div class="panel-title">
+                                <span>🎨</span>
+                                <span>Core Themes</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Primary Theme</label>
+                                <input type="text" class="form-input" id="primary-theme" placeholder="e.g., 'Transformation through loss'">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Secondary Themes</label>
+                                <textarea class="form-textarea" id="secondary-themes" placeholder="List supporting themes..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Theme Evolution</label>
+                                <textarea class="form-textarea" id="theme-evolution" placeholder="How do themes develop throughout the book?"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="dna-panel">
+                            <div class="panel-title">
+                                <span>🔧</span>
+                                <span>Reinforcement Mechanisms</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">How Themes Manifest</label>
+                                <div class="tag-selector">
+                                    <div class="tag" data-mechanism="character-arcs">Character Arcs</div>
+                                    <div class="tag" data-mechanism="symbolism">Symbolism</div>
+                                    <div class="tag" data-mechanism="dialogue-subtext">Dialogue Subtext</div>
+                                    <div class="tag" data-mechanism="setting-metaphor">Setting as Metaphor</div>
+                                    <div class="tag" data-mechanism="recurring-motifs">Recurring Motifs</div>
+                                    <div class="tag" data-mechanism="narrative-structure">Narrative Structure</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Thematic Integration Notes</label>
+                                <textarea class="form-textarea" id="thematic-integration" placeholder="Specific ways themes should be integrated..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Symbolism Section -->
+                <div id="symbolism-section" class="dna-section">
+                    <div class="section-intro thematic">
+                        <div class="intro-title">Symbolism & Motif Blueprint</div>
+                        <div class="intro-description">
+                            Design recurring symbolic elements and track their evolving meanings throughout your narrative. This creates deeper layers of meaning.
+                        </div>
+                    </div>
+
+                    <div class="dna-grid">
+                        <div class="dna-panel wide-panel">
+                            <div class="panel-title">
+                                <span>🔮</span>
+                                <span>Symbol & Motif Planning</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Primary Symbols</label>
+                                <textarea class="form-textarea" id="primary-symbols" placeholder="List key symbols and their initial meanings..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Symbol Evolution</label>
+                                <textarea class="form-textarea" id="symbol-evolution" placeholder="How do symbols' meanings change or deepen throughout the story?"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Placement Strategy</label>
+                                <textarea class="form-textarea" id="symbol-placement" placeholder="When and where should symbols appear? What triggers their use?"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DNA Export Section -->
+                <div id="dna-export-section" class="dna-section">
+                    <div class="section-intro">
+                        <div class="intro-title">DNA Export & Review</div>
+                        <div class="intro-description">
+                            Review your complete Story DNA and export it for use with LLM prose generation systems.
+                        </div>
+                    </div>
+
+                    <div class="dna-grid">
+                        <div class="dna-panel wide-panel">
+                            <div class="panel-title">
+                                <span>📋</span>
+                                <span>Complete Story DNA</span>
+                            </div>
+                            <div class="export-preview" id="export-preview">
+STORY DNA EXPORT
+================
+
+STORY GENOME:
+- Genre: [Not Set]
+- Tone: [Not Set] 
+- Reader Experience: [Not Set]
+- Prose Delivery: [Not Set]
+- Content Rating: [Not Set]
+
+CHARACTER ARCS:
+[No character arcs defined]
+
+PROSE COMPOSITION:
+[Default weighting active]
+
+NARRATIVE STRATEGY:
+[Not defined]
+
+THEMATIC LAYER:
+[Not defined]
+
+Export incomplete - complete more sections to generate full DNA.
+                            </div>
+                            <div style="text-align: center; margin-top: 20px;">
+                                <button class="btn btn-secondary" onclick="DNABuilder.refreshPreview()">🔄 Refresh Preview</button>
+                                <button class="btn btn-primary" style="margin-left: 15px;" onclick="DNABuilder.downloadDNA()">📥 Download DNA File</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const DNABuilder = {
+            currentSection: 'genome',
+            storyDNA: {
+                genome: {
+                    primaryGenre: '',
+                    genreFlavors: [],
+                    primaryTone: '',
+                    tonalEvolution: '',
+                    readerImpact: [],
+                    emotionalJourney: '',
+                    narrativePerspective: '',
+                    narrativeVoice: [],
+                    narrativeTense: 'past',
+                    contentRating: 'general',
+                    contentGuidelines: ''
+                },
+                characterArcs: {},
+                proseComposition: {
+                    contentWeights: {
+                        'narrative-flow': 30,
+                        'character-dev': 25,
+                        'dialogue': 20,
+                        'worldbuilding': 15,
+                        'themes': 10
+                    }
+                },
+                proseConstraints: [],
+                narrativeGoals: {},
+                pacingArc: {},
+                revelationCadence: {},
+                themeStrategy: {},
+                symbolism: {}
+            },
+
+            init() {
+                this.setupEventListeners();
+                this.updateProgress();
+                this.initializePercentageSliders();
+            },
+
+            setupEventListeners() {
+                // Navigation
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        this.switchToSection(item.dataset.view);
+                        this.updateActiveNavItem(item);
+                    });
+                });
+
+                // Tag selectors
+                document.querySelectorAll('.tag').forEach(tag => {
+                    tag.addEventListener('click', () => {
+                        tag.classList.toggle('active');
+                        this.updateStoryDNA();
+                    });
+                });
+
+                // Form inputs
+                document.querySelectorAll('input, select, textarea').forEach(input => {
+                    input.addEventListener('change', () => {
+                        this.updateStoryDNA();
+                    });
+                });
+            },
+
+            initializePercentageSliders() {
+                const sliders = document.querySelectorAll('.percentage-slider');
+                sliders.forEach(slider => {
+                    slider.addEventListener('input', () => {
+                        this.updatePercentages();
+                    });
+                });
+            },
+
+            updatePercentages() {
+                const sliders = document.querySelectorAll('.percentage-slider');
+                let total = 0;
+                
+                sliders.forEach(slider => {
+                    const value = parseInt(slider.value);
+                    total += value;
+                    const container = slider.closest('.percentage-input');
+                    const valueDisplay = container.querySelector('.percentage-value');
+                    valueDisplay.textContent = `${value}%`;
+                    
+                    // Update story DNA
+                    const category = slider.dataset.category;
+                    this.storyDNA.proseComposition.contentWeights[category] = value;
+                });
+                
+                document.getElementById('total-percentage').textContent = `${total}%`;
+                document.getElementById('total-percentage').style.color = total === 100 ? 'var(--success)' : 'var(--warning)';
+                
+                this.updateProgress();
+            },
+
+            switchToSection(sectionView) {
+                // Hide all sections
+                document.querySelectorAll('.dna-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                
+                // Show selected section
+                const targetSection = document.getElementById(`${sectionView}-section`);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                }
+                
+                // Update title
+                const titles = {
+                    'genome': 'Story Genome',
+                    'character-arcs': 'Character Arc Blueprint',
+                    'prose-directives': 'Prose Composition',
+                    'prose-constraints': 'Style Constraints',
+                    'narrative-goals': 'Narrative Goals',
+                    'pacing-arc': 'Pacing Arc',
+                    'revelation-cadence': 'Foreshadowing Strategy',
+                    'theme-strategy': 'Thematic Strategy',
+                    'symbolism': 'Symbolism & Motifs',
+                    'dna-export': 'DNA Export'
+                };
+                
+                document.getElementById('content-title').textContent = titles[sectionView] || 'Story DNA';
+                this.currentSection = sectionView;
+            },
+
+            updateActiveNavItem(activeItem) {
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                activeItem.classList.add('active');
+            },
+
+            updateStoryDNA() {
+                // Update genome data
+                this.storyDNA.genome.primaryGenre = document.getElementById('primary-genre')?.value || '';
+                this.storyDNA.genome.primaryTone = document.getElementById('primary-tone')?.value || '';
+                this.storyDNA.genome.narrativePerspective = document.getElementById('narrative-perspective')?.value || '';
+                this.storyDNA.genome.narrativeTense = document.getElementById('narrative-tense')?.value || '';
+                this.storyDNA.genome.contentRating = document.getElementById('content-rating')?.value || '';
+                
+                // Update arrays from active tags
+                this.storyDNA.genome.genreFlavors = Array.from(document.querySelectorAll('[data-flavor].active')).map(tag => tag.dataset.flavor);
+                this.storyDNA.genome.readerImpact = Array.from(document.querySelectorAll('[data-impact].active')).map(tag => tag.dataset.impact);
+                this.storyDNA.genome.narrativeVoice = Array.from(document.querySelectorAll('[data-voice].active')).map(tag => tag.dataset.voice);
+                
+                this.updateProgress();
+                this.generateAISuggestions();
+            },
+
+            updateProgress() {
+                const sections = [
+                    'genome', 'characterArcs', 'proseComposition', 
+                    'narrativeGoals', 'themeStrategy'
+                ];
+                
+                let completed = 0;
+                let total = sections.length;
+                
+                // Simple completion check
+                if (this.storyDNA.genome.primaryGenre) completed++;
+                if (Object.keys(this.storyDNA.characterArcs).length > 0) completed++;
+                if (this.storyDNA.proseComposition.contentWeights) completed++;
+                if (this.storyDNA.narrativeGoals.objective) completed++;
+                if (this.storyDNA.themeStrategy.primaryTheme) completed++;
+                
+                const percentage = Math.round((completed / total) * 100);
+                document.getElementById('completion-fill').style.width = `${percentage}%`;
+                document.getElementById('completion-percent').textContent = `${percentage}%`;
+                
+                // Update completion indicators
+                this.updateCompletionIndicators();
+            },
+
+            updateCompletionIndicators() {
+                const indicators = {
+                    'genome': this.storyDNA.genome.primaryGenre ? 'complete' : 'partial',
+                    'character-arcs': Object.keys(this.storyDNA.characterArcs).length > 0 ? 'complete' : '',
+                    'prose-directives': this.storyDNA.proseComposition.contentWeights ? 'partial' : '',
+                    'narrative-goals': this.storyDNA.narrativeGoals.objective ? 'complete' : ''
+                };
+                
+                Object.entries(indicators).forEach(([view, status]) => {
+                    const navItem = document.querySelector(`[data-view="${view}"]`);
+                    if (navItem) {
+                        const indicator = navItem.querySelector('.completion-indicator');
+                        if (indicator) {
+                            indicator.className = `completion-indicator ${status}`;
+                        }
+                    }
+                });
+            },
+
+            generateAISuggestions() {
+                const suggestionsContainer = document.getElementById('genre-suggestions');
+                if (!suggestionsContainer) return;
+                
+                const genre = this.storyDNA.genome.primaryGenre;
+                const tone = this.storyDNA.genome.primaryTone;
+                
+                if (!genre && !tone) {
+                    suggestionsContainer.textContent = 'Select genres and elements above to see intelligent suggestions for your Story DNA.';
+                    return;
+                }
+                
+                let suggestions = [];
+                
+                if (genre === 'mystery' && tone === 'melancholic') {
+                    suggestions = [
+                        'Consider "Gothic" flavor for atmospheric depth',
+                        'Reader experience: "Introspective" and "Unsettling"',
+                        'Prose delivery: Third person limited for mystery intimacy'
+                    ];
+                } else if (genre === 'sci-fi') {
+                    suggestions = [
+                        'Consider worldbuilding weight of 25-30% for sci-fi',
+                        '"Thought-provoking" reader experience typical for the genre',
+                        'Third person omniscient works well for complex sci-fi worlds'
+                    ];
+                } else {
+                    suggestions = [
+                        `${genre} stories often benefit from character-driven narratives`,
+                        `${tone} tone suggests focus on internal character development`,
+                        'Consider how your choices will guide AI prose generation'
+                    ];
+                }
+                
+                suggestionsContainer.innerHTML = suggestions.map(suggestion => 
+                    `<div class="suggestion-item">${suggestion}</div>`
+                ).join('');
+            },
+
+            addCustomCategory() {
+                const categoryName = prompt('Enter custom content category name:');
+                if (!categoryName) return;
+                
+                const container = document.getElementById('content-weights');
+                const newInput = document.createElement('div');
+                newInput.className = 'percentage-input';
+                newInput.innerHTML = `
+                    <div class="percentage-label">${categoryName}</div>
+                    <input type="range" class="percentage-slider" min="0" max="100" value="5" data-category="${categoryName.toLowerCase().replace(/\s+/g, '-')}">
+                    <div class="percentage-value">5%</div>
+                `;
+                
+                container.appendChild(newInput);
+                
+                // Add event listener to new slider
+                const slider = newInput.querySelector('.percentage-slider');
+                slider.addEventListener('input', () => {
+                    this.updatePercentages();
+                });
+                
+                this.updatePercentages();
+            },
+
+            addConstraint() {
+                const container = document.getElementById('constraints-builder');
+                const newConstraint = document.createElement('div');
+                newConstraint.className = 'constraint-item';
+                newConstraint.innerHTML = `
+                    <select class="constraint-type">
+                        <option value="inclusion">Must Do</option>
+                        <option value="exclusion">Must Not</option>
+                        <option value="preference">Prefer</option>
+                    </select>
+                    <input type="text" class="constraint-text" placeholder="Enter your constraint...">
+                    <button class="add-constraint-btn" onclick="DNABuilder.removeConstraint(this)">✕</button>
+                `;
+                container.appendChild(newConstraint);
+            },
+
+            removeConstraint(button) {
+                button.closest('.constraint-item').remove();
+            },
+
+            aiPatternSpotter() {
+                alert('🤖 AI Pattern Spotter\n\nThis feature would:\n\n• Analyze your brainstorm snippets\n• Detect genre, tone, and character patterns\n• Suggest initial DNA categorizations\n• Auto-populate Story DNA fields\n• Learn your preferences over time\n\nComing soon in the full implementation!');
+            >
+                        <span id="completion-percent">25%</span>
+                    </div>
+                    <button class="btn btn-secondary" onclick="DNABuilder.aiPatternSpotter()">🤖 AI Pattern Spotter</button>
+                    <button class="btn btn-primary" onclick="DNABuilder.exportDNA()">📄 Export DNA</button>
+                </div>
+            </div>
+
+            <div class="content-body">
+                <!-- Story Genome Section -->
+                <div id="genome-section" class="dna-section active">
+                    <div class="section-intro genome">
+                        <div class="intro-title">Story Genome - Core Identity</div>
+                        <div class="intro-description">
+                            Define the foundational DNA that establishes your story's intrinsic nature and delivery method. This becomes the master instruction set for LLM prose generation.
+                        </div>
+                    </div>
+
+                    <div class="dna-grid">
+                        <div class="dna-panel">
+                            <div class="panel-title">
+                                <span>🎭</span>
+                                <span>Genre DNA</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Primary Genre</label>
+                                <select class="form-select" id="primary-genre">
+                                    <option value="">Select primary genre...</option>
+                                    <option value="literary">Literary Fiction</option>
+                                    <option value="mystery">Mystery</option>
+                                    <option value="thriller">Thriller</option>
+                                    <option value="romance">Romance</option>
+                                    <option value="sci-fi">Science Fiction</option>
+                                    <option value="fantasy">Fantasy</option>
+                                    <option value="horror">Horror</option>
+                                    <option value="comedy">Comedy</option>
+                                    <option value="drama">Drama</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Genre Flavors</label>
+                                <div class="tag-selector">
+                                    <div class="tag" data-flavor="gothic">Gothic</div>
+                                    <div class="tag" data-flavor="noir">Noir</div>
+                                    <div class="tag" data-flavor="slapstick">Slapstick</div>
+                                    <div class="tag" data-flavor="psychological">Psychological</div>
+                                    <div class="tag" data-flavor="supernatural">Supernatural</div>
+                                    <div class="tag" data-flavor="dystopian">Dystopian</div>
+                                    <div class="tag" data-flavor="cozy">Cozy</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dna-panel">
+                            <div class="panel-title">
+                                <span>🎨</span>
+                                <span>Tonal DNA</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Primary Tone</label>
+                                <select class="form-select" id="primary-tone">
+                                    <option value="">Select primary tone...</option>
+                                    <option value="melancholic">Melancholic</option>
+                                    <option value="hopeful">Hopeful</option>
+                                    <option value="absurdist">Absurdist</option>
+                                    <option value="introspective">Introspective</option>
+                                    <option value="tense">Tense</option>
+                                    <option value="ironic">Ironic</option>
+                                    <option value="whimsical">Whimsical</option>
+                                    <option value="dark">Dark</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Tonal Evolution</label>
+                                <textarea class="form-textarea" id="tonal-evolution" placeholder="How does the tone shift throughout the book?"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="dna-panel">
+                            <div class="panel-title">
+                                <span>👁️</span>
+                                <span>Reader Experience DNA</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Intended Reader Impact</label>
+                                <div class="tag-selector">
+                                    <div class="tag" data-impact="emotionally-resonant">Emotionally Resonant</div>
+                                    <div class="tag" data-impact="thought-provoking">Thought-Provoking</div>
+                                    <div class="tag" data-impact="immersive">Immersive</div>
+                                    <div class="tag" data-impact="unsettling">Unsettling</div>
+                                    <div class="tag" data-impact="amusing">Amusing</div>
+                                    <div class="tag" data-impact="cathartic">Cathartic</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Emotional Journey</label>
+                                <textarea class="form-textarea" id="emotional-journey" placeholder="Describe the emotional arc you want readers to experience..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="dna-panel">
+                            <div class="panel-title">
+                                <span>📝</span>
+                                <span>Prose Delivery DNA</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Narrative Perspective</label>
+                                <select class="form-select" id="narrative-perspective">
+                                    <option value="">Select perspective...</option>
+                                    <option value="first-person">First Person</option>
+                                    <option value="third-limited">Third Person Limited</option>
+                                    <option value="third-omniscient">Third Person Omniscient</option>
+                                    <option value="alternating">Alternating POV</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Narrative Voice</label>
+                                <div class="tag-selector">
+                                    <div class="tag" data-voice="intimate">Intimate</div>
+                                    <div class="tag" data-voice="detached">Detached</div>
+                                    <div class="tag" data-voice="conversational">Conversational</div>
+                                    <div class="tag" data-voice="formal">Formal</div>
+                                    <div class="tag" data-voice="unreliable">Unreliable</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Tense</label>
+                                <select class="form-select" id="narrative-tense">
+                                    <option value="past">Past Tense</option>
+                                    <option value="present">Present Tense</option>
+                                    <option value="mixed">Mixed</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="dna-panel wide-panel">
+                            <div class="panel-title">
+                                <span>🎯</span>
+                                <span>Content Rating & Guidelines</span>
+                            </div>
+                            <div class="dna-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Content Rating</label>
+                                    <select class="form-select" id="content-rating">
+                                        <option value="general">General Audience</option>
+                                        <option value="teen">Teen (13+)</option>
+                                        <option value="mature">Mature (17+)</option>
+                                        <option value="adult">Adult</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Content Guidelines</label>
+                                    <textarea class="form-textarea" id="content-guidelines" placeholder="Specific content considerations (language, violence, themes)..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ai-suggestions">
+                        <div class="suggestions-title">🤖 AI Suggestions Based on Your Selections</div>
+                        <div id="genre-suggestions">
+                            Select genres and elements above to see intelligent suggestions for your Story DNA.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Character Arcs Section -->
+                <div id="character-arcs-section" class="dna-section">
+                    <div class="section-intro character">
+                        <div class="intro-title">Character Arc & Purpose Blueprint</div>
+                        <div class="intro-description">
+                            Define macro-level character functions and transformation journeys. This guides the LLM's investment in character portrayal and development across the entire narrative.
+                        </div>
+                    </div>
+
+                    <div class="dna-grid">
+                        <div class="dna-panel wide-panel">
+                            <div class="panel-title">
+                                <span>🎭</span>
+                                <span>Character Arc Builder</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Character Selection</label>
+                                <select class="form-select" id="character-select">
+                                    <option value="">Select character to design arc...</option>
+                                    <option value="sarah">Sarah Thompson (Protagonist)</option>
+                                    <option value="marcus">Marcus Chen (Supporting)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="character-arc-builder" id="arc-builder">
+                                <div class="arc-stage">
+                                    <div class="stage-indicator">1</div>
+                                    <div class="stage-content">
+                                        <div class="stage-title">Starting State</div>
+                                        <input type="text" class="stage-input" placeholder="Core desire, flaw/wound, initial worldview..." id="arc-start">
+                                    </div>
+                                </div>
+                                <div class="arc-stage">
+                                    <div class="stage-indicator">2</div>
+                                    <div class="stage-content">
+                                        <div class="stage-title">Mid-Point Shift</div>
+                                        <input type="text" class="stage-input" placeholder="Triggering event, realization, new desire/fear..." id="arc-middle">
+                                    </div>
+                                </div>
+                                <div class="arc-stage">
+                                    <div class="stage-indicator">3</div>
+                                    <div class="stage-content">
+                                        <div class="stage-title">Ending State</div>
+                                        <input type="text" class="stage-input" placeholder="Achieved desire, flaw confronted, final worldview..." id="arc-end">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Arc Type</label>
+                                <select class="form-select" id="arc-type">
+                                    <option value="">Select arc type...</option>
+                                    <option value="positive-change">Positive Change Arc</option>
+                                    <option value="negative-change">Negative Change Arc</option>
+                                    <option value="flat-arc">Flat Arc</option>
+                                    <option value="tragic-arc">Tragic Arc</option>
+                                    <option value="no-arc">No Explicit Arc</option>
+                                </select>
+                            </div>
+                        </div

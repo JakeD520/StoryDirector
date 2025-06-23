@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Goals Review & Refinement</title>
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-lighter: #1a1a1a;
+            --border: #333;
+            --text-light: #e0e0e0;
+            --text-dim: #999;
+            --primary: #03dac6;
+            --secondary: #bb86fc;
+            --warning: #ffb74d;
+            --success: #4caf50;
+            --error: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            line-height: 1.4;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--bg-lighter);
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: var(--text-dim);
+            font-size: 0.9em;
+        }
+
+        .pattern-section {
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--bg-lighter);
+            overflow: hidden;
+        }
+
+        .pattern-header {
+            padding: 15px 20px;
+            background: rgba(187, 134, 252, 0.1);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pattern-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--text-light);
+        }
+
+        .confidence-badge {
+            background: var(--success);
+            color: #000;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7em;
+            font-weight: bold;
+        }
+
+        .confidence-medium {
+            background: var(--warning);
+        }
+
+        .confidence-low {
+            background: var(--error);
+        }
+
+        .pattern-content {
+            padding: 20px;
+        }
+
+        .detected-pattern {
+            font-size: 1.1em;
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        .evidence-list {
+            margin-bottom: 20px;
+        }
+
+        .evidence-title {
+            font-size: 0.9em;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+        }
+
+        .evidence-item {
+            background: rgba(3, 218, 198, 0.1);
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            border-left: 3px solid var(--primary);
+        }
+
+        .adjustment-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .slider-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slider-label {
+            font-size: 0.8em;
+            color: var(--text-dim);
+            min-width: 80px;
+        }
+
+        .slider {
+            flex: 1;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #000;
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: rgba(3, 218, 198, 0.8);
+        }
+
+        .override-option {
+            background: rgba(255, 183, 77, 0.1);
+            border: 1px solid var(--warning);
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 15px;
+            font-size: 0.85em;
+        }
+
+        .vision-synthesis {
+            background: var(--bg-lighter);
+            border: 1px solid var(--secondary);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+
+        .vision-title {
+            font-size: 1.3em;
+            color: var(--secondary);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .vision-text {
+            font-size: 1.05em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: var(--text-light);
+        }
+
+        .consistency-check {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .consistency-title {
+            font-size: 0.9em;
+            color: var(--text-dim);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .consistency-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 0.85em;
+        }
+
+        .check-icon {
+            color: var(--success);
+        }
+
+        .warning-icon {
+            color: var(--warning);
+        }
+
+        .handoff-section {
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .handoff-title {
+            font-size: 1.3em;
+            color: var(--primary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .readiness-bar {
+            background: var(--bg-dark);
+            height: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .readiness-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 94%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .directives-list {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .directive-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 0.85em;
+        }
+
+        .prose-preview {
+            background: var(--bg-dark);
+            border: 1px solid var(--secondary);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-style: italic;
+            line-height: 1.6;
+            color: var(--text-light);
+        }
+
+        .final-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .progress-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 0.8em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .adjustment-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .final-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-indicator">
+        Story DNA: <span id="completion-percent">94%</span> Complete
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>📊 Story DNA Pattern Analysis</h1>
+            <p>Based on your creative choices, I've detected these patterns in your storytelling vision</p>
+        </div>
+
+        <!-- Narrative Intent Pattern -->
+        <div class="pattern-section">
+            <div class="pattern-header">
+                <span class="pattern-title">NARRATIVE INTENT</span>
+                <span class="confidence-badge" id="intent-confidence">87% confident</span>
+            </div>
+            <div class="pattern-content">
+                <div class="detected-pattern" id="intent-pattern">
+                    "Psychological transformation through crisis"
+                </div>
+                <div class="evidence-list">
+                    <div class="evidence-title">Evidence:</div>
+                    <div class="evidence-item">• 85% of brainstorms focus on internal conflict</div>
+                    <div class="evidence-item">• All character arcs show major psychological shifts</div>
+                    <div class="evidence-item">• Repeated themes: "breaking point", "revelation"</div>
+                </div>
+                <div class="adjustment-controls">
+                    <div class="slider-container">
+                        <span class="slider-label">Less Focus</span>
+                        <input type="range" class="slider" min="0" max="100" value="87" id="intent-slider">
+                        <span class="slider-label">More Focus</span>
+                    </div>
+                    <button class="btn" onclick="BookGoals.confirmPattern('intent')">Confirm</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Emotional Target Pattern -->
+        <div class="pattern-section">
+            <div class="pattern-header">
+                <span class="pattern-title">EMOTIONAL TARGET</span>
+                <span class="confidence-badge" id="emotion-confidence">92% confident</span>
+            </div>
+            <div class="pattern-content">
+                <div class="detected-pattern" id="emotion-pattern">
+                    "Melancholic introspection → cathartic resolution"
+                </div>
+                <div class="evidence-list">
+                    <div class="evidence-title">Evidence:</div>
+                    <div class="evidence-item">• Consistent "melancholic" tone selections</div>
+                    <div class="evidence-item">• Character endpoints show hard-won wisdom</div>
+                    <div class="evidence-item">• Prose weighting: 60% reflection, 25% dialogue, 15% action</div>
+                </div>
+                <div class="adjustment-controls">
+                    <div class="slider-container">
+                        <span class="slider-label">More Action</span>
+                        <input type="range" class="slider" min="0" max="100" value="75" id="emotion-slider">
+                        <span class="slider-label">More Introspective</span>
+                    </div>
+                    <button class="btn" onclick="BookGoals.confirmPattern('emotion')">Confirm</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Revelation Strategy Pattern -->
+        <div class="pattern-section">
+            <div class="pattern-header">
+                <span class="pattern-title">REVELATION STRATEGY</span>
+                <span class="confidence-badge confidence-medium" id="revelation-confidence">78% confident</span>
+            </div>
+            <div class="pattern-content">
+                <div class="detected-pattern" id="revelation-pattern">
+                    "Gradual psychological unveiling"
+                </div>
+                <div class="evidence-list">
+                    <div class="evidence-title">Evidence:</div>
+                    <div class="evidence-item">• User chose "subtle" over "dramatic" 8/10 times</div>
+                    <div class="evidence-item">• Character backstories set for slow revelation</div>
+                    <div class="evidence-item">• Thematic symbols built for layered meaning</div>
+                </div>
+                <div class="adjustment-controls">
+                    <div class="slider-container">
+                        <span class="slider-label">Gradual</span>
+                        <input type="range" class="slider" min="0" max="100" value="78" id="revelation-slider">
+                        <span class="slider-label">Dramatic</span>
+                    </div>
+                    <button class="btn" onclick="BookGoals.confirmPattern('revelation')">Confirm</button>
+                </div>
+                <div class="override-option">
+                    <strong>Override:</strong> Could be "Shocking twist revelations" instead?
+                    <button class="btn" onclick="BookGoals.overridePattern('revelation')" style="margin-left: 10px;">Try This</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vision Synthesis -->
+        <div class="vision-synthesis">
+            <div class="vision-title">🎯 Synthesized Creative Vision</div>
+            <div class="vision-text" id="vision-text">
+                Your story appears to be a deeply introspective character study that uses external crisis to explore themes of identity and belonging. You prefer psychological realism over dramatic plot devices, and favor earned emotional moments over manufactured tension.
+            </div>
+            <div class="consistency-check">
+                <div class="consistency-title">Consistency Check</div>
+                <div class="consistency-item">
+                    <span class="check-icon">✓</span>
+                    <span>Genre alignment: Mystery + Introspective = Perfect match</span>
+                </div>
+                <div class="consistency-item">
+                    <span class="check-icon">✓</span>
+                    <span>Character arcs support psychological focus</span>
+                </div>
+                <div class="consistency-item">
+                    <span class="warning-icon">⚠</span>
+                    <span>Prose weighting might need +5% dialogue for revelations</span>
+                </div>
+                <div class="consistency-item">
+                    <span class="check-icon">✓</span>
+                    <span>Theme strategy aligns with gradual unveiling</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Handoff Preparation -->
+        <div class="handoff-section">
+            <div class="handoff-title">⚙️ Handoff Preparation</div>
+            
+            <div class="readiness-bar">
+                <div class="readiness-fill">Story DNA Readiness: 94%</div>
+            </div>
+
+            <p style="margin-bottom: 15px; text-align: center; color: var(--text-dim);">
+                Your refined goals will instruct the LLM to:
+            </p>
+
+            <div class="directives-list">
+                <div class="directive-item">
+                    <span>→</span>
+                    <span>Prioritize character interiority over action</span>
+                </div>
+                <div class="directive-item">
+                    <span>→</span>
+                    <span>Build tension through psychological pressure, not events</span>
+                </div>
+                <div class="directive-item">
+                    <span>→</span>
+                    <span>Reveal information through character realization</span>
+                </div>
+                <div class="directive-item">
+                    <span>→</span>
+                    <span>Maintain melancholic undertone with hope emergence</span>
+                </div>
+                <div class="directive-item">
+                    <span>→</span>
+                    <span>Use symbolism for thematic reinforcement</span>
+                </div>
+            </div>
+
+            <p style="margin-bottom: 10px; font-size: 0.9em; color: var(--text-dim);">
+                Sample prose preview with your vision:
+            </p>
+            
+            <div class="prose-preview">
+                "Sarah stared at the letter, its edges soft from handling. The words hadn't changed, but something in her chest had shifted—a subtle rearrangement of certainties she'd carried for years. Outside, rain traced hesitant paths down the window, each droplet a small surrender to gravity's pull."
+            </div>
+
+            <div class="final-actions">
+                <button class="btn" onclick="BookGoals.adjustVision()">Adjust Vision</button>
+                <button class="btn btn-primary" onclick="BookGoals.readyToWrite()">Ready to Write</button>
+                <button class="btn" onclick="BookGoals.saveDNA()">Save DNA & Continue Later</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BookGoals = {
+            patterns: {
+                intent: {
+                    detected: "Psychological transformation through crisis",
+                    confidence: 87,
+                    confirmed: false
+                },
+                emotion: {
+                    detected: "Melancholic introspection → cathartic resolution",
+                    confidence: 92,
+                    confirmed: false
+                },
+                revelation: {
+                    detected: "Gradual psychological unveiling",
+                    confidence: 78,
+                    confirmed: false
+                }
+            },
+
+            init() {
+                this.updateConfidenceBadges();
+                this.setupSliderListeners();
+                this.updateVisionText();
+            },
+
+            updateConfidenceBadges() {
+                Object.keys(this.patterns).forEach(key => {
+                    const badge = document.getElementById(`${key}-confidence`);
+                    const confidence = this.patterns[key].confidence;
+                    
+                    badge.textContent = `${confidence}% confident`;
+                    
+                    if (confidence >= 85) {
+                        badge.className = 'confidence-badge';
+                    } else if (confidence >= 70) {
+                        badge.className = 'confidence-badge confidence-medium';
+                    } else {
+                        badge.className = 'confidence-badge confidence-low';
+                    }
+                });
+            },
+
+            setupSliderListeners() {
+                ['intent', 'emotion', 'revelation'].forEach(type => {
+                    const slider = document.getElementById(`${type}-slider`);
+                    slider.addEventListener('input', (e) => {
+                        this.updatePattern(type, parseInt(e.target.value));
+                    });
+                });
+            },
+
+            updatePattern(type, value) {
+                this.patterns[type].confidence = value;
+                this.updateConfidenceBadges();
+                this.updateVisionText();
+                this.updateReadiness();
+            },
+
+            confirmPattern(type) {
+                this.patterns[type].confirmed = true;
+                const btn = event.target;
+                btn.textContent = 'Confirmed ✓';
+                btn.style.background = 'var(--success)';
+                btn.style.color = '#000';
+                this.updateReadiness();
+            },
+
+            overridePattern(type) {
+                if (type === 'revelation') {
+                    document.getElementById('revelation-pattern').textContent = 
+                        '"Shocking twist revelations"';
+                    this.patterns.revelation.detected = "Shocking twist revelations";
+                    this.updateVisionText();
+                }
+            },
+
+            updateVisionText() {
+                const visionElement = document.getElementById('vision-text');
+                const intentFocus = this.patterns.intent.confidence;
+                const emotionBalance = this.patterns.emotion.confidence;
+                
+                let vision = "Your story appears to be ";
+                
+                if (intentFocus > 80) {
+                    vision += "a deeply introspective character study ";
+                } else if (intentFocus > 60) {
+                    vision += "a balanced character-driven narrative ";
+                } else {
+                    vision += "an action-oriented story with character elements ";
+                }
+
+                if (this.patterns.revelation.detected.includes("Gradual")) {
+                    vision += "that uses subtle revelation and psychological realism. ";
+                } else {
+                    vision += "that uses dramatic reveals and plot twists. ";
+                }
+
+                if (emotionBalance > 75) {
+                    vision += "You prefer earned emotional moments over manufactured tension.";
+                } else {
+                    vision += "You balance emotional depth with dynamic pacing.";
+                }
+
+                visionElement.textContent = vision;
+            },
+
+            updateReadiness() {
+                const confirmedCount = Object.values(this.patterns)
+                    .filter(p => p.confirmed).length;
+                const avgConfidence = Object.values(this.patterns)
+                    .reduce((sum, p) => sum + p.confidence, 0) / 3;
+                
+                const readiness = Math.round((confirmedCount * 30) + (avgConfidence * 0.7));
+                
+                document.querySelector('.readiness-fill').style.width = `${readiness}%`;
+                document.querySelector('.readiness-fill').textContent = 
+                    `Story DNA Readiness: ${readiness}%`;
+                document.getElementById('completion-percent').textContent = `${readiness}%`;
+            },
+
+            adjustVision() {
+                alert('Opening vision adjustment wizard...');
+            },
+
+            readyToWrite() {
+                const readiness = parseInt(document.getElementById('completion-percent').textContent);
+                if (readiness >= 90) {
+                    alert('🎉 Story DNA compiled successfully! Ready for prose generation.');
+                } else {
+                    alert('Consider confirming more patterns to increase readiness before writing.');
+                }
+            },
+
+            saveDNA() {
+                alert('Story DNA saved! You can return to complete the analysis later.');
+            }
+        };
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            BookGoals.init();
+        });
+    </script>
+</body>
+</html>
