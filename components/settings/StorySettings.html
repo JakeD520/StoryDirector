@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings Component - StoryDirector</title>
+    <style>
+        :root {
+            --primary: #03dac6;
+            --secondary: #bb86fc;
+            --accent: #ffd700;
+            --bg-dark: #0a0a0f;
+            --bg-panel: #1a1a1a;
+            --bg-lighter: #2a2a2a;
+            --border: #444;
+            --text-light: #e0e0e0;
+            --text-dim: #888;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+            
+            --interior-color: #4caf50;
+            --exterior-color: #8bc34a;
+            --vehicle-color: #03a9f4;
+            --abstract-color: #9c27b0;
+            --landmark-color: #ff5722;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .settings-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* File Tree Sidebar */
+        .file-tree {
+            width: 280px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .tree-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tree-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .tree-subtitle {
+            font-size: 0.9em;
+            color: var(--text-dim);
+        }
+
+        .tree-section {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-header {
+            padding: 15px 20px 10px;
+            font-size: 0.9em;
+            font-weight: bold;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .section-header:hover {
+            color: var(--primary);
+        }
+
+        .section-header.active {
+            color: var(--primary);
+        }
+
+        .tree-items {
+            padding-bottom: 10px;
+        }
+
+        .tree-item {
+            padding: 8px 35px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+
+        .tree-item:hover {
+            background: var(--bg-lighter);
+        }
+
+        .tree-item.active {
+            background: rgba(3, 218, 198, 0.1);
+            border-right: 3px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .setting-icon {
+            font-size: 1em;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-panel);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .content-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .content-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #000;
+            font-weight: bold;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(3, 218, 198, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            opacity: 0.8;
+        }
+
+        .content-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        /* Settings Overview */
+        .settings-overview {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .overview-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--bg-panel);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-dim);
+            font-size: 0.9em;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .setting-card {
+            background: var(--bg-panel);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .setting-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .setting-card.interior { border-color: var(--interior-color); }
+        .setting-card.exterior { border-color: var(--exterior-color); }
+        .setting-card.vehicle { border-color: var(--vehicle-color); }
+        .setting-card.abstract { border-color: var(--abstract-color); }
+        .setting-card.landmark { border-color: var(--landmark-color); }
+
+        .setting-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .setting-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .setting-avatar.interior { background: var(--interior-color); }
+        .setting-avatar.exterior { background: var(--exterior-color); }
+        .setting-avatar.vehicle { background: var(--vehicle-color); }
+        .setting-avatar.abstract { background: var(--abstract-color); }
+        .setting-avatar.landmark { background: var(--landmark-color); }
+
+        .setting-info {
+            flex: 1;
+        }
+
+        .setting-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .setting-type {
+            font-size: 0.8em;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .atmospheric-formula {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-family: monospace;
+            font-size: 0.9em;
+            color: var(--accent);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .atmospheric-preview {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            padding: 10px;
+            font-style: italic;
+            font-size: 0.9em;
+            color: var(--text-dim);
+            border-left: 3px solid;
+            margin-bottom: 10px;
+        }
+
+        .setting-card.interior .atmospheric-preview { border-left-color: var(--interior-color); }
+        .setting-card.exterior .atmospheric-preview { border-left-color: var(--exterior-color); }
+        .setting-card.vehicle .atmospheric-preview { border-left-color: var(--vehicle-color); }
+        .setting-card.abstract .atmospheric-preview { border-left-color: var(--abstract-color); }
+        .setting-card.landmark .atmospheric-preview { border-left-color: var(--landmark-color); }
+
+        .setting-moods {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .mood-tag {
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 3px 8px;
+            font-size: 0.7em;
+            color: var(--text-dim);
+        }
+
+        .setting-actions {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 5px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .setting-card:hover .setting-actions {
+            opacity: 1;
+        }
+
+        .action-icon {
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 4px 6px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.2s;
+        }
+
+        .action-icon:hover {
+            background: var(--bg-dark);
+            color: var(--primary);
+        }
+
+        /* Connections Section */
+        .connections-section {
+            background: var(--bg-panel);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .section-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .connections-web {
+            position: relative;
+            height: 200px;
+            background: rgba(187, 134, 252, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .connection-node {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid;
+        }
+
+        .connection-node:hover {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+
+        .connection-line {
+            position: absolute;
+            height: 2px;
+            background: var(--secondary);
+            opacity: 0.6;
+            transform-origin: left center;
+            z-index: 1;
+        }
+
+        /* Setting Detail View */
+        .setting-detail {
+            max-width: 800px;
+            margin: 0 auto;
+            display: none;
+        }
+
+        .setting-detail.active {
+            display: block;
+        }
+
+        .detail-header {
+            background: var(--bg-panel);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+        }
+
+        .detail-setting-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .detail-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .detail-info {
+            flex: 1;
+        }
+
+        .detail-name {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .detail-type {
+            font-size: 1em;
+            color: var(--text-dim);
+            margin-bottom: 10px;
+        }
+
+        .detail-atmospheric-formula {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-family: monospace;
+            font-size: 1.1em;
+            color: var(--accent);
+            text-align: center;
+        }
+
+        .detail-sections {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .detail-section {
+            background: var(--bg-panel);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .detail-section-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            color: var(--text-dim);
+            font-weight: bold;
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px;
+            color: var(--text-light);
+            font-size: 0.9em;
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .atmospheric-designer-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .atmospheric-designer-modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-panel);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            width: 90%;
+            max-width: 1000px;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--text-light);
+            background: var(--bg-lighter);
+        }
+
+        .modal-body {
+            padding: 30px;
+            overflow-y: auto;
+            max-height: calc(90vh - 80px);
+        }
+
+        .designer-placeholder {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-dim);
+        }
+
+        .designer-placeholder h3 {
+            margin-bottom: 10px;
+            color: var(--text-light);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-dim);
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: var(--text-light);
+        }
+
+        .back-btn {
+            background: var(--bg-lighter);
+            color: var(--text-light);
+            border: 1px solid var(--border);
+        }
+
+        .back-btn:hover {
+            background: var(--bg-dark);
+        }
+
+        .sensory-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-container">
+        <!-- File Tree Sidebar -->
+        <div class="file-tree">
+            <div class="tree-header">
+                <div class="tree-title">Story Settings</div>
+                <div class="tree-subtitle">Atmospheric chemistry & environments</div>
+            </div>
+
+            <div class="tree-section">
+                <div class="section-header active" data-section="settings">
+                    <span>🏰</span>
+                    <span>Settings</span>
+                </div>
+                <div class="tree-items">
+                    <div class="tree-item active" data-setting="overview">
+                        <span class="setting-icon">📋</span>
+                        <span>Overview</span>
+                    </div>
+                    <div class="tree-item" data-setting="lighthouse">
+                        <span class="setting-icon">🗼</span>
+                        <span>Old Lighthouse</span>
+                    </div>
+                    <div class="tree-item" data-setting="cafe">
+                        <span class="setting-icon">☕</span>
+                        <span>Downtown Café</span>
+                    </div>
+                    <div class="tree-item" data-setting="apartment">
+                        <span class="setting-icon">🏠</span>
+                        <span>Sarah's Apartment</span>
+                    </div>
+                    <div class="tree-item" data-setting="highway">
+                        <span class="setting-icon">🛣️</span>
+                        <span>Coastal Highway</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tree-section">
+                <div class="section-header" data-section="connections">
+                    <span>🔗</span>
+                    <span>Connections</span>
+                </div>
+            </div>
+
+            <div class="tree-section">
+                <div class="section-header" data-section="atmosphere-library">
+                    <span>🌅</span>
+                    <span>Atmosphere Library</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="content-header">
+                <div class="content-title" id="content-title">Settings Overview</div>
+                <div class="content-actions">
+                    <button class="btn btn-secondary" onclick="SettingsApp.showConnectionsView()">🔗 Connections</button>
+                    <button class="btn btn-primary" onclick="SettingsApp.createNewSetting()">+ Create Setting</button>
+                </div>
+            </div>
+
+            <div class="content-body">
+                <!-- Settings Overview -->
+                <div id="settings-overview" class="settings-overview">
+                    <div class="overview-stats">
+                        <div class="stat-card">
+                            <div class="stat-number">4</div>
+                            <div class="stat-label">Total Settings</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">2</div>
+                            <div class="stat-label">Interiors</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">3</div>
+                            <div class="stat-label">Connections</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">1</div>
+                            <div class="stat-label">Landmarks</div>
+                        </div>
+                    </div>
+
+                    <div class="settings-grid" id="settings-grid">
+                        <!-- Setting cards will be populated here -->
+                    </div>
+
+                    <div class="connections-section">
+                        <div class="section-title">
+                            <span>🔗</span>
+                            <span>Setting Connections</span>
+                        </div>
+                        <div class="connections-web" id="connections-web">
+                            <!-- Connection visualization will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Setting Detail View -->
+                <div id="setting-detail" class="setting-detail">
+                    <div class="detail-header">
+                        <div class="detail-setting-info">
+                            <div class="detail-avatar exterior" id="detail-avatar">🗼</div>
+                            <div class="detail-info">
+                                <div class="detail-name" id="detail-name">Old Lighthouse</div>
+                                <div class="detail-type" id="detail-type">Exterior Landmark</div>
+                                <div class="detail-atmospheric-formula" id="detail-atmospheric-formula">El₅ + Rg₂ + Dx₈</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-sections">
+                        <div class="detail-section">
+                            <div class="detail-section-title">Setting Profile</div>
+                            <div class="form-group">
+                                <label class="form-label">Location Name</label>
+                                <input type="text" class="form-input" id="detail-full-name" value="Old Lighthouse">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Setting Type</label>
+                                <select class="form-select" id="detail-setting-type">
+                                    <option value="interior">Interior</option>
+                                    <option value="exterior">Exterior</option>
+                                    <option value="vehicle">Vehicle</option>
+                                    <option value="abstract">Abstract</option>
+                                    <option value="landmark">Landmark</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-textarea" id="detail-description">Weathered lighthouse on rocky outcrop. Paint peeling, windows broken, but structure stands defiant against coastal storms. Base surrounded by treacherous rocks.</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Connected To</label>
+                                <input type="text" class="form-input" id="detail-connections" value="Rocky Shore, Keeper's Cottage, Coastal Highway">
+                            </div>
+                        </div>
+
+                        <div class="detail-section">
+                            <div class="detail-section-title">Atmosphere & Mood</div>
+                            <div class="form-group">
+                                <label class="form-label">Atmospheric Chemistry Formula</label>
+                                <input type="text" class="form-input" id="detail-atmosphere" value="El₅ + Rg₂ + Dx₈" readonly>
+                                <button class="btn btn-secondary" style="margin-top: 8px; width: 100%;" onclick="SettingsApp.openAtmosphericDesigner()">🌅 Edit Atmospheric Chemistry</button>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Sensory Details</label>
+                                <div class="sensory-grid">
+                                    <div>
+                                        <label class="form-label" style="margin-bottom: 3px;">Visual</label>
+                                        <textarea class="form-input" style="min-height: 60px;" id="detail-visual">Paint peeling, broken glass, rusted metal, stormy skies</textarea>
+                                    </div>
+                                    <div>
+                                        <label class="form-label" style="margin-bottom: 3px;">Audio</label>
+                                        <textarea class="form-input" style="min-height: 60px;" id="detail-audio">Waves crashing, wind howling, metal creaking, seabirds calling</textarea>
+                                    </div>
+                                    <div>
+                                        <label class="form-label" style="margin-bottom: 3px;">Tactile</label>
+                                        <textarea class="form-input" style="min-height: 60px;" id="detail-tactile">Salt spray, rough stone, cold metal, wet air</textarea>
+                                    </div>
+                                    <div>
+                                        <label class="form-label" style="margin-bottom: 3px;">Smell</label>
+                                        <textarea class="form-input" style="min-height: 60px;" id="detail-smell">Sea salt, rust, weathered wood, storm air</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Mood Keywords</label>
+                                <input type="text" class="form-input" id="detail-moods" value="Isolated, Weathered, Defiant, Nostalgic">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button class="btn back-btn" onclick="SettingsApp.showOverview()">← Back to Overview</button>
+                        <button class="btn btn-primary" style="margin-left: 15px;" onclick="SettingsApp.saveSetting()">💾 Save Setting</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Atmospheric Designer Modal -->
+    <div class="atmospheric-designer-modal" id="atmospheric-designer-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Atmospheric Chemistry Designer</div>
+                <button class="modal-close" onclick="SettingsApp.closeAtmosphericDesigner()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="designer-placeholder">
+                    <h3>Atmospheric Chemistry Designer</h3>
+                    <p>This would contain the environmental chemistry interface for building atmospheric formulas.</p>
+                    <p style="margin-top: 15px; font-size: 0.9em;">Elements like El₅ (compressed atmosphere), Rg₂ (casual environment), Dx₈ (spatially-aware space).</p>
+                    <button class="btn btn-primary" style="margin-top: 20px;" onclick="SettingsApp.applyAtmosphericFormula()">Apply Atmospheric Formula</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SettingsApp = {
+            currentView: 'overview',
+            selectedSetting: null,
+            
+            settings: [
+                {
+                    id: 'lighthouse',
+                    name: 'Old Lighthouse',
+                    fullName: 'Old Lighthouse',
+                    type: 'exterior',
+                    atmosphericFormula: 'El₅ + Rg₂ + Dx₈',
+                    atmosphericSample: 'Salt spray hits your face. Wind howls. Metal creaks overhead.',
+                    description: 'Weathered lighthouse on rocky outcrop. Paint peeling, windows broken, but structure stands defiant against coastal storms.',
+                    moods: ['Isolated', 'Weathered', 'Defiant', 'Nostalgic'],
+                    sensory: {
+                        visual: 'Paint peeling, broken glass, rusted metal, stormy skies',
+                        audio: 'Waves crashing, wind howling, metal creaking, seabirds calling',
+                        tactile: 'Salt spray, rough stone, cold metal, wet air',
+                        smell: 'Sea salt, rust, weathered wood, storm air'
+                    }
+                },
+                {
+                    id: 'cafe',
+                    name: 'Downtown Café',
+                    fullName: 'Downtown Café',
+                    type: 'interior',
+                    atmosphericFormula: 'Co₆ + Sb₄ + Rg₅',
+                    atmosphericSample: 'Warm lighting. Low conversations blend. Coffee steams. Comfortable bustle.',
+                    description: 'Modern coffee shop with exposed brick, warm lighting, and the gentle hum of conversation and espresso machines.',
+                    moods: ['Warm', 'Social', 'Comfortable', 'Urban'],
+                    sensory: {
+                        visual: 'Warm lighting, exposed brick, steam rising, people chatting',
+                        audio: 'Coffee machines, low conversations, jazz music, chair scraping',
+                        tactile: 'Warm cup, smooth table, soft chair, ambient warmth',
+                        smell: 'Fresh coffee, pastries, leather chairs, urban air'
+                    }
+                },
+                {
+                    id: 'apartment',
+                    name: "Sarah's Apartment",
+                    fullName: "Sarah's Apartment",
+                    type: 'interior',
+                    atmosphericFormula: 'El₄ + Rg₃ + Ch₅',
+                    atmosphericSample: 'Compact. Functional. Books everywhere. Morning light through blinds.',
+                    description: 'Small city apartment with practical furniture, overflowing bookshelves, and large windows facing east.',
+                    moods: ['Practical', 'Lived-in', 'Functional', 'Personal'],
+                    sensory: {
+                        visual: 'Morning light, book spines, simple furniture, organized clutter',
+                        audio: 'City sounds through windows, refrigerator hum, neighbor footsteps',
+                        tactile: 'Soft throw blanket, worn book pages, smooth coffee mug',
+                        smell: 'Coffee, old books, clean laundry, faint city air'
+                    }
+                },
+                {
+                    id: 'highway',
+                    name: 'Coastal Highway',
+                    fullName: 'Coastal Highway',
+                    type: 'vehicle',
+                    atmosphericFormula: 'Dx₉ + Co₅ + Rh₆',
+                    atmosphericSample: 'Ocean to the left. Cliffs to the right. Asphalt unspools ahead. Freedom.',
+                    description: 'Winding coastal road with dramatic ocean views, steep cliffs, and endless curves ahead.',
+                    moods: ['Freedom', 'Movement', 'Scenic', 'Transitional'],
+                    sensory: {
+                        visual: 'Ocean horizon, winding asphalt, cliff faces, changing sky',
+                        audio: 'Engine humming, wind through windows, distant waves',
+                        tactile: 'Steering wheel vibration, seat support, air movement',
+                        smell: 'Sea air, car interior, asphalt, pine trees'
+                    }
+                }
+            ],
+
+            connections: [
+                { from: 'lighthouse', to: 'highway', type: 'Accessible By', description: 'Highway leads directly to lighthouse access road' },
+                { from: 'apartment', to: 'cafe', type: 'Walking Distance', description: 'Sarah\'s daily coffee spot, 3 blocks away' },
+                { from: 'lighthouse', to: 'apartment', type: 'Emotional Connection', description: 'Lighthouse represents Sarah\'s past, apartment her present' }
+            ],
+
+            init() {
+                this.setupEventListeners();
+                this.renderSettingsGrid();
+                this.renderConnectionsWeb();
+                this.showOverview();
+            },
+
+            setupEventListeners() {
+                // File tree navigation
+                document.querySelectorAll('.tree-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const settingId = item.dataset.setting;
+                        if (settingId === 'overview') {
+                            this.showOverview();
+                        } else {
+                            this.showSettingDetail(settingId);
+                        }
+                        this.updateActiveTreeItem(item);
+                    });
+                });
+            },
+
+            updateActiveTreeItem(activeItem) {
+                document.querySelectorAll('.tree-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                activeItem.classList.add('active');
+            },
+
+            showOverview() {
+                this.currentView = 'overview';
+                document.getElementById('content-title').textContent = 'Settings Overview';
+                document.getElementById('settings-overview').style.display = 'block';
+                document.getElementById('setting-detail').classList.remove('active');
+                this.renderSettingsGrid();
+            },
+
+            showSettingDetail(settingId) {
+                const setting = this.settings.find(s => s.id === settingId);
+                if (!setting) return;
+
+                this.currentView = 'detail';
+                this.selectedSetting = setting;
+                
+                document.getElementById('content-title').textContent = setting.name;
+                document.getElementById('settings-overview').style.display = 'none';
+                document.getElementById('setting-detail').classList.add('active');
+                
+                this.populateSettingDetail(setting);
+            },
+
+            populateSettingDetail(setting) {
+                document.getElementById('detail-name').textContent = setting.name;
+                document.getElementById('detail-type').textContent = setting.type.charAt(0).toUpperCase() + setting.type.slice(1);
+                document.getElementById('detail-atmospheric-formula').textContent = setting.atmosphericFormula;
+                
+                // Update avatar
+                const avatar = document.getElementById('detail-avatar');
+                const typeIcons = {
+                    interior: '🏠',
+                    exterior: '🌲',
+                    vehicle: '🚗',
+                    abstract: '💭',
+                    landmark: '🗼'
+                };
+                avatar.textContent = typeIcons[setting.type] || setting.name.charAt(0);
+                avatar.className = `detail-avatar ${setting.type}`;
+                
+                // Populate form fields
+                document.getElementById('detail-full-name').value = setting.fullName;
+                document.getElementById('detail-setting-type').value = setting.type;
+                document.getElementById('detail-description').value = setting.description;
+                document.getElementById('detail-atmosphere').value = setting.atmosphericFormula;
+                document.getElementById('detail-moods').value = setting.moods.join(', ');
+                
+                // Populate sensory details
+                document.getElementById('detail-visual').value = setting.sensory.visual;
+                document.getElementById('detail-audio').value = setting.sensory.audio;
+                document.getElementById('detail-tactile').value = setting.sensory.tactile;
+                document.getElementById('detail-smell').value = setting.sensory.smell;
+            },
+
+            renderSettingsGrid() {
+                const container = document.getElementById('settings-grid');
+                container.innerHTML = '';
+                
+                this.settings.forEach(setting => {
+                    const card = this.createSettingCard(setting);
+                    container.appendChild(card);
+                });
+            },
+
+            createSettingCard(setting) {
+                const card = document.createElement('div');
+                card.className = `setting-card ${setting.type}`;
+                card.onclick = () => this.showSettingDetail(setting.id);
+                
+                const typeIcons = {
+                    interior: '🏠',
+                    exterior: '🌲',
+                    vehicle: '🚗',
+                    abstract: '💭',
+                    landmark: '🗼'
+                };
+                
+                card.innerHTML = `
+                    <div class="setting-actions">
+                        <div class="action-icon" onclick="event.stopPropagation(); SettingsApp.editSetting('${setting.id}')" title="Edit">✏️</div>
+                        <div class="action-icon" onclick="event.stopPropagation(); SettingsApp.deleteSetting('${setting.id}')" title="Delete">🗑️</div>
+                    </div>
+                    
+                    <div class="setting-header">
+                        <div class="setting-avatar ${setting.type}">
+                            ${typeIcons[setting.type] || setting.name.charAt(0)}
+                        </div>
+                        <div class="setting-info">
+                            <div class="setting-name">${setting.name}</div>
+                            <div class="setting-type">${setting.type}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="atmospheric-formula">${setting.atmosphericFormula}</div>
+                    
+                    <div class="atmospheric-preview">${setting.atmosphericSample}</div>
+                    
+                    <div class="setting-moods">
+                        ${setting.moods.map(mood => `<div class="mood-tag">${mood}</div>`).join('')}
+                    </div>
+                `;
+                
+                return card;
+            },
+
+            renderConnectionsWeb() {
+                const container = document.getElementById('connections-web');
+                container.innerHTML = '';
+                
+                // Position settings in a circle
+                const centerX = container.offsetWidth / 2;
+                const centerY = container.offsetHeight / 2;
+                const radius = Math.min(centerX, centerY) - 40;
+                
+                this.settings.forEach((setting, index) => {
+                    const angle = (index / this.settings.length) * 2 * Math.PI;
+                    const x = centerX + radius * Math.cos(angle) - 30;
+                    const y = centerY + radius * Math.sin(angle) - 30;
+                    
+                    const node = document.createElement('div');
+                    node.className = `connection-node ${setting.type}`;
+                    node.style.left = `${x}px`;
+                    node.style.top = `${y}px`;
+                    node.style.backgroundColor = `var(--${setting.type}-color)`;
+                    node.style.borderColor = `var(--${setting.type}-color)`;
+                    node.style.color = '#fff';
+                    
+                    const typeIcons = {
+                        interior: '🏠',
+                        exterior: '🌲',
+                        vehicle: '🚗',
+                        abstract: '💭',
+                        landmark: '🗼'
+                    };
+                    
+                    node.textContent = typeIcons[setting.type] || setting.name.charAt(0);
+                    node.title = setting.name;
+                    
+                    container.appendChild(node);
+                });
+                
+                // Draw connection lines
+                this.connections.forEach(conn => {
+                    const fromIndex = this.settings.findIndex(s => s.id === conn.from);
+                    const toIndex = this.settings.findIndex(s => s.id === conn.to);
+                    
+                    if (fromIndex !== -1 && toIndex !== -1) {
+                        this.drawConnectionLine(container, fromIndex, toIndex, this.settings.length);
+                    }
+                });
+            },
+
+            drawConnectionLine(container, fromIndex, toIndex, totalSettings) {
+                const centerX = container.offsetWidth / 2;
+                const centerY = container.offsetHeight / 2;
+                const radius = Math.min(centerX, centerY) - 40;
+                
+                const angle1 = (fromIndex / totalSettings) * 2 * Math.PI;
+                const angle2 = (toIndex / totalSettings) * 2 * Math.PI;
+                
+                const x1 = centerX + radius * Math.cos(angle1);
+                const y1 = centerY + radius * Math.sin(angle1);
+                const x2 = centerX + radius * Math.cos(angle2);
+                const y2 = centerY + radius * Math.sin(angle2);
+                
+                const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+                const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+                
+                const line = document.createElement('div');
+                line.className = 'connection-line';
+                line.style.width = `${length}px`;
+                line.style.left = `${x1}px`;
+                line.style.top = `${y1}px`;
+                line.style.transform = `rotate(${angle}deg)`;
+                
+                container.appendChild(line);
+            },
+
+            createNewSetting() {
+                // In a real implementation, this would open the setting creation workflow
+                this.openAtmosphericDesigner();
+            },
+
+            editSetting(settingId) {
+                this.showSettingDetail(settingId);
+            },
+
+            deleteSetting(settingId) {
+                if (confirm('Are you sure you want to delete this setting?')) {
+                    this.settings = this.settings.filter(s => s.id !== settingId);
+                    this.renderSettingsGrid();
+                    this.renderConnectionsWeb();
+                    
+                    // If we're viewing the deleted setting, go back to overview
+                    if (this.selectedSetting && this.selectedSetting.id === settingId) {
+                        this.showOverview();
+                    }
+                }
+            },
+
+            saveSetting() {
+                if (!this.selectedSetting) return;
+                
+                // Get updated values from form
+                const updatedSetting = {
+                    ...this.selectedSetting,
+                    fullName: document.getElementById('detail-full-name').value,
+                    type: document.getElementById('detail-setting-type').value,
+                    description: document.getElementById('detail-description').value,
+                    atmosphericFormula: document.getElementById('detail-atmosphere').value,
+                    moods: document.getElementById('detail-moods').value.split(',').map(m => m.trim()),
+                    sensory: {
+                        visual: document.getElementById('detail-visual').value,
+                        audio: document.getElementById('detail-audio').value,
+                        tactile: document.getElementById('detail-tactile').value,
+                        smell: document.getElementById('detail-smell').value
+                    }
+                };
+                
+                // Update in settings array
+                const index = this.settings.findIndex(s => s.id === this.selectedSetting.id);
+                if (index !== -1) {
+                    this.settings[index] = updatedSetting;
+                    this.selectedSetting = updatedSetting;
+                }
+                
+                // Re-render affected components
+                this.renderSettingsGrid();
+                this.populateSettingDetail(updatedSetting);
+                
+                // Show success feedback
+                const saveBtn = event.target;
+                const originalText = saveBtn.textContent;
+                saveBtn.textContent = '✓ Saved!';
+                saveBtn.style.background = 'var(--success)';
+                
+                setTimeout(() => {
+                    saveBtn.textContent = originalText;
+                    saveBtn.style.background = 'var(--primary)';
+                }, 2000);
+            },
+
+            showConnectionsView() {
+                // This would show a dedicated connections management view
+                alert('Connections management view - coming soon!\n\nThis would show:\n• Detailed connection editor\n• Connection types and relationships\n• Geographic/thematic mapping\n• Setting proximity and accessibility');
+            },
+
+            openAtmosphericDesigner() {
+                document.getElementById('atmospheric-designer-modal').classList.add('active');
+            },
+
+            closeAtmosphericDesigner() {
+                document.getElementById('atmospheric-designer-modal').classList.remove('active');
+            },
+
+            applyAtmosphericFormula() {
+                // This would apply the formula from the atmospheric designer
+                alert('Atmospheric formula applied!\n\nIn the full implementation, this would:\n• Apply the new atmospheric formula to the setting\n• Update environmental descriptions automatically\n• Regenerate mood and sensory details\n• Update consistency across the project');
+                this.closeAtmosphericDesigner();
+            }
+        };
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            SettingsApp.init();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worldbuilding System - StoryDirector</title>
+    <style>
+        :root {
+            --primary: #03dac6;
+            --secondary: #bb86fc;
+            --accent: #ffd700;
+            --bg-dark: #0a0a0f;
+            --bg-panel: #1a1a1a;
+            --bg-lighter: #2a2a2a;
+            --border: #444;
+            --text-light: #e0e0e0;
+            --text-dim: #888;
+            
+            --magic-color: #bb86fc;
+            --politics-color: #f44336;
+            --geography-color: #4caf50;
+            --economy-color: #ff9800;
+            --culture-color: #2196f3;
+            --technology-color: #9c27b0;
+            --history-color: #795548;
+            --religion-color: #ffd700;
+            --biology-color: #e91e63;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .worldbuilding-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Main World Area */
+        .world-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .world-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-panel);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .world-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .world-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .view-toggle {
+            display: flex;
+            background: var(--bg-lighter);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .view-btn {
+            padding: 8px 16px;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .view-btn.active {
+            background: var(--primary);
+            color: #000;
+        }
+
+        .add-rule-btn {
+            background: var(--secondary);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        /* Category Grid View */
+        .categories-grid {
+            flex: 1;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        .category-card {
+            background: var(--bg-panel);
+            border: 2px solid;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            min-height: 150px;
+        }
+
+        .category-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .category-magic { border-color: var(--magic-color); }
+        .category-politics { border-color: var(--politics-color); }
+        .category-geography { border-color: var(--geography-color); }
+        .category-economy { border-color: var(--economy-color); }
+        .category-culture { border-color: var(--culture-color); }
+        .category-technology { border-color: var(--technology-color); }
+        .category-history { border-color: var(--history-color); }
+        .category-religion { border-color: var(--religion-color); }
+        .category-biology { border-color: var(--biology-color); }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .category-icon {
+            font-size: 1.5em;
+        }
+
+        .category-name {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .category-description {
+            color: var(--text-dim);
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .category-rules-count {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--bg-lighter);
+            color: var(--text-light);
+            border-radius: 12px;
+            padding: 4px 8px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .category-preview {
+            font-size: 0.8em;
+            color: var(--text-dim);
+            font-style: italic;
+        }
+
+        /* Interconnection View */
+        .interconnection-view {
+            flex: 1;
+            padding: 20px;
+            display: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .interconnection-view.active {
+            display: block;
+        }
+
+        .world-web {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .web-node {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border: 3px solid;
+            border-radius: 50%;
+            background: var(--bg-panel);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.8em;
+            text-align: center;
+        }
+
+        .web-node:hover {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+
+        .web-connection {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            transform-origin: left center;
+            opacity: 0.6;
+            z-index: 1;
+        }
+
+        .web-connection.highlighted {
+            background: var(--accent);
+            opacity: 1;
+            height: 3px;
+        }
+
+        /* Rule Details Modal */
+        .rule-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rule-modal.active {
+            display: flex;
+        }
+
+        .rule-modal-content {
+            background: var(--bg-panel);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .rule-modal-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .rule-modal-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .rule-modal-close {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .rule-modal-close:hover {
+            color: var(--text-light);
+            background: var(--bg-lighter);
+        }
+
+        .rule-modal-body {
+            padding: 30px;
+            overflow-y: auto;
+            max-height: calc(90vh - 80px);
+        }
+
+        .rule-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 0.9em;
+            color: var(--text-dim);
+            font-weight: bold;
+        }
+
+        .form-input, .form-textarea {
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            color: var(--text-light);
+            font-size: 0.9em;
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* AI Sidebar */
+        .ai-sidebar {
+            width: 350px;
+            background: var(--bg-panel);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .ai-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .ai-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .ai-subtitle {
+            font-size: 0.9em;
+            color: var(--text-dim);
+        }
+
+        .ai-insights {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .insight-card {
+            background: rgba(187, 134, 252, 0.1);
+            border: 1px solid var(--secondary);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .insight-type {
+            font-size: 0.8em;
+            color: var(--secondary);
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .interconnection-highlight {
+            background: rgba(255, 215, 0, 0.1);
+            border-color: var(--accent);
+        }
+
+        .ai-chat-area {
+            border-top: 1px solid var(--border);
+            padding: 20px;
+        }
+
+        .ai-input {
+            width: 100%;
+            background: var(--bg-lighter);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px;
+            color: var(--text-light);
+            font-size: 0.9em;
+            min-height: 80px;
+            resize: vertical;
+            margin-bottom: 10px;
+        }
+
+        .ai-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        .ai-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .ai-quick-btn {
+            background: rgba(187, 134, 252, 0.2);
+            border: 1px solid var(--secondary);
+            color: var(--secondary);
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 0.7em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .ai-quick-btn:hover {
+            background: rgba(187, 134, 252, 0.3);
+        }
+
+        .save-rule-btn {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .save-rule-btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="worldbuilding-container">
+        <!-- Main World Area -->
+        <div class="world-main">
+            <div class="world-header">
+                <div class="world-title">World Builder</div>
+                <div class="world-controls">
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="categories">Categories</button>
+                        <button class="view-btn" data-view="web">Interconnections</button>
+                    </div>
+                    <button class="add-rule-btn" onclick="WorldApp.openRuleModal()">+ Add Rule</button>
+                </div>
+            </div>
+
+            <!-- Categories Grid View -->
+            <div class="categories-grid" id="categories-view">
+                <div class="category-card category-magic" onclick="WorldApp.openCategory('magic')">
+                    <div class="category-rules-count" id="magic-count">0</div>
+                    <div class="category-header">
+                        <div class="category-icon">🔮</div>
+                        <div class="category-name">Magic System</div>
+                    </div>
+                    <div class="category-description">Rules, limitations, costs, and magical mechanics</div>
+                    <div class="category-preview" id="magic-preview">Define how magic works in your world</div>
+                </div>
+
+                <div class="category-card category-politics" onclick="WorldApp.openCategory('politics')">
+                    <div class="category-rules-count" id="politics-count">0</div>
+                    <div class="category-header">
+                        <div class="category-icon">🏛️</div>
+                        <div class="category-name">Politics</div>
+                    </div>
+                    <div class="category-description">Government, power structures, conflicts</div>
+                    <div class="category-preview" id="politics-preview">How is society organized and governed?</div>
+                </div>
+
+                <div class="category-card category-geography" onclick="WorldApp.openCategory('geography')">
+                    <div class="category-rules-count" id="geography-count">0</div>
+                    <div class="category-header">
+                        <div class="category-icon">🌍</div>
+                        <div class="category-name">Geography</div>
+                    </div>
+                    <div class="category-description">Terrain, climate, natural resources</div>
+                    <div class="category-preview" id="geography-preview">What does the physical world look like?</div>
+                </div>
+
+                <div class="category-card category-economy" onclick="WorldApp.openCategory('economy')">
+                    <div class="category-rules-count" id="economy-count">0</div>
+                    <div class="category-header">
+                        <div class="category-icon">💰</div>
+                        <div class="category-name">Economy</div>
+                    </div>
+                    <div class="category-description">Trade, currency, resources, jobs</div>
+                    <div class="category-preview" id="economy-preview">How do people make a living?</div>
+                </div>
+
+                <div class="category-card category-culture" onclick="WorldApp.openCategory('culture')">
+                    <div class="category-rules-count" id="culture-count">0</div>
+                    <div class="category-header">
+                        <div class="category-icon">🎭</div>
+                        <div class="category-name">Culture</div>
+                    </div>
+                    <div class="category-description">Values, traditions, social norms</div>
+                    <div class="category-preview" id="culture-preview">What do people believe and value?</div>
+                </div>
+
+                <div class="category-card category-technology" onclick="WorldApp.openCategory('technology')">
+                    <div class="category-rules-count" id="technology-count">0</div>
+                    <div class="category-header">
+                        <div class="category-icon">⚡</div>
+                        <div class="category-name">Technology</div>
+                    </div>
+                    <div class="category-description">What exists, what doesn't, why</div>
+                    <div class="category-preview" id="technology-preview">What tools and innovations exist?</div>
+                </div>
+
+                <div class="category-card category-history" onclick="WorldApp.openCategory('history')">
+                    <div class="category-rules-count" id="history-count">0</div>
+                    <div class="category-header">
+                        <div class="category-icon">📜</div>
+                        <div class="category-name">History</div>
+                    </div>
+                    <div class="category-description">Key events, wars, discoveries</div>
+                    <div class="category-preview" id="history-preview">What shaped this world?</div>
+                </div>
+
+                <div class="category-card category-religion" onclick="WorldApp.openCategory('religion')">
+                    <div class="category-rules-count" id="religion-count">0</div>
+                    <div class="category-header">
+                        <div class="category-icon">⭐</div>
+                        <div class="category-name">Religion</div>
+                    </div>
+                    <div class="category-description">Beliefs, deities, practices</div>
+                    <div class="category-preview" id="religion-preview">What do people worship or believe?</div>
+                </div>
+
+                <div class="category-card category-biology" onclick="WorldApp.openCategory('biology')">
+                    <div class="category-rules-count" id="biology-count">0</div>
+                    <div class="category-header">
+                        <div class="category-icon">🐉</div>
+                        <div class="category-name">Biology</div>
+                    </div>
+                    <div class="category-description">Species, evolution, magical creatures</div>
+                    <div class="category-preview" id="biology-preview">What lives in this world?</div>
+                </div>
+            </div>
+
+            <!-- Interconnection Web View -->
+            <div class="interconnection-view" id="web-view">
+                <div class="world-web" id="world-web">
+                    <!-- Nodes will be dynamically positioned -->
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Sidebar -->
+        <div class="ai-sidebar">
+            <div class="ai-header">
+                <div class="ai-title">World Consultant</div>
+                <div class="ai-subtitle">Analyze implications and connections</div>
+            </div>
+
+            <div class="ai-insights" id="ai-insights">
+                <div class="insight-card">
+                    <div class="insight-type">Getting Started</div>
+                    Start adding world rules and I'll help you discover implications, spot inconsistencies, and suggest interconnections between your world systems.
+                </div>
+            </div>
+
+            <div class="ai-chat-area">
+                <div class="ai-actions">
+                    <button class="ai-quick-btn" onclick="WorldApp.askAI('implications')">Implications</button>
+                    <button class="ai-quick-btn" onclick="WorldApp.askAI('gaps')">Find Gaps</button>
+                    <button class="ai-quick-btn" onclick="WorldApp.askAI('consistency')">Check Logic</button>
+                </div>
+                <textarea 
+                    class="ai-input" 
+                    id="ai-input"
+                    placeholder="Ask about your world: 'What are the implications of this magic system?' or 'What's missing from my world?'"
+                ></textarea>
+                <button class="add-rule-btn" style="width: 100%;" onclick="WorldApp.askCustomAI()">Ask World AI</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rule Modal -->
+    <div class="rule-modal" id="rule-modal">
+        <div class="rule-modal-content">
+            <div class="rule-modal-header">
+                <div class="rule-modal-title">Add World Rule</div>
+                <button class="rule-modal-close" onclick="WorldApp.closeRuleModal()">✕</button>
+            </div>
+            <div class="rule-modal-body">
+                <div class="rule-form">
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select class="form-input" id="rule-category">
+                            <option value="magic">🔮 Magic System</option>
+                            <option value="politics">🏛️ Politics</option>
+                            <option value="geography">🌍 Geography</option>
+                            <option value="economy">💰 Economy</option>
+                            <option value="culture">🎭 Culture</option>
+                            <option value="technology">⚡ Technology</option>
+                            <option value="history">📜 History</option>
+                            <option value="religion">⭐ Religion</option>
+                            <option value="biology">🐉 Biology</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Rule Title</label>
+                        <input type="text" class="form-input" id="rule-title" placeholder="e.g., 'Magic requires emotional intensity'">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Rule Description</label>
+                        <textarea class="form-textarea" id="rule-description" placeholder="Explain how this rule works, its limitations, and its effects..."></textarea>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="save-rule-btn" onclick="WorldApp.saveRule()">Save Rule & Analyze Implications</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const WorldApp = {
+            rules: {},
+            connections: [],
+            currentView: 'categories',
+
+            init() {
+                this.setupEventListeners();
+                this.loadDemoRules();
+                this.updateCategoryCounts();
+                this.generateInitialInsights();
+            },
+
+            setupEventListeners() {
+                // View toggle
+                document.querySelectorAll('.view-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.switchView(btn.dataset.view);
+                    });
+                });
+
+                // AI input
+                document.getElementById('ai-input').addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                        this.askCustomAI();
+                    }
+                });
+            },
+
+            loadDemoRules() {
+                const demoRules = [
+                    {
+                        category: 'magic',
+                        title: 'Magic requires emotional intensity',
+                        description: 'The stronger the emotion (anger, love, fear), the more powerful the magic. Calm people struggle with magic.'
+                    },
+                    {
+                        category: 'politics',
+                        title: 'Monarchy based on magical bloodlines',
+                        description: 'Royal family is chosen for their natural magical ability. Political power comes from magical strength.'
+                    },
+                    {
+                        category: 'geography',
+                        title: 'Island nation surrounded by storms',
+                        description: 'The kingdom is on a large island, cut off from other lands by perpetual magical storms.'
+                    }
+                ];
+
+                demoRules.forEach(rule => {
+                    this.addRule(rule.category, rule.title, rule.description, false);
+                });
+            },
+
+            switchView(viewType) {
+                this.currentView = viewType;
+                
+                // Update buttons
+                document.querySelectorAll('.view-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.view === viewType);
+                });
+
+                // Show/hide views
+                document.getElementById('categories-view').style.display = 
+                    viewType === 'categories' ? 'grid' : 'none';
+                document.getElementById('web-view').classList.toggle('active', viewType === 'web');
+
+                if (viewType === 'web') {
+                    this.renderInterconnectionWeb();
+                }
+            },
+
+            openRuleModal(category = 'magic') {
+                document.getElementById('rule-category').value = category;
+                document.getElementById('rule-modal').classList.add('active');
+                document.getElementById('rule-title').focus();
+            },
+
+            closeRuleModal() {
+                document.getElementById('rule-modal').classList.remove('active');
+                // Clear form
+                document.getElementById('rule-title').value = '';
+                document.getElementById('rule-description').value = '';
+            },
+
+            openCategory(category) {
+                this.openRuleModal(category);
+            },
+
+            saveRule() {
+                const category = document.getElementById('rule-category').value;
+                const title = document.getElementById('rule-title').value.trim();
+                const description = document.getElementById('rule-description').value.trim();
+
+                if (!title || !description) {
+                    alert('Please fill in both title and description');
+                    return;
+                }
+
+                this.addRule(category, title, description, true);
+                this.closeRuleModal();
+            },
+
+            addRule(category, title, description, analyzeImplications = true) {
+                if (!this.rules[category]) {
+                    this.rules[category] = [];
+                }
+
+                const rule = {
+                    id: Date.now(),
+                    title,
+                    description,
+                    category,
+                    timestamp: new Date().toLocaleString()
+                };
+
+                this.rules[category].push(rule);
+                this.updateCategoryCounts();
+
+                if (analyzeImplications) {
+                    this.analyzeRuleImplications(rule);
+                    this.findNewConnections(rule);
+                }
+            },
+
+            updateCategoryCounts() {
+                Object.keys(this.rules).forEach(category => {
+                    const count = this.rules[category]?.length || 0;
+                    const countEl = document.getElementById(`${category}-count`);
+                    if (countEl) {
+                        countEl.textContent = count;
+                    }
+
+                    // Update preview with latest rule
+                    const previewEl = document.getElementById(`${category}-preview`);
+                    if (previewEl && this.rules[category] && this.rules[category].length > 0) {
+                        const latestRule = this.rules[category][this.rules[category].length - 1];
+                        previewEl.textContent = latestRule.title;
+                    }
+                });
+            },
+
+            analyzeRuleImplications(rule) {
+                const implications = {
+                    magic: [
+                        "If magic requires emotion, how do magic users manage their mental health?",
+                        "Are there emotion-regulation laws or social taboos?",
+                        "Do empaths become the most powerful magic users?",
+                        "How does this affect magical education - is it therapy or training?"
+                    ],
+                    politics: [
+                        "How do non-magical people participate in government?",
+                        "Are there magical aptitude tests for leadership?",
+                        "What happens when the royal bloodline produces weak magic users?",
+                        "Do other nations try to breed stronger magical rulers?"
+                    ],
+                    geography: [
+                        "How do these storms affect magical development?",
+                        "Are the storms connected to the emotional magic system?",
+                        "What resources is the island cut off from?",
+                        "How does isolation affect cultural development?"
+                    ]
+                };
+
+                const ruleImplications = implications[rule.category] || [
+                    "Consider how this rule affects daily life in your world.",
+                    "What are the economic implications of this rule?",
+                    "How might this rule create conflict or tension?",
+                    "What exceptions or edge cases might exist?"
+                ];
+
+                const randomImplication = ruleImplications[Math.floor(Math.random() * ruleImplications.length)];
+                
+                this.addAIInsight('Rule Implications', `New rule: "${rule.title}" - ${randomImplication}`);
+            },
+
+            findNewConnections(newRule) {
+                const connectionSuggestions = [
+                    "Your emotion-based magic and monarchy create an interesting dynamic - rulers need emotional intensity to maintain power.",
+                    "Island isolation + magical storms could mean the storms are actually caused by collective emotional magic.",
+                    "If magic requires emotion and you have a monarchy, succession might depend on who can feel most intensely.",
+                    "Magical bloodlines + emotional magic suggests generations of selective breeding for emotional capacity."
+                ];
+
+                if (Object.keys(this.rules).length > 1) {
+                    const suggestion = connectionSuggestions[Math.floor(Math.random() * connectionSuggestions.length)];
+                    setTimeout(() => {
+                        this.addAIInsight('System Connections', suggestion, 'interconnection-highlight');
+                    }, 1500);
+                }
+            },
+
+            renderInterconnectionWeb() {
+                const webContainer = document.getElementById('world-web');
+                webContainer.innerHTML = '';
+
+                const categories = Object.keys(this.rules).filter(cat => this.rules[cat].length > 0);
+                if (categories.length === 0) return;
+
+                // Position nodes in a circle
+                const centerX = webContainer.offsetWidth / 2;
+                const centerY = webContainer.offsetHeight / 2;
+                const radius = Math.min(centerX, centerY) - 80;
+
+                categories.forEach((category, index) => {
+                    const angle = (index / categories.length) * 2 * Math.PI;
+                    const x = centerX + radius * Math.cos(angle) - 50; // -50 to center the node
+                    const y = centerY + radius * Math.sin(angle) - 50;
+
+                    const node = document.createElement('div');
+                    node.className = `web-node category-${category}`;
+                    node.style.left = `${x}px`;
+                    node.style.top = `${y}px`;
+                    node.innerHTML = `
+                        <div style="font-size: 1.2em;">${this.getCategoryIcon(category)}</div>
+                        <div style="font-size: 0.7em;">${category.charAt(0).toUpperCase() + category.slice(1)}</div>
+                        <div style="font-size: 0.6em; opacity: 0.8;">${this.rules[category].length}</div>
+                    `;
+                    
+                    node.addEventListener('click', () => this.highlightConnections(category));
+                    webContainer.appendChild(node);
+                });
+
+                // Draw connections between related categories
+                this.drawConnections(webContainer, categories);
+            },
+
+            getCategoryIcon(category) {
+                const icons = {
+                    magic: '🔮', politics: '🏛️', geography: '🌍', economy: '💰',
+                    culture: '🎭', technology: '⚡', history: '📜', 
+                    religion: '⭐', biology: '🐉'
+                };
+                return icons[category] || '📋';
+            },
+
+            drawConnections(container, categories) {
+                // Demo connections based on common world logic
+                const connections = [
+                    ['magic', 'politics'], ['geography', 'economy'], ['culture', 'religion'],
+                    ['politics', 'economy'], ['magic', 'culture'], ['history', 'politics']
+                ];
+
+                connections.forEach(([cat1, cat2]) => {
+                    if (categories.includes(cat1) && categories.includes(cat2)) {
+                        const node1 = container.querySelector(`.category-${cat1}`);
+                        const node2 = container.querySelector(`.category-${cat2}`);
+                        
+                        if (node1 && node2) {
+                            this.createConnectionLine(container, node1, node2);
+                        }
+                    }
+                });
+            },
+
+            createConnectionLine(container, node1, node2) {
+                const rect1 = node1.getBoundingClientRect();
+                const rect2 = node2.getBoundingClientRect();
+                const containerRect = container.getBoundingClientRect();
+
+                const x1 = rect1.left - containerRect.left + rect1.width / 2;
+                const y1 = rect1.top - containerRect.top + rect1.height / 2;
+                const x2 = rect2.left - containerRect.left + rect2.width / 2;
+                const y2 = rect2.top - containerRect.top + rect2.height / 2;
+
+                const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+                const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+
+                const line = document.createElement('div');
+                line.className = 'web-connection';
+                line.style.width = `${length}px`;
+                line.style.left = `${x1}px`;
+                line.style.top = `${y1}px`;
+                line.style.transform = `rotate(${angle}deg)`;
+                
+                container.appendChild(line);
+            },
+
+            highlightConnections(category) {
+                // Remove previous highlights
+                document.querySelectorAll('.web-connection').forEach(line => {
+                    line.classList.remove('highlighted');
+                });
+
+                // Highlight connections for selected category
+                const relatedCategories = this.getRelatedCategories(category);
+                relatedCategories.forEach(related => {
+                    // Find and highlight connection lines
+                    // This is a simplified version - in a full implementation,
+                    // you'd track which lines connect which categories
+                });
+
+                // Show related insights
+                this.showCategoryConnections(category);
+            },
+
+            getRelatedCategories(category) {
+                const relationships = {
+                    magic: ['politics', 'culture', 'religion'],
+                    politics: ['economy', 'culture', 'history'],
+                    geography: ['economy', 'culture', 'history'],
+                    economy: ['politics', 'technology', 'culture'],
+                    culture: ['religion', 'politics', 'history'],
+                    technology: ['economy', 'politics', 'magic'],
+                    history: ['politics', 'culture', 'religion'],
+                    religion: ['culture', 'politics', 'magic'],
+                    biology: ['magic', 'geography', 'culture']
+                };
+                return relationships[category] || [];
+            },
+
+            showCategoryConnections(category) {
+                const connections = {
+                    magic: "Magic systems typically affect politics (who has power?), culture (how is magic viewed?), and religion (is magic divine or natural?).",
+                    politics: "Government structures influence economy (trade policies), culture (social values), and history (wars, alliances).",
+                    geography: "Physical environment shapes economy (resources), culture (adaptation), and history (natural barriers, trade routes)."
+                };
+
+                const insight = connections[category] || `The ${category} system connects to multiple other world elements. Consider how changes here might ripple through your world.`;
+                this.addAIInsight('Category Connections', insight, 'interconnection-highlight');
+            },
+
+            askAI(type) {
+                const prompts = {
+                    implications: 'What are the implications of my current world rules? What effects am I missing?',
+                    gaps: 'What important world elements am I missing? What categories need more development?',
+                    consistency: 'Do my world rules make logical sense together? Are there any contradictions?'
+                };
+
+                document.getElementById('ai-input').value = prompts[type];
+                this.askCustomAI();
+            },
+
+            askCustomAI() {
+                const input = document.getElementById('ai-input');
+                const question = input.value.trim();
+                if (!question) return;
+
+                // Simulate AI analysis based on current world rules
+                const responses = {
+                    implications: [
+                        "If magic requires emotion, consider: How do magic users handle mental health? Are there emotion-regulation laws? Do empaths become powerful?",
+                        "Your magical monarchy suggests: Non-magical people might feel oppressed. Succession could depend on magical strength rather than lineage.",
+                        "Island isolation + storms implies: Unique magical traditions, resource scarcity, cultural insularity. How do they trade with outside world?"
+                    ],
+                    gaps: [
+                        "You have magic and politics defined, but missing: How do people make money? What jobs exist? How does magic affect the economy?",
+                        "Strong government and geography, but culture is undefined: What do people value? What are their traditions and social norms?",
+                        "Good foundation, but consider: Religion (do they worship magic?), Technology (does magic replace tech?), History (what major events shaped this world?)."
+                    ],
+                    consistency: [
+                        "Your emotional magic + magical monarchy creates logical tension: Rulers must maintain emotional intensity to keep power. This could create unstable leadership.",
+                        "Island storms + magical system connection: If magic is emotional, could collective emotions be causing the storms? This creates an interesting feedback loop.",
+                        "Overall consistency looks good, but consider: If magic requires emotion, how do magical bloodlines work? Is emotional capacity genetic?"
+                    ]
+                };
+
+                let response;
+                if (question.toLowerCase().includes('implication')) {
+                    response = responses.implications[Math.floor(Math.random() * responses.implications.length)];
+                } else if (question.toLowerCase().includes('gap') || question.toLowerCase().includes('missing')) {
+                    response = responses.gaps[Math.floor(Math.random() * responses.gaps.length)];
+                } else if (question.toLowerCase().includes('consist') || question.toLowerCase().includes('logic')) {
+                    response = responses.consistency[Math.floor(Math.random() * responses.consistency.length)];
+                } else {
+                    response = "Based on your current world rules, I see interesting patterns. Your emotional magic system could have far-reaching implications for politics, culture, and daily life.";
+                }
+
+                this.addAIInsight('World Analysis', response);
+                input.value = '';
+            },
+
+            addAIInsight(type, content, extraClass = '') {
+                const container = document.getElementById('ai-insights');
+                const insightEl = document.createElement('div');
+                insightEl.className = `insight-card ${extraClass}`;
+                insightEl.innerHTML = `
+                    <div class="insight-type">${type}</div>
+                    ${content}
+                `;
+                container.appendChild(insightEl);
+                container.scrollTop = container.scrollHeight;
+
+                // Remove old insights to keep manageable
+                const insights = container.querySelectorAll('.insight-card');
+                if (insights.length > 8) {
+                    insights[0].remove();
+                }
+            },
+
+            generateInitialInsights() {
+                setTimeout(() => {
+                    this.addAIInsight('Welcome', 'Start by defining your core world rules. I\'ll help you discover implications and connections as you build.');
+                }, 1000);
+
+                if (Object.keys(this.rules).length > 0) {
+                    setTimeout(() => {
+                        this.addAIInsight('Auto Analysis', 'I notice you have some world rules defined. These create interesting interactions - click "Interconnections" to explore them visually.');
+                    }, 2000);
+                }
+            }
+        };
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            WorldApp.init();
+        });
+    </script>
+</body>
+</html>
