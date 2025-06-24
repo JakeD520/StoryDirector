@@ -1,23 +1,36 @@
-const fs = require("fs");
-const path = require("path");
-const readline = require("readline");
-const dotenv = require("dotenv");
+import fs from "fs";
+import readline from "readline";
+import path from "path";
+import dotenv from "dotenv";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
-const envPath = path.resolve(process.cwd(), ".env");
+// Needed to simulate __dirname in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-function hasApiKey() {
-  if (!fs.existsSync(envPath)) return false;
-  const envContent = fs.readFileSync(envPath, "utf8");
-  return /OPENROUTER_API_KEY\s*=\s*\S+/.test(envContent);
+const envPath = path.resolve(__dirname, "../.env");
+
+function hasKey() {
+  return fs.existsSync(envPath) &&
+    fs.readFileSync(envPath, "utf8").includes("OPENROUTER_API_KEY=");
 }
 
-async function promptForApiKey() {
+function loadEnv() {
+  dotenv.config({ path: envPath });
+  return process.env.OPENROUTER_API_KEY || null;
+}
+
+async function promptForKey() {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
   });
+
   return new Promise((resolve) => {
     rl.question("Enter your OpenRouter API key: ", (key) => {
+      const formatted = `OPENROUTER_API_KEY=${key.trim()}\n`;
+      fs.writeFileSync(envPath, formatted, { encoding: "utf8", flag: "w" });
       rl.close();
       resolve(key.trim());
     });
@@ -25,15 +38,14 @@ async function promptForApiKey() {
 }
 
 async function ensureApiKey() {
-  if (!hasApiKey()) {
-    const key = await promptForApiKey();
-    fs.writeFileSync(envPath, `OPENROUTER_API_KEY=${key}\n`, { encoding: "utf8", flag: "w" });
-    console.log("✅ API key saved to .env");
+  if (!hasKey()) {
+    console.log("🔐 No API key found. Prompting...");
+    await promptForKey();
   }
-  dotenv.config({ path: envPath }); // Always load .env after ensuring
-  if (!process.env.OPENROUTER_API_KEY) {
-    throw new Error("❌ Failed to load API key from .env");
-  }
+  const key = loadEnv();
+  if (!key) throw new Error("❌ Failed to load API key from .env");
+  return key;
 }
 
-module.exports = { ensureApiKey };
+// ✅ Modern export
+export { ensureApiKey };

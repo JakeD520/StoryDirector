@@ -2,7 +2,7 @@
   "name": "story-extractor-cli",
   "version": "0.1.0",
   "description": "CLI tool to extract key story elements from user input using OpenRouter API.",
-  "main": "index.js",
+  "type": "module",
   "bin": {
     "story-extractor": "index.js"
   },
@@ -13,6 +13,7 @@
   "license": "MIT",
   "dependencies": {
     "dotenv": "^16.5.0",
+    "inquirer": "^12.6.3",
     "node-fetch": "^3.3.2"
   },
   "keywords": []

@@ -1,0 +1,23 @@
+{
+  "name": "The Diner",
+  "created": "2025-06-24T20:47:30.697Z",
+  "genres": [
+    "Romance",
+    "Slice of Life",
+    "Coming of Age"
+  ],
+  "tone": "Hopeful",
+  "readerExperience": [
+    "Philosophical",
+    "Cathartic",
+    "Bittersweet",
+    "Hopeful",
+    "Atmospheric",
+    "Lyrical",
+    "Surreal"
+  ],
+  "pov": "Third Person Omniscient",
+  "tense": "Past Tense",
+  "contentRating": "Mature",
+  "storyArc": "Rebirth"
+}
