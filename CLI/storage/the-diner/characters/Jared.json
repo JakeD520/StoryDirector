@@ -1,0 +1,23 @@
+{
+  "name": "Jared",
+  "age": "35",
+  "gender": "Male",
+  "origin": "human",
+  "role": "co-star",
+  "appearance": "Tall and slightly broad-shouldered, with a clean but relaxed look; short-cropped brown hair, often tousled; wears casual button-down shirts, neutral chinos or jeans, and well-worn sneakers or loafers; mild stubble and clear eyes that suggest attentiveness without flash; attractive in a modest, unassuming way.",
+  "personality": "Grounded and thoughtful; Jared is observant, emotionally intelligent, and slow to react but quick to understand. He's not passionate about his career—he sees it more as a means to stability—but he's quietly searching for something more meaningful.",
+  "speakingStyle": "Candid and steady, speaks with calm clarity. Tends to ask questions to keep conversations moving and is rarely flustered. Uses metaphor occasionally to make points, but prefers realism over embellishment.",
+  "voiceFormula": {
+    "Dx": 2,
+    "El": 5,
+    "Im": 3,
+    "Rg": 3,
+    "Sb": 4
+  },
+  "rhythm": {
+    "Tm": "Normal",
+    "Dn": "Basic",
+    "Cd": "Flat",
+    "Rc": "Regular"
+  }
+}

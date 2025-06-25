@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prose Generator</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 2rem auto; background: #f9f9f9; padding: 1rem; }
+    h1 { font-size: 1.5rem; }
+    select, textarea, button {
+      width: 100%;
+      font-size: 1rem;
+      margin-top: 1rem;
+      padding: 0.5rem;
+    }
+    button { cursor: pointer; background: #333; color: white; border: none; }
+    pre { background: #eee; padding: 1rem; white-space: pre-wrap; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>📘 StoryDirector: Prose Generator</h1>
+
+  <label for="project">Choose a Project:</label>
+  <select id="project"></select>
+
+  <label for="customPrompt">Describe your scene (e.g., "Maya enters the diner"):</label>
+  <textarea id="customPrompt" rows="4" placeholder="Write a scene about..."></textarea>
+
+  <button onclick="generateScene()">Generate Scene</button>
+
+  <pre id="output"></pre>
+
+  <script>
+    async function loadProjects() {
+      const res = await fetch("http://localhost:3001/projects");
+      const projects = await res.json();
+      const select = document.getElementById("project");
+      select.innerHTML = projects.map(p => `<option value="${p}">${p}</option>`).join("");
+    }
+
+    async function generateScene() {
+      const project = document.getElementById("project").value;
+      const customPrompt = document.getElementById("customPrompt").value;
+      const output = document.getElementById("output");
+      output.textContent = "Generating...";
+
+      try {
+        const res = await fetch("http://localhost:3001/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ project, customPrompt })
+        });
+
+        const data = await res.json();
+        output.textContent = data.result || data.error;
+      } catch (err) {
+        output.textContent = "Failed to generate scene.";
+      }
+    }
+
+    loadProjects();
+  </script>
+</body>
+</html>

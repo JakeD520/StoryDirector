@@ -1,0 +1,115 @@
+{
+  "title": "Jennifer",
+  "summary": "connection\r\n",
+  "purpose": "growth",
+  "pacing": "steady",
+  "location": "exterior",
+  "timeOfDay": "day",
+  "setting": {},
+  "worldbuilding": {},
+  "canon": {
+    "diner": "it is a normal diner, it just happens to be in a remote location"
+  },
+  "metadata": {
+    "name": "The Diner",
+    "created": "2025-06-24T20:47:30.697Z",
+    "genres": [
+      "Romance",
+      "Slice of Life",
+      "Coming of Age"
+    ],
+    "tone": "Hopeful",
+    "readerExperience": [
+      "Philosophical",
+      "Cathartic",
+      "Bittersweet",
+      "Hopeful",
+      "Atmospheric",
+      "Lyrical",
+      "Surreal"
+    ],
+    "pov": "Third Person Omniscient",
+    "tense": "Past Tense",
+    "contentRating": "Mature",
+    "storyArc": "Rebirth"
+  },
+  "weights": {
+    "Internal Thoughts": 10,
+    "Action / Movement": 10,
+    "Dialogue": 20,
+    "Worldbuilding": 5,
+    "Visual Imagery": 15,
+    "Description / Sensory Detail": 40
+  },
+  "characters": [
+    {
+      "name": "Jared",
+      "age": "35",
+      "gender": "Male",
+      "origin": "human",
+      "role": "co-star",
+      "appearance": "Tall and slightly broad-shouldered, with a clean but relaxed look; short-cropped brown hair, often tousled; wears casual button-down shirts, neutral chinos or jeans, and well-worn sneakers or loafers; mild stubble and clear eyes that suggest attentiveness without flash; attractive in a modest, unassuming way.",
+      "personality": "Grounded and thoughtful; Jared is observant, emotionally intelligent, and slow to react but quick to understand. He's not passionate about his career—he sees it more as a means to stability—but he's quietly searching for something more meaningful.",
+      "speakingStyle": "Candid and steady, speaks with calm clarity. Tends to ask questions to keep conversations moving and is rarely flustered. Uses metaphor occasionally to make points, but prefers realism over embellishment.",
+      "voiceFormula": {
+        "Dx": 2,
+        "El": 5,
+        "Im": 3,
+        "Rg": 3,
+        "Sb": 4
+      },
+      "rhythm": {
+        "Tm": "Normal",
+        "Dn": "Basic",
+        "Cd": "Flat",
+        "Rc": "Regular"
+      }
+    },
+    {
+      "name": "Steve",
+      "age": "30",
+      "gender": "Female",
+      "origin": "human",
+      "role": "co-star",
+      "appearance": "Medium height with deliberate casual posture; dark hair often pulled back carelessly with whatever's handy; sharp, intelligent eyes that seem to see layers others miss; lean build that suggests coiled energy; wears practical grunge aesthetic - oversized flannel over fitted tanks, distressed denim, worn leather boots; muted color palette of blacks, grays, and deep blues; moves with economical grace.",
+      "personality": "wonder and nonchalance.  doesnt take life serious\r\n",
+      "speakingStyle": " Dry, sarcastic observer with mastery over controlled attention and focus. Fiercely independent with cutting wit, but genuinely loyal to those who earn her respect. \"Incapable of faking sincerity\" - when she cares, it's real. Uses humor as both shield and scalpel, especially when examining complex problems without getting lost in infinite loops.",
+      "voiceFormula": {
+        "Co": 1,
+        "Dx": 2,
+        "Rp": 3,
+        "El": 10,
+        "Sb": 6,
+        "Mt": 6
+      },
+      "rhythm": {
+        "Tm": "Normal",
+        "Dn": "Normal",
+        "Cd": "Flowing",
+        "Rc": "Regular"
+      }
+    }
+  ],
+  "segments": [
+    {
+      "summary": "Steve and Jared are sitting in his car in the Lone Star parking lot, window up, ac on.  not driving just sitting in the car talking.  Steve is in the passenger seat.  she is jokingly talking about needing to get out of this small town, if you could even call it that.  Jared is watching her, enjoying here animated way of speaking.",
+      "wordCount": 300
+    },
+    {
+      "summary": "\"lets go\", jared says...steve chuckles...yeah right, she answers.. how could she just pick up and go...where would she go?  she jabs jared in the ribs...fuck you, dude.  cant you just let a girl ramble.  jared laughs.  a song comes on the radio...a punk rock song.  Steve's eyes widen...i love this song!  she reaches over and turns the volume up.",
+      "wordCount": 300
+    },
+    {
+      "summary": "steve begins to dance, or at least as much as she can while sitting in the passenger seat.  she is thrilled.  jared watches, mesmerized.  she really is amazing.  steve works her arms, trying to draw jared in...he laughs...makes some subtle movements to participate, and then waves her off.",
+      "wordCount": 300
+    },
+    {
+      "summary": "the song ends.. jared turns the volume down.  you know what, steve says...her voice softens.  i have a confession to make.  jared looks at her, inquisitively.  im listening.  well...you know this nametag, she point to her \"steve\" nametag.  well...its not me.  she explains to jared how Steve was actually a former diner employee.  how she used his name to have some emotional separation from customers, to avoid giving her real name.  stupid, right.  jared just listens.  after a beat, she continues.  my real name is Jennifer.",
+      "wordCount": 300
+    },
+    {
+      "summary": "jared looks at her...she shifts in her seat..embarrassed and slightly ashamed.  jared comforts her.  ",
+      "wordCount": 300
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "title": "Jennifer",
+  "characters": [
+    "Steve"
+  ],
+  "setting": "Lone_Star_Diner",
+  "summary": "Steve and Jared are in his car, finishing up their prior conversation about them moving on from their past relationships.  Steve finally decides to confide in Jared.  Her name isn't Steve.  Steve was a prior employee of the Lone Star.  she tells Jared how she sees the name as a way to hide, to keep her true identity hidden away.  a way to keep distance from others.  Jared listens.  Steve, finally looks up...says...my name is Jennifer.  she smiles, jared smiles back.  Jennifer reaches out and touches Jared's hand.  he responds an grabs it.  they share a silence as they sit in the car, punk rock music quietly playing in the background.\r\n",
+  "beats": [
+    {
+      "purpose": "Steve hears a punk rock song she likes. she turns the car radio up, and begins dancing and bouncing in the passenger seat, singing along.  Jared watches with a smile, mesmerized by her energy.  he laughs as she makes animated dance moves at him.  ",
+      "mood": "emotional",
+      "pacing": "accelerating",
+      "location": "exterior",
+      "timeOfDay": "day",
+      "wordCount": 300
+    },
+    {
+      "purpose": "to show Steve developing connection, intimacy, and trust.",
+      "mood": "intimate",
+      "pacing": "steady",
+      "location": "exterior",
+      "timeOfDay": "day",
+      "wordCount": 300
+    },
+    {
+      "purpose": "Jennifer and Jared are content.  Jared speaks first...he tells Jennifer that he respects her decision to hide her name, and understands why.  he tell her how special he feels for her sharing with him.",
+      "mood": "intimate",
+      "pacing": "steady",
+      "location": "exterior",
+      "timeOfDay": "day",
+      "wordCount": 300
+    }
+  ]
+}

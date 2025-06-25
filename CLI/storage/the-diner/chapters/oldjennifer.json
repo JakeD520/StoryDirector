@@ -1,0 +1,26 @@
+{
+  "title": "Jennifer",
+  "purpose": "emotional growth",
+  "pacing": "steady",
+  "location": "exterior",
+  "timeOfDay": "day",
+  "characters": [
+    "Steve"
+  ],
+  "setting": "Lone_Star_Diner",
+  "summary": "Steve and Jared are in his car, parked in the lot.",
+  "beats": [
+    {
+      "summary": "Steve hears a punk rock song she likes. She turns the car radio up, and begins dancing and bouncing in the passenger seat, singing along. Jared watches with a smile, mesmerized by her energy. He laughs as she makes animated dance moves at him.",
+      "wordCount": 300
+    },
+    {
+      "summary": "Steve begins opening up to Jared. She expresses vulnerability, signaling growing intimacy and trust.",
+      "wordCount": 300
+    },
+    {
+      "summary": "Jennifer and Jared sit contently. Jared tells Jennifer he respects her decision to hide her name, and how special he feels that she shared it with him.",
+      "wordCount": 300
+    }
+  ]
+}

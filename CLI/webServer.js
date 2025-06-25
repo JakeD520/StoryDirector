@@ -1,80 +1,69 @@
-// web/server.js
+// webServer.js
 import express from "express";
 import fs from "fs";
 import path from "path";
-import cors from "cors";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
-import dotenv from "dotenv";
-import { callLLM } from "./lib/openRouterClient.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 const app = express();
 const port = 3001;
-const storagePath = path.resolve(__dirname, "../storage");
+const storagePath = path.resolve("./storage");
 
-dotenv.config();
-app.use(cors());
+app.use(express.static("./public"));
 app.use(express.json());
 
-app.get("/projects", (req, res) => {
-  const projects = fs.readdirSync(storagePath).filter((name) => {
-    const fullPath = path.join(storagePath, name);
-    return fs.statSync(fullPath).isDirectory();
-  });
+// List projects
+app.get("/api/projects", (req, res) => {
+  const projects = fs.readdirSync(storagePath).filter(name =>
+    fs.statSync(path.join(storagePath, name)).isDirectory()
+  );
   res.json(projects);
 });
 
-app.post("/generate", async (req, res) => {
-  const { project, customPrompt } = req.body;
-  const readJson = (file) => {
-    const filePath = path.join(storagePath, project, file);
-    return fs.existsSync(filePath) ? JSON.parse(fs.readFileSync(filePath, "utf8")) : null;
-  };
+// List files in a subdirectory
+app.get("/api/list", (req, res) => {
+  const { project, type } = req.query;
+  const dir = path.join(storagePath, project, type === "character" ? "characters" : "chapters");
+  if (!fs.existsSync(dir)) return res.json([]);
+  const files = fs.readdirSync(dir).filter(f => f.endsWith(".json"));
+  res.json(files);
+});
 
-  const pitch = readJson("pitch.json");
-  const meta = readJson("metadata.json");
-  const canon = readJson("canon.json");
-  const weights = readJson("weights.json");
-  const brainstorm = readJson("brainstorm.json");
-  const outline = readJson("outline.json");
+// Load a file
+app.get("/api/load", (req, res) => {
+  const { project, type, file } = req.query;
+  let filePath;
+  if (type === "glossary") {
+    filePath = path.join(storagePath, project, "glossary", "voiceGlossary.json");
+  } else if (type === "blueprint") {
+    filePath = path.join(storagePath, project, "chapters", file, "chapterBlueprint.json");
+  } else {
+    const subdir = type === "character" ? "characters" : "chapters";
+    filePath = path.join(storagePath, project, subdir, file);
+  }
+  if (!fs.existsSync(filePath)) return res.status(404).send("Not found");
+  res.send(fs.readFileSync(filePath, "utf8"));
+});
 
-  let characters = "";
-  const charDir = path.join(storagePath, project, "characters");
-  if (fs.existsSync(charDir)) {
-    const files = fs.readdirSync(charDir).filter(f => f.endsWith(".json"));
-    characters = files.map(f => {
-      const c = JSON.parse(fs.readFileSync(path.join(charDir, f), "utf8"));
-      return `Character: ${c.name} (${c.role})\nGender: ${c.gender}\nOrigin: ${c.origin}\nAge: ${c.age}\nAppearance: ${c.appearance}\nPersonality: ${c.personality}\nSpeaking Style: ${c.speakingStyle}`;
-    }).join("\n\n---\n\n");
+// Save a file
+app.post("/api/save", (req, res) => {
+  const { project, type, file } = req.query;
+  let filePath;
+  if (type === "glossary") {
+    const dir = path.join(storagePath, project, "glossary");
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+    filePath = path.join(dir, "voiceGlossary.json");
+  } else if (type === "blueprint") {
+    const dir = path.join(storagePath, project, "chapters", file);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+    filePath = path.join(dir, "chapterBlueprint.json");
+  } else {
+    const subdir = type === "character" ? "characters" : "chapters";
+    const dir = path.join(storagePath, project, subdir);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+    filePath = path.join(dir, file);
   }
 
-  const elements = [
-    `Project: ${meta?.name || project}`,
-    meta?.genres ? `Genres: ${meta.genres.join(", ")}` : null,
-    meta?.tone ? `Tone: ${meta.tone}` : null,
-    meta?.readerExperience ? `Reader Experience: ${meta.readerExperience.join(", ")}` : null,
-    meta?.pov ? `POV: ${meta.pov}` : null,
-    meta?.tense ? `Tense: ${meta.tense}` : null,
-    meta?.contentRating ? `Content Rating: ${meta.contentRating}` : null,
-    meta?.storyArc ? `Story Arc: ${meta.storyArc}` : null,
-    pitch?.structured ? `Pitch:\n${pitch.structured}` : null,
-    brainstorm ? `Story Elements:\n${JSON.stringify(brainstorm, null, 2)}` : null,
-    weights ? `Prose Weighting:\n${Object.entries(weights).map(([k, v]) => `${k}: ${v}%`).join("\n")}` : null,
-    canon ? `Narrative Canon:\n${Object.entries(canon).map(([k, v]) => `${k}: ${v}`).join("\n")}` : null,
-    characters ? `Character Profiles:\n${characters}` : null,
-    outline ? `Outline:\n${outline.map(s => `\n${s.section}:\n${s.beats.map(b => `• ${b.title}: ${b.description}`).join("\n")}`).join("\n\n")}` : null,
-  ].filter(Boolean).join("\n\n");
-
-  const fullPrompt = `You are a creative writing assistant. Given the following story data, write a short scene based on this custom request:\n\n"${customPrompt}"\n\n${elements}\n\nWrite the scene:`;
-
-  try {
-    const result = await callLLM(fullPrompt);
-    res.json({ result });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
+  fs.writeFileSync(filePath, JSON.stringify(req.body, null, 2));
+  res.json({ success: true });
 });
 
 app.listen(port, () => {
