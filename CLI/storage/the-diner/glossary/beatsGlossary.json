@@ -1,0 +1,23 @@
+{
+  "FirstJump": {
+    "title": "Opening Beat: First Jump",
+    "purpose": "Establishes Sarah's emotional and physical state, her backstory with Derek, and orients us to the immediate situation (in plane, about to jump).",
+    "summary": "Sarah, preparing for a skydive, experiences intense anxiety and inner conflict tied to her past and relationship with Derek. The moment marks a confrontation with her fears and a tentative step toward reclaiming agency.",
+    "symbolism": ["wedding ring", "armor vs. straightjacket", "height/fall"],
+    "location": "Inside the plane, pre-jump"
+  },
+  "EdgeOfEverything": {
+    "title": "Development Beat: The Edge of Everything",
+    "purpose": "Escalates physical tension by moving Sarah to the door, deepens internal conflict through body vs. mind rebellion, and builds toward the crucial decision point.",
+    "summary": "At the aircraft door, Sarah's fear peaks. Her physical resistance contrasts with growing emotional clarity. Anger at Derek catalyzes her realization that going back would mean self-betrayal.",
+    "symbolism": ["doorway as threshold", "reflection in window", "survival instinct vs. desire for change"],
+    "location": "Plane threshold"
+  },
+  "TheLeap": {
+    "title": "Closing Beat: The Leap",
+    "purpose": "Resolves the immediate action (the jump), shows character transformation from terror to exhilaration, and creates hooks for future chapters through symbolic loss of wedding ring and Sarah's new uncertainty about her life choices.",
+    "summary": "Sarah jumps, surrendering to change. She loses her wedding ring mid-fall and gains a profound sense of liberation. The moment suspends her between past and future possibilities.",
+    "symbolism": ["fall as rebirth", "ring as past identity", "freedom in uncertainty"],
+    "location": "In freefall"
+  }
+}

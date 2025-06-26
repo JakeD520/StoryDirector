@@ -1,0 +1,73 @@
+{
+  "development_beats": {
+    "definition": "Specific moments within a single chapter or scene that build tension, advance character development, or escalate conflict. These are NOT story structure beats or character arcs spanning multiple chapters.",
+    "purpose": "To create momentum and progression within one continuous dramatic situation",
+    "key_characteristics": [
+      "Take place within the same timeframe/location",
+      "Show incremental changes in tension, emotion, or stakes", 
+      "Build on each other without jumping to new plot points",
+      "Focus on the character's immediate experience",
+      "Are like individual camera shots in a movie scene"
+    ],
+    "structure": {
+      "opening_beat": {
+        "purpose": "Establishes where we are emotionally and physically from the previous chapter. Orients the reader to the current situation and character state.",
+        "characteristics": [
+          "Sets up immediate circumstances",
+          "Shows character's emotional/mental state",
+          "May reference previous events or decisions",
+          "Grounds reader in time, place, and mood"
+        ]
+      },
+      "development_beats": {
+        "purpose": "The meat of the chapter - moments where tension builds, characters make discoveries, conflicts escalate, or relationships shift.",
+        "characteristics": [
+          "Each beat escalates or shifts the situation",
+          "Advances story momentum incrementally",
+          "Reveals character depth through action/reaction",
+          "Builds toward chapter climax or resolution"
+        ],
+        "quantity": "Typically 1-4 beats depending on chapter length and complexity"
+      },
+      "closing_beat": {
+        "purpose": "Maintains reader engagement by ending with a question raised, decision made, revelation dropped, or shift in power dynamics.",
+        "characteristics": [
+          "Creates forward momentum",
+          "Doesn't need to be a cliffhanger",
+          "Should make reader want to turn the page",
+          "May set up conflicts for future chapters"
+        ]
+      }
+    },
+    "common_mistakes": [
+      "Creating story arcs instead of scene progression",
+      "Jumping between different time periods or locations",
+      "Focusing on character's overall journey rather than immediate experience",
+      "Using broad thematic movements instead of specific moments",
+      "Confusing with Save the Cat or three-act structure beats"
+    ],
+    "full_example": {
+      "scenario": "Woman's first parachute jump - single chapter progression",
+      "opening_beat": {
+        "purpose": "Establishes Sarah's emotional and physical state, her backstory with Derek, and orients us to the immediate situation (in plane, about to jump)",
+        "text": "Sarah's hands trembled as she adjusted her goggles for the third time in two minutes, the engine's roar making conversation impossible even if she'd trusted her voice not to crack. The tandem instructor, Miguel, had finished his safety check and was now reviewing hand signals with the casual efficiency of someone who'd done this dance a thousand times before. Through the open door of the Cessna, the ground looked impossibly far below – a patchwork quilt of green and brown that made her stomach lurch in ways that had nothing to do with the plane's turbulence.\n\nThe other jumpers in the plane chatted easily, their excitement palpable, but Sarah felt like she was watching them through glass. This morning, strapping on the jumpsuit had felt like putting on armor for battle; now it felt more like a straightjacket. Her sister's voice echoed in her head: \"You don't have to prove anything to anyone, especially not to Derek.\" But that wasn't entirely true – she had to prove something to herself. Six months ago, she would never have imagined herself at 10,000 feet, preparing to leap into nothing but air and trust.\n\nMiguel tapped her shoulder and pointed toward the door, his weathered face splitting into an encouraging grin. Sarah's breathing quickened as she realized the moment of truth had arrived. The other jumpers were already moving into position, their easy confidence making her feel like a fraud. Her wedding ring caught the sunlight streaming through the doorway – the ring she'd forgotten to remove, the ring that represented everything safe and predictable she was about to leave behind, at least for the next sixty seconds of freefall."
+      },
+      "development_beat": {
+        "purpose": "Escalates physical tension by moving Sarah to the door, deepens internal conflict through body vs. mind rebellion, and builds toward the crucial decision point",
+        "text": "Miguel's firm grip on her harness guided Sarah toward the open door, and suddenly the abstract concept of \"jumping out of a plane\" became a concrete reality of wind and noise and nothing but empty air yawning beneath her feet. The instructor positioned her at the threshold, her toes hanging over the edge of the aircraft, and the world tilted in a way that made her question every decision that had led to this moment. The wind whipped her face with violent intensity, drowning out everything except the hammering of her own heartbeat and Miguel's voice shouting countdown numbers she couldn't quite process.\n\nSarah's body betrayed her with a full-scale rebellion – her legs locked rigid, her hands death-gripped the doorframe, and every survival instinct screamed at her to step back into the relative safety of the plane. This wasn't courage, she realized with crystal clarity; this was insanity dressed up in an inspirational Instagram post. Derek's smug face flashed in her mind, the way he'd dismissed her dreams as \"midlife crisis nonsense,\" and she felt a surge of anger that cut through the terror. Maybe he was right about her being reckless, but at least she wasn't spending her life playing it safe in a loveless marriage, measuring her days in small compromises and quiet resentments.\n\nMiguel's countdown reached \"three\" and Sarah felt him shift behind her, preparing for the jump whether she was ready or not. In that suspended moment between decision and action, she caught sight of her reflection in the plane's window – wild-haired, terrified, but undeniably alive in a way she hadn't felt in years. Her grip on the doorframe loosened slightly as she realized that the most dangerous thing wasn't the jump itself, but the person she'd become if she climbed back into that plane and returned to the safety of her old life."
+      },
+      "closing_beat": {
+        "purpose": "Resolves the immediate action (the jump), shows character transformation from terror to exhilaration, and creates hooks for future chapters through symbolic loss of wedding ring and Sarah's new uncertainty about her life choices",
+        "text": "\"Two!\" Miguel's voice cut through the wind, and Sarah felt her fingers finally release their death grip on the doorframe, her body making the choice her mind couldn't quite commit to. The moment of letting go felt less like courage and more like surrender – not to fear, but to the possibility that maybe, just maybe, she was stronger than all the voices that had spent years telling her she wasn't. Her wedding ring slipped from her finger in that instant, spinning away into the vast blue below, and instead of panic, she felt a strange lightness that had nothing to do with gravity.\n\nThe world exploded into sensation as they tumbled from the plane – wind and sky and earth spinning in impossible directions while her stomach relocated somewhere near her throat. But underneath the terror was something unexpected: pure, electric exhilaration that made her understand why people became addicted to this kind of madness. For the first time in months, maybe years, her mind went completely quiet. No Derek's voice, no sister's concern, no internal committee debating every choice – just the raw, undeniable reality of falling through space at terminal velocity.\n\nAs Miguel deployed the parachute and their wild descent gentled into a floating drift, Sarah looked down at the approaching earth with new eyes. The ground that had seemed so threatening from the plane now looked welcoming, solid, full of possibility. She knew that when she landed, she'd have to make phone calls, have difficult conversations, figure out what came next. But right now, suspended between sky and earth with her wedding ring somewhere in the clouds above, she felt something she'd almost forgotten existed: the thrilling, terrifying freedom of not knowing what happened next, and being okay with that uncertainty."
+      }
+    },
+    "helpful_analogy": "Think of development beats as individual camera shots in a movie scene. Each shot advances the scene without cutting to a different location or time period.",
+    "writing_tips": [
+      "Focus on granular moments within the current situation",
+      "Each beat should feel necessary for the story's momentum",
+      "Show incremental change, not dramatic leaps",
+      "Keep beats within the same dramatic container (time/place/situation)",
+      "Ask: 'What happens next in THIS moment?' not 'What happens next in the story?'"
+    ]
+  }
+}

@@ -9,7 +9,7 @@ dotenv.config();
 const storagePath = path.resolve("./storage");
 
 (async () => {
-  console.log("\n📚 StoryDirector: Build Full Chapter\n");
+  console.log("\n📚 StoryDirector: Build Full Chapter from Beat Summaries\n");
 
   const projects = fs.readdirSync(storagePath).filter(name =>
     fs.statSync(path.join(storagePath, name)).isDirectory()
@@ -41,28 +41,41 @@ const storagePath = path.resolve("./storage");
   }
 
   const blueprint = JSON.parse(fs.readFileSync(blueprintPath, "utf8"));
-  const prosePath = path.join(chaptersPath, selectedChapter, "chapterDraft.txt");
+  const segments = blueprint.segments || [];
 
-  let fullProse = "";
-
-  for (let i = 0; i < blueprint.segments.length; i++) {
-    const beat = blueprint.segments[i];
-    const previousText = fullProse.trim();
-
-    let prompt = "";
-    if (i === 0) {
-      prompt = `Begin the chapter using this summary:\n\n${beat.summary}\n\nWrite a flowing narrative. Do not summarize.`;
-    } else {
-      const lastParagraph = previousText.split(/\n{2,}/).pop();
-      prompt = `Here's the last paragraph of the current draft:\n\n${lastParagraph}\n\nRewrite that paragraph and continues the chapter using this summary:\n\n${beat.summary}\n\nKeep the momentum. No need to wrap up or reset.`;
-    }
-
-    console.log(`✏️ Processing segment ${i + 1}/${blueprint.segments.length}...`);
-    const result = await callLLM(prompt);
-
-    fullProse += (i === 0 ? "" : "\n\n") + result.trim();
-    fs.writeFileSync(prosePath, fullProse);
+  if (segments.length === 0) {
+    console.log("⚠️  No beat summaries found in blueprint.");
+    return;
   }
 
-  console.log(`\n✅ Chapter draft saved to: ${prosePath}\n`);
+  const beatList = segments
+    .map((seg, i) => `Beat ${i + 1}:\n${seg.summary.trim()}`)
+    .join("\n\n");
+
+  const tone = blueprint.metadata?.tone || "natural";
+  const pov = blueprint.metadata?.pov || "third person";
+  const tense = blueprint.metadata?.tense || "past";
+
+  const prompt = `
+You are writing a full-length story chapter made up of connected beats.
+Do not resolve character arcs until the end. Maintain narrative tension and forward motion throughout.
+
+Each beat flows naturally into the next. Avoid summarizing or concluding early.
+Use third-person, ${tense.toLowerCase()} tense. Match the tone: ${tone}.
+POV: ${pov}
+
+Here is the beat list for the chapter:
+
+${beatList}
+
+Write the full chapter as continuous narrative prose based on the above.
+`;
+
+  console.log("📨 Sending full chapter prompt to LLM...");
+  const result = await callLLM(prompt);
+
+  const outputPath = path.join(chaptersPath, selectedChapter, "chapter.txt");
+  fs.writeFileSync(outputPath, result.trim(), "utf8");
+
+  console.log(`\n✅ Full chapter saved to: ${outputPath}\n`);
 })();
