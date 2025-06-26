@@ -38,8 +38,8 @@
     "Action / Movement": 10,
     "Dialogue": 20,
     "Worldbuilding": 5,
-    "Visual Imagery": 15,
-    "Description / Sensory Detail": 40
+    "Visual Imagery": 25,
+    "Description / Sensory Detail": 30
   },
   "characters": [
     {

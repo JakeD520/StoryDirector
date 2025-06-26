@@ -49,7 +49,7 @@ const storagePath = path.resolve("./storage");
     return {
       beats: [index],
       targetWords: typeof beat.wordCount === "number" ? beat.wordCount : 300,
-      transitionHint: "Continue from the prior moment with appropriate tone."
+      transitionHint: "Treat each segment as a larger part of the entire chapter.  Segments should not conclude, but flow into the next segment."
     };
   });
 

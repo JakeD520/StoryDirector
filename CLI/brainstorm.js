@@ -62,7 +62,7 @@ const storagePath = path.resolve(__dirname, "./storage");
           message: "Type number to remove, 'add [text]', or hit Enter to continue:",
         },
       ]);
-
+      
       if (!action) break;
 
       if (/^\d+$/.test(action)) {

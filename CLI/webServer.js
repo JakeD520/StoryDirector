@@ -2,6 +2,10 @@
 import express from "express";
 import fs from "fs";
 import path from "path";
+import createProject from "./api/createProject.js";
+import createPitch from "./api/pitch.js";
+
+
 
 const app = express();
 const port = 3001;
@@ -9,6 +13,10 @@ const storagePath = path.resolve("./storage");
 
 app.use(express.static("./public"));
 app.use(express.json());
+
+app.post("/api/createProject", createProject);
+app.post("/api/pitch", createPitch);
+
 
 // List projects
 app.get("/api/projects", (req, res) => {
@@ -35,12 +43,22 @@ app.get("/api/load", (req, res) => {
     filePath = path.join(storagePath, project, "glossary", "voiceGlossary.json");
   } else if (type === "blueprint") {
     filePath = path.join(storagePath, project, "chapters", file, "chapterBlueprint.json");
+  } else if (type === "pitch") {
+    filePath = path.join(storagePath, project, "pitch.json");
   } else {
     const subdir = type === "character" ? "characters" : "chapters";
     filePath = path.join(storagePath, project, subdir, file);
   }
-  if (!fs.existsSync(filePath)) return res.status(404).send("Not found");
-  res.send(fs.readFileSync(filePath, "utf8"));
+
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: "File not found" });
+  }
+  const data = fs.readFileSync(filePath, "utf-8");
+  try {
+    res.json(JSON.parse(data));
+  } catch (e) {
+    res.status(500).json({ error: "Failed to parse JSON" });
+  }
 });
 
 // Save a file

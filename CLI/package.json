@@ -16,7 +16,12 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "inquirer": "^12.6.3",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "react-draggable": "^4.5.0",
+    "uuid": "^11.1.0"
   },
-  "keywords": []
+  "keywords": [],
+  "devDependencies": {
+    "tailwindcss": "^4.1.11"
+  }
 }

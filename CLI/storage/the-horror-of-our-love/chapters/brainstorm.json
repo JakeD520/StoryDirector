@@ -1,0 +1,191 @@
+[
+  {
+    "id": "6e67e9df-4a5a-436b-abcb-3fb6f27ef14e",
+    "category": "Themes",
+    "text": "🧵 Themes: Obsession",
+    "defaultPosition": {
+      "x": 30,
+      "y": 30
+    }
+  },
+  {
+    "id": "32ca6430-ebf1-4f75-9ab8-67e9e875aaaf",
+    "category": "Themes",
+    "text": "🧵 Themes: Appearances vs Reality",
+    "defaultPosition": {
+      "x": 250,
+      "y": 30
+    }
+  },
+  {
+    "id": "cf6f2d5b-127b-4730-ba45-435b4ba37ce9",
+    "category": "Themes",
+    "text": "🧵 Themes: Love and Death",
+    "defaultPosition": {
+      "x": 470,
+      "y": 30
+    }
+  },
+  {
+    "id": "21c2e80f-f83b-43fe-8e2d-c0f35056b9b0",
+    "category": "Themes",
+    "text": "🧵 Themes: Deception",
+    "defaultPosition": {
+      "x": 690,
+      "y": 30
+    }
+  },
+  {
+    "id": "6f237e83-90e8-4c97-8f9b-fada59186237",
+    "category": "Characters",
+    "text": "🎭 Characters: New female tenant (secret killer)",
+    "defaultPosition": {
+      "x": 910,
+      "y": 30
+    }
+  },
+  {
+    "id": "7880e1ef-a8f9-448a-b3d4-c4fdef852ae5",
+    "category": "Characters",
+    "text": "🎭 Characters: Male resident (main character)",
+    "defaultPosition": {
+      "x": 30,
+      "y": 150
+    }
+  },
+  {
+    "id": "384b39b8-914b-4f87-b8c9-7f8efeb4df88",
+    "category": "Characters",
+    "text": "🎭 Characters: Sultry/suspicious woman (red herring)",
+    "defaultPosition": {
+      "x": 250,
+      "y": 150
+    }
+  },
+  {
+    "id": "5e4cc3a4-040f-442f-af76-1c05221c4196",
+    "category": "Characters",
+    "text": "🎭 Characters: Goofy male neighbor",
+    "defaultPosition": {
+      "x": 470,
+      "y": 150
+    }
+  },
+  {
+    "id": "ded657e5-7d56-44c1-acaa-e26f15db6712",
+    "category": "Plot Points",
+    "text": "🧩 Plot Points: Woman moves into apartment building",
+    "defaultPosition": {
+      "x": 690,
+      "y": 150
+    }
+  },
+  {
+    "id": "41fb677e-2a03-4ff0-96c5-f077402c449d",
+    "category": "Plot Points",
+    "text": "🧩 Plot Points: Series of murders begin",
+    "defaultPosition": {
+      "x": 910,
+      "y": 150
+    }
+  },
+  {
+    "id": "168dfda7-da42-4787-a170-73fa3e3498c3",
+    "category": "Plot Points",
+    "text": "🧩 Plot Points: Suspicion falls on sultry woman",
+    "defaultPosition": {
+      "x": 30,
+      "y": 270
+    }
+  },
+  {
+    "id": "1ebb9a96-1750-4cd6-8648-41bf1c478577",
+    "category": "Plot Points",
+    "text": "🧩 Plot Points: Main character develops interest in sultry woman",
+    "defaultPosition": {
+      "x": 250,
+      "y": 270
+    }
+  },
+  {
+    "id": "7de4e7c2-9331-4210-b84c-ef9afe5bccc9",
+    "category": "Plot Points",
+    "text": "🧩 Plot Points: Revelation that new tenant is killer",
+    "defaultPosition": {
+      "x": 470,
+      "y": 270
+    }
+  },
+  {
+    "id": "41f9f479-e5f5-4e7c-a9b8-3e0d550e3458",
+    "category": "Plot Points",
+    "text": "🧩 Plot Points: Main character falls for killer",
+    "defaultPosition": {
+      "x": 690,
+      "y": 270
+    }
+  },
+  {
+    "id": "01556de1-1009-4378-af95-4c56e019930f",
+    "category": "Plot Points",
+    "text": "🧩 Plot Points: Attempted murder-suicide climax",
+    "defaultPosition": {
+      "x": 910,
+      "y": 270
+    }
+  },
+  {
+    "id": "c74d8d99-e0d4-4d5a-a37f-6ff3ff30ac9b",
+    "category": "Settings",
+    "text": "🌍 Settings: Apartment building",
+    "defaultPosition": {
+      "x": 30,
+      "y": 390
+    }
+  },
+  {
+    "id": "27d0b815-b87c-4982-9503-447012c879dd",
+    "category": "Genres",
+    "text": "🎬 Genres: Thriller",
+    "defaultPosition": {
+      "x": 250,
+      "y": 390
+    }
+  },
+  {
+    "id": "eb4762dc-1a01-4bf8-a2d4-357d9214ba23",
+    "category": "Genres",
+    "text": "🎬 Genres: Horror",
+    "defaultPosition": {
+      "x": 470,
+      "y": 390
+    }
+  },
+  {
+    "id": "7998e0b1-de0e-4bab-ad37-a89f57a44cd1",
+    "category": "Genres",
+    "text": "🎬 Genres: Psychological suspense",
+    "defaultPosition": {
+      "x": 690,
+      "y": 390
+    }
+  },
+  {
+    "id": "9c71f09b-29d0-4470-b704-0444695e4267",
+    "category": "Genres",
+    "text": "🎬 Genres: Musical/Rock Opera (potential format)",
+    "defaultPosition": {
+      "x": 910,
+      "y": 390
+    }
+  },
+  {
+    "id": "bdd973c9-55ba-4345-be4b-a6b525a48bf9",
+    "category": "User",
+    "text": "New Note",
+    "defaultPosition": {
+      "x": 100,
+      "y": 100
+    }
+  }
+]
