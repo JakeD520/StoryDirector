@@ -5,7 +5,7 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 import { execSync } from "child_process";
-import { callLLM } from "./openRouterClient.js";
+import { callLLM } from "./lib/openRouterClient.js";
 
 const storagePath = path.resolve("./storage");
 
