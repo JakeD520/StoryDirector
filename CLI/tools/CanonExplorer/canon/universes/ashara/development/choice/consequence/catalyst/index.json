@@ -1,0 +1,17 @@
+{
+  "id": "catalyst-ashara",
+  "name": "Catalyst",
+  "description": "Converging resolutions. Admins may approve fractures to new timelines from here.",
+  "subCanon": [
+    {
+      "type": "timeline",
+      "name": "Ashara Magic Banned",
+      "ref": "../../ashara-magic-banned"
+    },
+    {
+      "type": "timeline",
+      "name": "Ashara Magic Ruled",
+      "ref": "../../universes/ashara-magic-ruled"
+    }
+  ]
+}

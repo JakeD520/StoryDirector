@@ -1,0 +1,22 @@
+{
+  "id": "universe-ashara",
+  "name": "Ashara",
+  "description": "Private root universe. Core world of oaths, ember magic, and divine silence.",
+  "subCanon": [
+    {
+      "type": "stage",
+      "name": "Choice",
+      "ref": "choice"
+    },
+    {
+      "type": "stage",
+      "name": "Brotherhood Rebellion",
+      "ref": "brotherhood-rebellion"
+    },
+    {
+      "type": "stage",
+      "name": "Peacemakers Alliance",
+      "ref": "peacemakers-alliance"
+    }
+  ]
+}

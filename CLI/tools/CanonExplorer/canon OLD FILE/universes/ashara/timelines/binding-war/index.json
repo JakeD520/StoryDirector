@@ -1,0 +1,16 @@
+{
+  "id": "timeline-binding-war",
+  "name": "The Binding War",
+  "yearStart": 702,
+  "yearEnd": 743,
+  "majorEvents": [
+    "Fall of the Third Veil"
+  ],
+  "subCanon": [
+    {
+      "type": "universe",
+      "name": "The Ashbound Divergence",
+      "ref": "universe-the-ashbound-divergence"
+    }
+  ]
+}

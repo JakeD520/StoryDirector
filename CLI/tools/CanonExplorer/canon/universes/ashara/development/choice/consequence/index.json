@@ -1,0 +1,12 @@
+{
+  "id": "consequence-ashara",
+  "name": "Consequence",
+  "description": "Stories reflecting universe-wide conflict. Locks prior canon layers.",
+  "subCanon": [
+    {
+      "type": "stage",
+      "name": "Catalyst",
+      "ref": "catalyst"
+    }
+  ]
+}

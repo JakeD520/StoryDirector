@@ -1,0 +1,9 @@
+✅ UPDATED LOCATION SCHEMA
+Field	Notes
+name	Name of the location
+locationScope	"interior" or "exterior" — binary spatial tag
+type	What the location is — its functional identity (e.g., tavern, alleyway, chapel, sewer, bridge, observation deck)
+mood	Descriptive vibe or tone — selection or freeform (e.g., gloomy, festive, sacred)
+sensoryDetails	Structured smell / sound / visual notes
+keyFeatures	Notable physical traits, layout elements, items, etc.
+knownHistory	Story background, legends, prior events, or known uses

@@ -1,0 +1,12 @@
+{
+  "id": "ashara-development",
+  "name": "Ashara",
+  "description": "General Stories.",
+  "subCanon": [
+    {
+      "type": "stage",
+      "name": "Development",
+      "ref": "Development"
+    }
+  ]
+}

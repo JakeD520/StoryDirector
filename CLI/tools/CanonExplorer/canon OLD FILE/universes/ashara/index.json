@@ -1,0 +1,32 @@
+{
+  "id": "universe-ashara",
+  "name": "Ashara",
+  "genre": "Fantasy",
+  "origin": "Created by @Jake",
+  "description": "A scorched realm of blood oaths, ember-forged magic, and divine silence.",
+  "regions": [
+    "The Hollow Steppe",
+    "Ember Wastes"
+  ],
+  "factions": [
+    "Veilbound Order",
+    "Ember Choir"
+  ],
+  "timelines": [
+    "The Binding War"
+  ],
+  "inheritsCanonFrom": null,
+  "subCanon": [
+    {
+      "type": "universe",
+      "name": "The Ashbound Divergence",
+      "ref": "universe-the-ashbound-divergence"
+    },
+   
+    {
+      "type": "universe",
+      "name": "The Realm of Drakahn",
+      "ref": "universe-the-realm-of-drakahn"
+    }
+  ]
+}

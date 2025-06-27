@@ -1,0 +1,12 @@
+{
+  "id": "war-of-helmsfrack-1751060736186",
+  "name": "War of Helmsfrack",
+  "description": "War of Helmsfrack",
+  "subCanon": [
+    {
+      "type": "stage",
+      "name": "Fall of the Third Veil",
+      "ref": "fall-of-the-third-veil"
+    }
+  ]
+}

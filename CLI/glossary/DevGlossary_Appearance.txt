@@ -1,0 +1,12 @@
+🧱 CATEGORIES + PROMPT TEMPLATES
+Category	Prompt Description
+Age	Approximate age or age-like qualities — “early 30s”, “ageless”, “ancient spirit”
+Body Type	Shape, mass, and notable build features — “slender and wiry”, “muscular with scars”, “fluid like smoke”
+Height	“Shorter than most”, “towering”, “average”
+Skin	Color, condition, markings — “pale with inked sigils”, “bronzed and freckled”
+Hair	Style, color, texture — “white dreadlocks”, “shaved bald”, “obsidian curls”
+Eyes	Color, shape, expression — “milky and blind”, “gold-ringed pupils”, “wide and curious”
+Face	Structure, expression, notable lines — “long, hollow cheeks”, “youthful and soft”
+Distinguishing Marks	Scars, tattoos, mechanicals — “missing left hand”, “ritual brand over chest”
+Style / Aesthetic	Clothing or fashion vibe — “high-collared military coat”, “tatters over ancient armor”
+Presence	The feeling others get from them — “intensely magnetic”, “unreadable and voidlike”

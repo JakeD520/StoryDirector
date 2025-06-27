@@ -1,0 +1,12 @@
+{
+  "id": "choice-ashara",
+  "name": "Choice",
+  "description": "Canon-defining ideological shifts and conflicts. Approved forks begin here.",
+  "subCanon": [
+    {
+      "type": "stage",
+      "name": "Consequence",
+      "ref": "consequence"
+    }
+  ]
+}

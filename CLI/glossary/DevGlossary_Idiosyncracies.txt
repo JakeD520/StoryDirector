@@ -1,0 +1,7 @@
+STRUCTURE: QUIRKS, OBSESSIONS, HABITS
+Category	Description
+Quirks	Odd or distinctive behaviors — talks to plants, avoids eye contact, whistles when lying
+Obsession / Vice	Fixations — gambling, collecting antique maps, body modifications
+Social Style	Communication vibe — overly blunt, charming, awkward, overly formal
+Habits	Repetitive patterns — sharpens blade obsessively, hums sea shanties, taps teeth
+Fears / Avoidance	Unspoken phobias or discomforts — hates confined spaces, avoids mirrors

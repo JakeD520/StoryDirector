@@ -1,0 +1,12 @@
+{
+  "id": "brotherhood-rebellion-1751060617887",
+  "name": "Brotherhood Rebellion",
+  "description": "Brotherhood Rebellion",
+  "subCanon": [
+    {
+      "type": "stage",
+      "name": "War of Helmsfrack",
+      "ref": "war-of-helmsfrack"
+    }
+  ]
+}
