@@ -1,0 +1,137 @@
+**Standard Operating Procedure: VoiceDNA Analysis, Application, and Glossary Reference**
+
+---
+
+**Purpose:**
+To extract, represent, and apply a complete 36-element VoiceDNA profile to text passages using a consistent 0–4 scale. This procedure ensures uniformity across character/narrator voices and supports measurable, reusable stylistic profiles in the VoiceChem system.
+
+---
+
+**System Components:**
+
+* **Input**: A text passage (\~100–200 words)
+* **Output**: A 36-element VoiceDNA JSON object (0–4 level per element)
+* **Engine**: Rule-based + LLM hybrid analyzer
+
+---
+
+**VoiceDNA Scale (0–4):**
+
+* **0**: None (feature is absent)
+* **1**: Light (barely present)
+* **2**: Moderate (clearly used but not dominant)
+* **3**: Strong (shapes voice consistently)
+* **4**: Saturated (defines the voice)
+
+---
+
+**Process 1: Capturing a VoiceDNA from Text**
+
+**Prompt Template:**
+"""
+Analyze the following passage and assign a value from **0 to 4** for each of the 36 VoiceChem elements. Each score should reflect observable linguistic behavior.
+
+Return your output as a JSON object:
+{
+"Rh": 2, "Co": 1, ... (all 36 elements)
+}
+
+Passage:
+\[INSERT TEXT HERE]
+"""
+
+**Guidelines:**
+
+* Use regex, tokenization, and pattern-matching for surface/structural elements.
+* Use semantic, pragmatic, and rhetorical heuristics for deep/experimental features.
+* Maintain full 36-element completeness, even if many values are 0.
+
+---
+
+**Process 2: Applying a VoiceDNA to Text**
+
+**Prompt Template:**
+"""
+Revise the following passage to match the specified **VoiceDNA profile**. Each element uses a 0–4 scale.
+
+Follow these instructions for each element:
+
+* Apply the effect described in the instruction table.
+* Match the intensity of the feature to its level.
+* If level is 0, ensure the feature is not present.
+* Do not alter the meaning or plot.
+
+VoiceDNA: { "Rh": 3, "Co": 2, ... }
+
+\[INSERT TEXT HERE]
+"""
+
+---
+
+**Output Requirements:**
+
+* Preserve semantic content and character intention.
+* Reflect the tone and rhythm defined by the VoiceDNA.
+* Resulting style should feel consistent, distinctive, and aligned with numerical constraints.
+
+---
+
+**Quality Checks:**
+
+* Visual or programmatic comparison of source vs revised formula
+* Validate all 36 elements appear in output JSON
+* Review edge cases (e.g., poetic texts, nonlinear structures)
+
+---
+
+**Version Control:**
+
+* Use `VoiceDNA_Profiles/` for saving JSON profiles
+* Save before/after texts in `VoiceChem_Rewrites/`
+* Tag outputs by character, scene, narrator, or use case
+
+---
+
+**Glossary of VoiceChem Elements (0–4 Interpretation)**
+
+Each element includes a symbol, function, level, and sample instruction.
+
+| Symbol | Function             | Level | LLM Instruction                                                                          |
+| ------ | -------------------- | ----- | ---------------------------------------------------------------------------------------- |
+| Rh     | Sentence pacing      | 3     | Mix short, medium, and long sentences. Allow flow to vary noticeably.                    |
+| Co     | Coordination         | 2     | Include \~4–5 conjunctions like "and", "but", "or".                                      |
+| Fr     | Word frequency       | 2     | Use a moderate vocabulary with both common and some elevated words.                      |
+| Dx     | Deixis               | 4     | Include \~8+ direct references to time, place, speaker/listener ("you", "here", "this"). |
+| Ch     | Cohesion             | 3     | Use transitions or logical connectives across ideas.                                     |
+| Rp     | Repetition           | 2     | Repeat key words or phrases 2–3 times for emphasis.                                      |
+| Sf     | Semantic focus       | 2     | Stay within a related conceptual field (e.g. love, memory).                              |
+| El     | Ellipsis or omission | 1     | Use 1–2 incomplete sentences or implied omissions.                                       |
+| Cp     | Compounding          | 0     | Do not use hyphenated or compound words.                                                 |
+| Sb     | Subordination        | 4     | Use many subordinate clauses ("because", "although", "if", "while").                     |
+| Pm     | Polysemy             | 1     | Include 1–2 words that shift meaning based on context.                                   |
+| Im     | Implicature          | 3     | Include 4–5 statements that imply meaning indirectly.                                    |
+| An     | Anaphora             | 3     | Use multiple pronouns or reference-back structures.                                      |
+| Mt     | Metaphor             | 2     | Use 2–3 metaphors or similes to convey ideas.                                            |
+| Md     | Modality             | 3     | Use \~3–5 modal verbs expressing obligation, possibility, or intent.                     |
+| Ph     | Phonaesthesia        | 1     | Include 1 word with evocative sound (e.g., "clash", "whisper").                          |
+| Rg     | Register             | 2     | Maintain mid-level formality; contractions are fine, no slang.                           |
+| Iv     | Inversion            | 1     | Include 1 sentence with reversed syntax for emphasis.                                    |
+| Sa     | Speech acts          | 4     | Use many directive, declarative, or rhetorical utterances.                               |
+| Cs     | Chiasmus             | 1     | Include 1 mirrored or flipped sentence structure.                                        |
+| Ps     | Presupposition       | 2     | Include 2–3 words like "again", "already", "even" that assume context.                   |
+| Is     | Isochrony            | 2     | Alternate short and long clauses with noticeable rhythmic shift.                         |
+| Mp     | Morphophonology      | 0     | Avoid novel morpho-syntactic wordforms.                                                  |
+| Mv     | Movement             | 1     | Include 1–2 physical action verbs.                                                       |
+| Ng     | Neologism            | 0     | Do not use invented or made-up words.                                                    |
+| Fl     | Flouting             | 1     | Include 1 mild grammar deviation or nonstandard phrasing.                                |
+| Py     | Polyphony            | 3     | Present 2–3 internal shifts in tone, viewpoint, or unspoken voice.                       |
+| Ac     | Anacoluthon          | 1     | Use 1 sentence that breaks syntactic flow.                                               |
+| Ix     | Indexicality         | 3     | Include 5+ references grounded in speaker context ("I", "you", "now").                   |
+| Tm     | Tempo                | 3     | Keep energy high but not manic. Use medium-short sentences.                              |
+| Dn     | Density              | 3     | Pack multiple ideas into some sentences.                                                 |
+| Cd     | Cadence              | 3     | Vary sentence ends and rhythmical phrasing.                                              |
+| Rc     | Consistency          | 4     | Maintain a stable tone and stylistic pattern throughout.                                 |
+
+---
+
+This SOP serves as the definitive reference for VoiceDNA creation and use. Extendable to future functionality such as comparative fingerprinting, automatic style transfer, and character voice validation tools.

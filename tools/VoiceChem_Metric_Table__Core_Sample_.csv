@@ -1,0 +1,11 @@
+Symbol,Unit,Metric,Scales Into,Notes
+Co,ratio,Coordinating conjunctions / total words,0–10 via 2×density,Measures clause chaining
+Dx,ratio,Deixis terms / total words,0–10 via 1.5×density,Anchors speech in space/time
+El,ratio,Ellipses or fragments / sentence count,0–10 via 0.02×level,Implied omission
+Rp,ratio,Repeated words / unique word count,0–10 via 2×repeat ratio,Emphasis or rhythm
+Rg,scale,Formality index from vocabulary,0–10 linguistic register,"0 = slang, 10 = academic"
+Pf,count,Profanity count / total words,0–10 via 0.02×level,Emotional edge
+Rh,stdev,Std dev of sentence length,0–10 via spread,Pacing variability
+Tm,scale,Avg sentence length + clause bursts,0–10,Energy of delivery
+Dn,density,Ideas or topics per sentence,0–10 via conceptual depth,Cognitive weight
+Cd,variance,Start/end clause variation,0–10 via range,Cadence patterns
