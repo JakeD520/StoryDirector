@@ -1,0 +1,11 @@
+Symbol,Name,Definition,Example
+Is,Isochrony,Controls timing regularity in speech; even or varied rhythmic delivery.,"He moved—step, pause, step—across the floor."
+Mp,Morphophonology,Manipulates sound and morphological structure for effect.,"Unfathomability struck him with its weird, slithering weight."
+Mv,Movement,Emphasizes motion-oriented verbs or sentence momentum.,"She lunged forward, crashed through the thorns, scrambled up the bank."
+Ng,Neologism,Creates new or non-standard words for unique tone or voice.,Her thoughts were a murple of tangled why-nots.
+Fl,Flouting,Intentionally violates norms of grammar or convention.,"So much the better, if it be not, then so it was."
+Py,Polyphony,Mingles multiple voices or internal dialogues within one passage.,"She said nothing. But inside, the voice hissed, 'Coward.'"
+Ac,Anacoluthon,Breaks syntactic structure mid-sentence to mimic confusion or realism.,"I don’t think—I mean, who would even try that?"
+Ix,Indexicality,Anchors expression to speaker’s personal context or immediacy.,"As I write this, the storm just hit my window."
+Pf,Profanity,Inserts vulgar or offensive language intentionally and rhythmically.,"Damn it. You never fucking listen, do you?"
+C1–C8,Custom Elements,User-defined features tailored to specific narrative or stylistic needs.,"Depends entirely on user specification (e.g., 'Uses nautical jargon')."
