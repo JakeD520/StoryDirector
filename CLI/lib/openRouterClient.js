@@ -1,3 +1,7 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
+
 async function callLLM(prompt) {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {

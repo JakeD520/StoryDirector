@@ -1,0 +1,74 @@
+🧰 SOP: Add a New Main Panel View
+
+📁 File: src/views/SceneComposer.jsx
+🎯 Goal: Add a new view to the central layout (e.g., Worldbuilder, LoreIndex, StudioTools, etc.)
+
+---
+
+✅ 1. Create the Component
+- File location: src/views/YourNewView.jsx
+- Template:
+```jsx
+export default function YourNewView() {
+  return (
+    <div className="text-xl text-emerald-300">
+      🚧 YourNewView is under construction!
+    </div>
+  );
+}
+```
+
+---
+
+✅ 2. Import It in SceneComposer.jsx
+At the top of the file:
+```js
+import YourNewView from "./YourNewView";
+```
+
+---
+
+✅ 3. Add It to the Sidebar
+In the <nav> inside the left sidebar:
+```jsx
+<button className="hover:text-white transition" onClick={() => setActiveView("yournewview")}>
+  Your New View
+</button>
+```
+
+---
+
+✅ 4. Hook It into renderMainPanel()
+Add a new case in the switch(activeView) block:
+```jsx
+case "yournewview":
+  return <YourNewView />;
+```
+
+---
+
+✅ 5. Test It
+Make sure you:
+- Click the new button in the sidebar
+- See your view appear in the main panel
+- Optional: Add some props/state later as needed
+
+---
+
+🧠 Notes
+- The view key ("yournewview") must match exactly in:
+  - setActiveView("yournewview") — sidebar
+  - case "yournewview" — view switch
+- You don’t need routing libraries or file-based routing — it’s a single-page state switcher
+- All views are loaded at once; lazy loading isn’t used yet (but can be added later)
+
+---
+
+🏁 TL;DR Checklist
+| Step | Action                        | Example                    |
+|------|-------------------------------|----------------------------|
+| ✅ 1 | Create view component         | YourNewView.jsx            |
+| ✅ 2 | Import into SceneComposer     | import YourNewView         |
+| ✅ 3 | Add sidebar button            | setActiveView("yournewview") |
+| ✅ 4 | Add switch case               | case "yournewview"         |
+| ✅ 5 | Test in browser               | View loads and renders     |
