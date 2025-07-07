@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import CharacterEditor from "../components/CharacterEditor";
+import CharacterEditor from "../../components/CharacterEditor";
 
 export default function CharactersView() {
   const [characters, setCharacters] = useState([]);

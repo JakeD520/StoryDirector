@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
-import VoiceRadarChart from "../components/VoiceRadarChart";
-import callLLM from "../utils/callLLM";
+import VoiceRadarChart from "../../components/VoiceRadarChart";
+import callLLM from "../../utils/callLLM";
 
 export default function VoiceView() {
   const [project, setProject] = useState("");

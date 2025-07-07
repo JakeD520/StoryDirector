@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import ProfileSetupView from "./ProfileSetupView";
-import callLLM from "../utils/callLLM";
-import YourNewView from "./YourNewView";
-import EnhancedProfileView from "./EnhancedProfileView";
-import VoiceView from "./VoiceView";
-import ProjectsView from "./ProjectsView";
-import CreateProject from "./CreateProject";
-import ProjectOverview from "./ProjectOverview";
-import storyDirectorAPI from "../utils/storyDirectorAPI";
-import CharactersView from "./CharactersView";
-import CommunityView from "./CommunityView"; // <-- Imported CommunityView
-import UniverseDashboard from "./UniverseDashboard";
-import CommunityHub from "./CommunityHub";
+import ProfileSetupView from "../profile/ProfileSetupView";
+import callLLM from "../../utils/callLLM";
+import YourNewView from "../YourNewView";
+import EnhancedProfileView from "../profile/EnhancedProfileView";
+import VoiceView from "../voice/VoiceView";
+import ProjectsView from "../projects/ProjectsView";
+import CreateProject from "../projects/CreateProject";
+import ProjectOverview from "../projects/ProjectOverview";
+import storyDirectorAPI from "../../utils/storyDirectorAPI";
+import CharactersView from "../characters/CharactersView";
+import CommunityView from "../community/CommunityView"; // <-- Imported CommunityView
+import UniverseDashboard from "../universe/UniverseDashboard";
+import CommunityHub from "../community/CommunityHub";
 
 
 
@@ -52,7 +52,7 @@ export default function SceneComposer() {
 }, []);
 
 useEffect(() => {
-  import("../utils/storyDirectorAPI").then((mod) => {
+  import("../../utils/storyDirectorAPI").then((mod) => {
     window.storyDirectorAPI = mod.default;
   });
 }, []);

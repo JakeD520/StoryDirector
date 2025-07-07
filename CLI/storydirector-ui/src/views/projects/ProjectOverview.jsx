@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import PitchTab from "../components/PitchTab";
-import BrainstormTab from "../components/BrainstormTab";  
-import OutlineTab from "../components/OutlineTab";
+import PitchTab from "../../components/PitchTab";
+import BrainstormTab from "../../components/BrainstormTab";  
+import OutlineTab from "../../components/OutlineTab";
 
 
 export default function ProjectOverview({ renderMainPanel, onPanelData }) {

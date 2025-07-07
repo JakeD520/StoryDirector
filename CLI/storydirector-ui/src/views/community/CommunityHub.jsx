@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getUniverseCanon } from "../utils/canonLoader";
+import { getUniverseCanon } from "../../utils/canonLoader";
 
 export default function CommunityHub({ universe, goBack }) {
   const [canon, setCanon] = useState(null);

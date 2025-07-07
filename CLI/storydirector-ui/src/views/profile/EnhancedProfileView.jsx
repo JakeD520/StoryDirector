@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import ProfileHeader from "../components/ProfileHeader";
-import AchievementShowcase from "../components/AchievementShowcase";
-import CanonParticipation from "../components/CanonParticipation";
-import WritingStats from "../components/WritingStats";
-import UserLibrary from "../components/UserLibrary";
-import StoryIdentityCard from "../components/StoryIdentityCard";
+import ProfileHeader from "../../components/ProfileHeader";
+import AchievementShowcase from "../../components/AchievementShowcase";
+import CanonParticipation from "../../components/CanonParticipation";
+import WritingStats from "../../components/WritingStats";
+import UserLibrary from "../../components/UserLibrary";
+import StoryIdentityCard from "../../components/StoryIdentityCard";
 
 export default function EnhancedProfileView() {
   const [profile, setProfile] = useState(null);
