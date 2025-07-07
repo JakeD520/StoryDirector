@@ -1,0 +1,601 @@
+{
+  "three_act": {
+    "name": "Three-Act Structure",
+    "description": "The classic storytelling model divided into Setup, Confrontation, and Resolution.",
+    "acts": [
+      {
+        "id": "act1",
+        "label": "Act I – Setup",
+        "description": "Introduce main character, setting, and inciting incident."
+      },
+      {
+        "id": "act2",
+        "label": "Act II – Conflict",
+        "description": "Rising conflict, midpoint reversal, growing stakes."
+      },
+      {
+        "id": "act3",
+        "label": "Act III – Resolution",
+        "description": "Climax, resolution, and character transformation."
+      }
+    ]
+  },
+  "save_the_cat": {
+    "name": "Save the Cat",
+    "description": "A screenwriting-focused model that uses 15 specific beats to guide structure.",
+    "acts": [
+      {
+        "id": "opening_image",
+        "label": "Opening Image",
+        "description": "A visual snapshot that represents the story's theme and tone."
+      },
+      {
+        "id": "theme_stated",
+        "label": "Theme Stated",
+        "description": "The story's central message is hinted at or directly stated."
+      },
+      {
+        "id": "setup",
+        "label": "Set-Up",
+        "description": "Establish the protagonist's world, relationships, and status quo."
+      },
+      {
+        "id": "catalyst",
+        "label": "Catalyst",
+        "description": "The inciting incident that sets the story in motion."
+      },
+      {
+        "id": "debate",
+        "label": "Debate",
+        "description": "The protagonist hesitates and considers their options."
+      },
+      {
+        "id": "break_into_two",
+        "label": "Break into Two",
+        "description": "The protagonist commits to the adventure and enters Act II."
+      },
+      {
+        "id": "b_story",
+        "label": "B Story",
+        "description": "A subplot that reinforces the theme, often involving relationships."
+      },
+      {
+        "id": "fun_and_games",
+        "label": "Fun and Games",
+        "description": "The promise of the premise is delivered; the most entertaining part."
+      },
+      {
+        "id": "midpoint",
+        "label": "Midpoint",
+        "description": "A major plot point that raises the stakes and changes direction."
+      },
+      {
+        "id": "bad_guys_close_in",
+        "label": "Bad Guys Close In",
+        "description": "Opposition forces gather strength; things get worse for the protagonist."
+      },
+      {
+        "id": "all_is_lost",
+        "label": "All is Lost",
+        "description": "The protagonist's lowest point; defeat seems inevitable."
+      },
+      {
+        "id": "dark_night_of_the_soul",
+        "label": "Dark Night of the Soul",
+        "description": "A moment of reflection and despair before the final push."
+      },
+      {
+        "id": "break_into_three",
+        "label": "Break into Three",
+        "description": "The protagonist finds new resolve and enters the final act."
+      },
+      {
+        "id": "finale",
+        "label": "Finale",
+        "description": "The climactic confrontation and resolution of all storylines."
+      },
+      {
+        "id": "final_image",
+        "label": "Final Image",
+        "description": "A visual that contrasts with the opening image, showing change."
+      }
+    ]
+  },
+  "heros_journey": {
+    "name": "Hero's Journey",
+    "description": "Mythic structure popularized by Joseph Campbell. Follows a cyclical adventure arc.",
+    "acts": [
+      {
+        "id": "ordinary_world",
+        "label": "Ordinary World",
+        "description": "The hero's normal life before transformation begins."
+      },
+      {
+        "id": "call_to_adventure",
+        "label": "Call to Adventure",
+        "description": "The hero is presented with a problem or challenge."
+      },
+      {
+        "id": "refusal_of_the_call",
+        "label": "Refusal of the Call",
+        "description": "The hero hesitates or refuses the adventure due to fear or duty."
+      },
+      {
+        "id": "meeting_the_mentor",
+        "label": "Meeting the Mentor",
+        "description": "The hero encounters a wise figure who provides advice or magical gifts."
+      },
+      {
+        "id": "crossing_the_threshold",
+        "label": "Crossing the Threshold",
+        "description": "The hero commits to the adventure and enters the special world."
+      },
+      {
+        "id": "tests_allies_enemies",
+        "label": "Tests, Allies, Enemies",
+        "description": "The hero faces challenges and makes allies and enemies."
+      },
+      {
+        "id": "approach_to_the_inmost_cave",
+        "label": "Approach to the Inmost Cave",
+        "description": "The hero prepares for the major challenge in the special world."
+      },
+      {
+        "id": "ordeal",
+        "label": "Ordeal",
+        "description": "The hero faces their greatest fear or most difficult challenge."
+      },
+      {
+        "id": "reward",
+        "label": "Reward",
+        "description": "The hero survives and gains something from the dangerous experience."
+      },
+      {
+        "id": "the_road_back",
+        "label": "The Road Back",
+        "description": "The hero begins the journey back to the ordinary world."
+      },
+      {
+        "id": "resurrection",
+        "label": "Resurrection",
+        "description": "The hero faces a final test and is transformed by the experience."
+      },
+      {
+        "id": "return_with_the_elixir",
+        "label": "Return with the Elixir",
+        "description": "The hero returns home transformed and able to benefit others."
+      }
+    ]
+  },
+  "story_circle": {
+    "name": "Dan Harmon's Story Circle",
+    "description": "A simplified character-driven model with 8 steps of transformation.",
+    "acts": [
+      {
+        "id": "comfort_zone",
+        "label": "Comfort Zone",
+        "description": "A character is in a zone of comfort."
+      },
+      {
+        "id": "want_something",
+        "label": "Want Something",
+        "description": "But they want something."
+      },
+      {
+        "id": "unfamiliar_situation",
+        "label": "Unfamiliar Situation",
+        "description": "They enter an unfamiliar situation."
+      },
+      {
+        "id": "adapt",
+        "label": "Adapt",
+        "description": "Adapt to it."
+      },
+      {
+        "id": "get_what_wanted",
+        "label": "Get What They Wanted",
+        "description": "Get what they wanted."
+      },
+      {
+        "id": "pay_heavy_price",
+        "label": "Pay Heavy Price",
+        "description": "Pay a heavy price."
+      },
+      {
+        "id": "return_familiar",
+        "label": "Return to Familiar",
+        "description": "Return to their familiar situation."
+      },
+      {
+        "id": "having_changed",
+        "label": "Having Changed",
+        "description": "Having changed."
+      }
+    ]
+  },
+  "freytags_pyramid": {
+    "name": "Freytag's Pyramid",
+    "description": "A dramatic structure focusing on the arc of tension and conflict.",
+    "acts": [
+      {
+        "id": "exposition",
+        "label": "Exposition",
+        "description": "Introduction of characters, setting, and background information."
+      },
+      {
+        "id": "rising_action",
+        "label": "Rising Action",
+        "description": "Series of events that build tension and develop the conflict."
+      },
+      {
+        "id": "climax",
+        "label": "Climax",
+        "description": "The turning point and most intense moment of the story."
+      },
+      {
+        "id": "falling_action",
+        "label": "Falling Action",
+        "description": "Events that happen after the climax and lead toward resolution."
+      },
+      {
+        "id": "denouement",
+        "label": "Denouement",
+        "description": "The resolution where conflicts are resolved and loose ends tied up."
+      }
+    ]
+  },
+  "kishotenketsu": {
+    "name": "Kishōtenketsu",
+    "description": "A four-part structure common in Japanese storytelling, emphasizing contrast and resolution.",
+    "acts": [
+      {
+        "id": "ki",
+        "label": "Ki (Introduction)",
+        "description": "Introduces the characters, setting, and initial situation."
+      },
+      {
+        "id": "sho",
+        "label": "Shō (Development)",
+        "description": "Develops the situation and characters without major conflict."
+      },
+      {
+        "id": "ten",
+        "label": "Ten (Twist)",
+        "description": "Introduces an unexpected element that changes perspective."
+      },
+      {
+        "id": "ketsu",
+        "label": "Ketsu (Conclusion)",
+        "description": "Resolves the story by tying together all elements."
+      }
+    ]
+  },
+  "mckee_structure": {
+    "name": "Robert McKee's Structure",
+    "description": "Focuses on the importance of conflict and character arcs in storytelling.",
+    "acts": [
+      {
+        "id": "inciting_incident",
+        "label": "Inciting Incident",
+        "description": "The event that sets the story in motion and disrupts the protagonist's life."
+      },
+      {
+        "id": "progressive_complications",
+        "label": "Progressive Complications",
+        "description": "A series of increasingly difficult obstacles and conflicts."
+      },
+      {
+        "id": "crisis",
+        "label": "Crisis",
+        "description": "The moment of greatest pressure when a crucial decision must be made."
+      },
+      {
+        "id": "climax",
+        "label": "Climax",
+        "description": "The protagonist's action in response to the crisis."
+      },
+      {
+        "id": "resolution",
+        "label": "Resolution",
+        "description": "The outcome of the climactic action and story's conclusion."
+      }
+    ]
+  },
+  "pixar_structure": {
+    "name": "Pixar Story Structure",
+    "description": "Pixar's character-driven approach emphasizing emotional transformation and relatability.",
+    "acts": [
+      {
+        "id": "once_upon_a_time",
+        "label": "Once Upon a Time",
+        "description": "Establish the protagonist's world, personality, and what makes them relatable."
+      },
+      {
+        "id": "every_day",
+        "label": "Every Day",
+        "description": "Show the protagonist's routine and what their normal life looks like."
+      },
+      {
+        "id": "until_one_day",
+        "label": "Until One Day",
+        "description": "The inciting incident that disrupts the protagonist's normal world."
+      },
+      {
+        "id": "because_of_that",
+        "label": "Because of That",
+        "description": "The first consequence/reaction to the inciting incident."
+      },
+      {
+        "id": "because_of_that_2",
+        "label": "Because of That (continued)",
+        "description": "Chain of escalating consequences that build dramatic tension."
+      },
+      {
+        "id": "until_finally",
+        "label": "Until Finally",
+        "description": "The climax where the protagonist faces their greatest challenge."
+      },
+      {
+        "id": "ever_since_then",
+        "label": "Ever Since Then",
+        "description": "The resolution showing how the protagonist has changed."
+      },
+      {
+        "id": "moral_lesson",
+        "label": "Moral/Theme",
+        "description": "The underlying message about growth, relationships, or life lessons."
+      }
+    ]
+  },
+  "seven_point_story": {
+    "name": "Seven-Point Story Structure",
+    "description": "Brandon Sanderson's structure focusing on character arcs and plot progression.",
+    "acts": [
+      {
+        "id": "hook",
+        "label": "Hook",
+        "description": "Opening scene that grabs attention and establishes tone."
+      },
+      {
+        "id": "plot_turn_1",
+        "label": "Plot Turn 1",
+        "description": "The inciting incident that gets the story moving."
+      },
+      {
+        "id": "pinch_point_1",
+        "label": "Pinch Point 1",
+        "description": "First major obstacle that shows the antagonist's power."
+      },
+      {
+        "id": "midpoint",
+        "label": "Midpoint",
+        "description": "Major revelation or shift that changes everything."
+      },
+      {
+        "id": "pinch_point_2",
+        "label": "Pinch Point 2",
+        "description": "Second major obstacle that tests the protagonist."
+      },
+      {
+        "id": "plot_turn_2",
+        "label": "Plot Turn 2",
+        "description": "The protagonist gains what they need for the final confrontation."
+      },
+      {
+        "id": "resolution",
+        "label": "Resolution",
+        "description": "The climax and conclusion of the story."
+      }
+    ]
+  },
+  "fichtean_curve": {
+    "name": "Fichtean Curve",
+    "description": "A structure emphasizing multiple rising crises rather than a single climax.",
+    "acts": [
+      {
+        "id": "initial_incident",
+        "label": "Initial Incident",
+        "description": "The story begins with action or conflict rather than exposition."
+      },
+      {
+        "id": "rising_action_crisis_1",
+        "label": "Rising Action - Crisis 1",
+        "description": "First major crisis that escalates the conflict."
+      },
+      {
+        "id": "rising_action_crisis_2",
+        "label": "Rising Action - Crisis 2",
+        "description": "Second crisis that further complicates the situation."
+      },
+      {
+        "id": "rising_action_crisis_3",
+        "label": "Rising Action - Crisis 3",
+        "description": "Third crisis that brings tension to near-breaking point."
+      },
+      {
+        "id": "climax",
+        "label": "Climax",
+        "description": "The final, most intense crisis and turning point."
+      },
+      {
+        "id": "falling_action",
+        "label": "Falling Action",
+        "description": "Brief resolution of the climactic crisis."
+      },
+      {
+        "id": "denouement",
+        "label": "Denouement",
+        "description": "Final resolution and return to stability."
+      }
+    ]
+  },
+  "in_media_res": {
+    "name": "In Media Res",
+    "description": "Starting in the middle of action, then revealing background through flashbacks.",
+    "acts": [
+      {
+        "id": "opening_action",
+        "label": "Opening Action",
+        "description": "Begin in the middle of intense action or conflict."
+      },
+      {
+        "id": "backstory_reveal",
+        "label": "Backstory Reveal",
+        "description": "Reveal background information through flashbacks or exposition."
+      },
+      {
+        "id": "present_continuation",
+        "label": "Present Continuation",
+        "description": "Return to and continue the opening action."
+      },
+      {
+        "id": "escalation",
+        "label": "Escalation",
+        "description": "Build tension beyond the opening conflict."
+      },
+      {
+        "id": "climax",
+        "label": "Climax",
+        "description": "The story reaches its peak intensity."
+      },
+      {
+        "id": "resolution",
+        "label": "Resolution",
+        "description": "Conclude the story and resolve all conflicts."
+      }
+    ]
+  },
+  "nested_loops": {
+    "name": "Nested Loops",
+    "description": "Multiple interconnected storylines that weave together and resolve.",
+    "acts": [
+      {
+        "id": "establish_loop_a",
+        "label": "Establish Loop A",
+        "description": "Introduce the first storyline and its central conflict."
+      },
+      {
+        "id": "establish_loop_b",
+        "label": "Establish Loop B",
+        "description": "Introduce the second storyline and its connection to Loop A."
+      },
+      {
+        "id": "establish_loop_c",
+        "label": "Establish Loop C",
+        "description": "Introduce additional storylines that interconnect."
+      },
+      {
+        "id": "develop_connections",
+        "label": "Develop Connections",
+        "description": "Show how the different storylines influence each other."
+      },
+      {
+        "id": "convergence",
+        "label": "Convergence",
+        "description": "The storylines come together in unexpected ways."
+      },
+      {
+        "id": "resolve_inner_loops",
+        "label": "Resolve Inner Loops",
+        "description": "Resolve secondary storylines first."
+      },
+      {
+        "id": "resolve_outer_loop",
+        "label": "Resolve Outer Loop",
+        "description": "Resolve the main storyline that encompasses all others."
+      }
+    ]
+  },
+  "sequence_approach": {
+    "name": "Sequence Approach",
+    "description": "Hollywood's 8-sequence structure treating feature films as eight mini-movies.",
+    "acts": [
+      {
+        "id": "sequence_1",
+        "label": "Sequence 1 - Setup",
+        "description": "Establish character, world, and tone. End with inciting incident."
+      },
+      {
+        "id": "sequence_2",
+        "label": "Sequence 2 - Predicament",
+        "description": "Character reacts to inciting incident and formulates a plan."
+      },
+      {
+        "id": "sequence_3",
+        "label": "Sequence 3 - First Obstacle",
+        "description": "Initial attempt to solve the problem faces major resistance."
+      },
+      {
+        "id": "sequence_4",
+        "label": "Sequence 4 - First Culmination",
+        "description": "Midpoint sequence where stakes are raised and direction shifts."
+      },
+      {
+        "id": "sequence_5",
+        "label": "Sequence 5 - Subplot/Obstacles",
+        "description": "Character faces new complications, often involving relationships."
+      },
+      {
+        "id": "sequence_6",
+        "label": "Sequence 6 - Main Culmination",
+        "description": "Major setback that seems to end all hope of success."
+      },
+      {
+        "id": "sequence_7",
+        "label": "Sequence 7 - Final Push",
+        "description": "Character finds inner strength and makes final attempt."
+      },
+      {
+        "id": "sequence_8",
+        "label": "Sequence 8 - Resolution",
+        "description": "Climax and resolution of all story threads."
+      }
+    ]
+  },
+  "story_diamond": {
+    "name": "Story Diamond",
+    "description": "Character-focused alternative to Hero's Journey emphasizing internal transformation.",
+    "acts": [
+      {
+        "id": "character_in_comfort",
+        "label": "Character in Comfort",
+        "description": "Protagonist in their familiar world, but with underlying dissatisfaction."
+      },
+      {
+        "id": "call_to_discomfort",
+        "label": "Call to Discomfort",
+        "description": "Something challenges the character's comfort zone."
+      },
+      {
+        "id": "growing_discomfort",
+        "label": "Growing Discomfort",
+        "description": "Character faces increasing challenges that test their beliefs."
+      },
+      {
+        "id": "moment_of_truth",
+        "label": "Moment of Truth",
+        "description": "Peak discomfort where character must choose change or remain the same."
+      },
+      {
+        "id": "commitment_to_change",
+        "label": "Commitment to Change",
+        "description": "Character decides to transform and takes decisive action."
+      },
+      {
+        "id": "experimenting_with_change",
+        "label": "Experimenting with Change",
+        "description": "Character tries new behaviors and ways of being."
+      },
+      {
+        "id": "final_test",
+        "label": "Final Test",
+        "description": "Character's transformation is tested in a crucial moment."
+      },
+      {
+        "id": "new_comfort",
+        "label": "New Comfort",
+        "description": "Character reaches a new equilibrium, fundamentally changed."
+      }
+    ]
+  }
+}

@@ -1,86 +1,74 @@
 import React, { useState, useEffect } from "react";
-import CharacterEditor from "./CharacterEditor";
+import { v4 as uuidv4 } from "uuid";
+import CharacterEditor from "../components/CharacterEditor";
 
 export default function CharactersView() {
   const [characters, setCharacters] = useState([]);
-  const [selectedCharacter, setSelectedCharacter] = useState(null);
-  const [characterData, setCharacterData] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
 
-  // Load characters from localStorage on mount
   useEffect(() => {
-    const keys = Object.keys(localStorage).filter((key) =>
-      key.startsWith("character:")
-    );
-    setCharacters(keys.map((key) => key.replace("character:", "")));
+    const stored = localStorage.getItem("storydirector_characters");
+    if (stored) setCharacters(JSON.parse(stored));
   }, []);
 
-  const loadCharacter = (name) => {
-    const raw = localStorage.getItem(`character:${name}`);
-    if (raw) {
-      setSelectedCharacter(name);
-      setCharacterData(JSON.parse(raw));
-    }
+  const handleAddCharacter = () => {
+    const newChar = {
+      id: uuidv4(),
+      name: "New Character",
+      gender: "",
+      race: "",
+      archetype: "",
+      occupation: "",
+      appearance: "",
+      bio: "",
+      projectIds: []
+    };
+    const updated = [newChar, ...characters];
+    setCharacters(updated);
+    localStorage.setItem("storydirector_characters", JSON.stringify(updated));
+    setSelectedId(newChar.id);
   };
 
-  const createNewCharacter = () => {
-    const name = prompt("Enter new character name:");
-    if (name && !characters.includes(name)) {
-      const blank = {
-        name,
-        gender: "",
-        species: "",
-        archetype: "",
-        occupation: "",
-        appearance: {},
-        bio: ""
-      };
-      localStorage.setItem(`character:${name}`, JSON.stringify(blank));
-      setCharacters((prev) => [...prev, name]);
-      setSelectedCharacter(name);
-      setCharacterData(blank);
-    }
+  const handleUpdate = (updatedChar) => {
+    const updated = characters.map(c => c.id === updatedChar.id ? updatedChar : c);
+    setCharacters(updated);
+    localStorage.setItem("storydirector_characters", JSON.stringify(updated));
   };
 
-  const saveCharacter = () => {
-    if (selectedCharacter && characterData) {
-      localStorage.setItem(
-        `character:${selectedCharacter}`,
-        JSON.stringify(characterData, null, 2)
-      );
-      alert("Character saved.");
-    }
-  };
+  const selected = characters.find(c => c.id === selectedId);
 
   return (
-    <div className="flex h-screen">
-      <div className="w-64 bg-gray-900 text-white p-4 border-r border-gray-700">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Characters</h2>
-          <button onClick={createNewCharacter} className="text-green-400">+ Add</button>
-        </div>
-        <ul className="space-y-2">
-          {characters.map((name) => (
-            <li
-              key={name}
-              onClick={() => loadCharacter(name)}
-              className={`cursor-pointer p-2 rounded hover:bg-gray-700 ${
-                selectedCharacter === name ? "bg-gray-700" : ""
+    <div className="flex h-full">
+      {/* Sidebar */}
+      <div className="w-64 border-r border-zinc-800 p-4 bg-zinc-950 flex flex-col gap-2">
+        <h2 className="text-xl font-bold text-emerald-400 mb-2">Characters</h2>
+        <button
+          onClick={handleAddCharacter}
+          className="bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-3 rounded text-sm"
+        >
+          ➕ Add Character
+        </button>
+        <div className="mt-4 flex flex-col gap-2">
+          {characters.map(char => (
+            <button
+              key={char.id}
+              onClick={() => setSelectedId(char.id)}
+              className={`text-left px-2 py-1 rounded ${
+                selectedId === char.id ? "bg-zinc-800 text-white" : "text-zinc-300 hover:bg-zinc-800"
               }`}
             >
-              {name}
-            </li>
+              {char.name}
+            </button>
           ))}
-        </ul>
+        </div>
       </div>
-      <div className="flex-1 p-6 overflow-y-auto bg-gray-950 text-white">
-        {characterData ? (
-          <CharacterEditor
-            character={characterData}
-            setCharacter={setCharacterData}
-            onSave={saveCharacter}
-          />
+
+      {/* Main Pane */}
+      <div className="flex-1 p-6 overflow-y-auto">
+        {selected ? (
+          <CharacterEditor character={selected} onSave={handleUpdate} />
         ) : (
-          <div className="text-gray-400">Select a character to begin.</div>
+          <div className="text-zinc-500 italic">Select a character to edit</div>
         )}
       </div>
     </div>

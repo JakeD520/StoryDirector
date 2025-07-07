@@ -4,9 +4,15 @@ import ProfileSetupView from "./ProfileSetupView";
 import callLLM from "../utils/callLLM";
 import YourNewView from "./YourNewView";
 import EnhancedProfileView from "./EnhancedProfileView";
-import VoiceView from "./VoiceView";  // ✅ or adjust path if needed
-
-
+import VoiceView from "./VoiceView";
+import ProjectsView from "./ProjectsView";
+import CreateProject from "./CreateProject";
+import ProjectOverview from "./ProjectOverview";
+import storyDirectorAPI from "../utils/storyDirectorAPI";
+import CharactersView from "./CharactersView";
+import CommunityView from "./CommunityView"; // <-- Imported CommunityView
+import UniverseDashboard from "./UniverseDashboard";
+import CommunityHub from "./CommunityHub";
 
 
 
@@ -20,7 +26,10 @@ export default function SceneComposer() {
   const [showProfileEditor, setShowProfileEditor] = useState(false);
   const [profile, setProfile] = useState(null);
   const [activeView, setActiveView] = useState("profile");
+  const [panelData, setPanelData] = useState(null); // NEW: store current panel data
   const messagesEndRef = useRef(null);
+  const [selectedUniverse, setSelectedUniverse] = useState(null);
+
 
   useEffect(() => {
     const stored = localStorage.getItem("storydirector_user_profile");
@@ -38,6 +47,16 @@ export default function SceneComposer() {
     }
   }, [addyMessages]);
 
+  useEffect(() => {
+  window.storyDirectorAPI = storyDirectorAPI;
+}, []);
+
+useEffect(() => {
+  import("../utils/storyDirectorAPI").then((mod) => {
+    window.storyDirectorAPI = mod.default;
+  });
+}, []);
+
   const handleSaveKey = () => {
     localStorage.setItem("openrouter_api_key", apiKey);
     setShowSettings(false);
@@ -50,7 +69,20 @@ export default function SceneComposer() {
     setUserInput("");
 
     try {
-      const response = await callLLM(updatedMessages, apiKey);
+      // Use panelData for Addy's context if available
+      const systemContent = panelData
+        ? `You are Addy, the user's assistant director. Here is the current panel context:\n\n${JSON.stringify(panelData, null, 2)}`
+        : "You are Addy, the user's assistant director. No panel data found.";
+
+      const enrichedMessages = [
+        {
+          role: "system",
+          content: systemContent
+        },
+        ...updatedMessages
+      ];
+
+      const response = await callLLM(enrichedMessages, apiKey);
       setAddyMessages([...updatedMessages, { role: "assistant", content: response }]);
     } catch (err) {
       console.error("Error calling LLM:", err);
@@ -58,41 +90,64 @@ export default function SceneComposer() {
     }
   };
 
-  if (!profile && !showProfileEditor) {
-    return <ProfileSetupView onProfileComplete={(data) => setProfile(data)} />;
-  }
 
-  if (showProfileEditor) {
-    return (
-      <ProfileSetupView
-        onProfileComplete={(data) => {
-          setProfile(data);
-          setShowProfileEditor(false);
+  const views = [
+    { key: "projects", label: "Projects" },
+    { key: "factions", label: "Factions" },
+    { key: "characters", label: "Characters" },
+    { key: "community", label: "Community" },
+    { key: "scene", label: "Scene Deck" },
+    { key: "voice", label: "Voice Profiles" },
+    { key: "profile", label: "Profile" },
+    { key: "future", label: "Future Plans" }
+
+  ];
+
+  // Panel map for simple views
+  const panels = {
+    canon: () => <div className="text-xl">Canon View Coming Soon...</div>,
+    factions: () => <div className="text-xl">Factions View Coming Soon...</div>,
+    characters: () => <CharactersView />,
+    community: () => (
+      <CommunityView
+        onSelect={(universe) => {
+          setSelectedUniverse(universe);
+          setActiveView("universeDashboard");
         }}
       />
-    );
-  }
+    ),
+    scene: () => <div className="text-xl">Scene Deck Coming Soon...</div>,
+    yournewview: () => <YourNewView />,
+    profile: () => <EnhancedProfileView />,
+    voice: () => <VoiceView />,
+    projects: () => <ProjectsView renderMainPanel={setActiveView} />,
+    createProject: () => <CreateProject renderMainPanel={setActiveView} />,
+    projectOverview: () => <ProjectOverview renderMainPanel={setActiveView} onPanelData={setPanelData} />,
+  };
 
   const renderMainPanel = () => {
-    switch (activeView) {
-      case "canon":
-        return <div className="text-xl">Canon View Coming Soon...</div>;
-      case "factions":
-        return <div className="text-xl">Factions View Coming Soon...</div>;
-      case "characters":
-        return <div className="text-xl">Characters View Coming Soon...</div>;
-      case "timelines":
-        return <div className="text-xl">Timelines View Coming Soon...</div>;
-      case "scene":
-        return <div className="text-xl">Scene Deck Coming Soon...</div>;
-       case "yournewview":
-        return <YourNewView />;
-      case "profile":
-        return <EnhancedProfileView />;
-      case "voice":
-        return <VoiceView />;
-        return <VoiceView />;
+    if (activeView === "universeDashboard") {
+      return (
+        <UniverseDashboard
+          universe={selectedUniverse}
+          goBack={() => setActiveView("community")}
+          enterCommunity={(universe) => {
+            setSelectedUniverse(universe);
+            setActiveView("communityHub");
+          }}
+        />
+      );
     }
+    if (activeView === "communityHub") {
+      return (
+        <CommunityHub
+          universe={selectedUniverse}
+          goBack={() => setActiveView("universeDashboard")}
+        />
+      );
+    }
+    // Default: use the panels map
+    return panels[activeView]?.() || null;
   };
 
   return (
@@ -101,14 +156,15 @@ export default function SceneComposer() {
       <div className="w-64 h-full border-r border-gray-800 p-6 flex flex-col justify-start bg-gradient-to-b from-gray-900 to-black shadow-inner rounded-tr-2xl rounded-br-2xl">
         <h2 className="text-2xl font-semibold mb-6">StoryDirector</h2>
         <nav className="flex flex-col gap-4 text-base text-gray-400">
-          <button className="hover:text-white transition" onClick={() => setActiveView("canon")}>Canon View</button>
-          <button className="hover:text-white transition" onClick={() => setActiveView("factions")}>Factions</button>
-          <button className="hover:text-white transition" onClick={() => setActiveView("characters")}>Characters</button>
-          <button className="hover:text-white transition" onClick={() => setActiveView("timelines")}>Timelines</button>
-          <button className="hover:text-white transition" onClick={() => setActiveView("scene")}>Scene Deck</button>
-          <button className="hover:text-white transition" onClick={() => setActiveView("voice")}>Voice Profiles</button>
-          <button className="hover:text-white transition" onClick={() => setActiveView("profile")}>Profile</button>
-
+          {views.map(({ key, label }) => (
+            <button
+              key={key}
+              className="hover:text-white transition"
+              onClick={() => setActiveView(key)}
+            >
+              {label}
+            </button>
+          ))}
         </nav>
       </div>
 
@@ -131,7 +187,7 @@ export default function SceneComposer() {
         </div>
 
         {/* Main Panel */}
-        <div className="flex-1 p-12 flex items-center justify-center bg-gradient-to-br from-gray-900/50 to-black/20 overflow-hidden">
+        <div className="flex-1 px-6 py-4 flex items-center justify-center bg-gradient-to-br from-gray-900/50 to-black/20 overflow-hidden">
           {renderMainPanel()}
         </div>
       </div>
