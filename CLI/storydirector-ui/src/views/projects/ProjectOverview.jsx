@@ -5,27 +5,55 @@ import OutlineTab from "../../components/OutlineTab";
 
 
 export default function ProjectOverview({ renderMainPanel, onPanelData }) {
+  console.log('ProjectOverview: render');
   const [activeTab, setActiveTab] = useState("overview");
   const [project, setProject] = useState(null);
   const [tabData, setTabData] = useState(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem("storydirector_active_project");
-    const allProjects = localStorage.getItem("storydirector_projects");
-    console.log("📦 Active project key:", stored);
-    if (stored && allProjects) {
-      const parsed = JSON.parse(allProjects);
-      const found = parsed.find(
-        p => p.title.trim().toLowerCase() === stored.trim().toLowerCase()
-      );
-      if (!found) {
-        console.warn("⚠️ No matching project found in localStorage!");
-      }
-      if (found) setProject(found);
+    console.log('ProjectOverview: useEffect[mount]');
+    function getKey() {
+      return localStorage.getItem("storydirector_active_project") || "";
     }
+    function getProjects() {
+      const all = localStorage.getItem("storydirector_projects");
+      return all ? JSON.parse(all) : [];
+    }
+    function findProject() {
+      const stored = getKey();
+      const allProjects = getProjects();
+      return allProjects.find(
+        (p) => p.title.trim().toLowerCase() === stored.trim().toLowerCase()
+      ) || null;
+    }
+
+    // On mount, set project from localStorage
+    const found = findProject();
+    setProject(found);
+    console.log('ProjectOverview: setProject on mount', found);
+
+    const onStorage = (e) => {
+      if (
+        e.key === "storydirector_active_project" ||
+        e.key === "storydirector_projects"
+      ) {
+        const updated = findProject();
+        setProject((prev) => {
+          if (!updated && prev !== null) return null;
+          if (updated && (!prev || updated.title !== prev.title)) return updated;
+          return prev;
+        });
+        console.log('ProjectOverview: setProject from storage event', updated);
+      }
+    };
+
+    window.addEventListener("storage", onStorage);
+    return () => {
+      console.log('ProjectOverview: unmount');
+      window.removeEventListener("storage", onStorage);
+    };
   }, []);
 
-  // Expose current panel data to parent (e.g. Addy in SceneComposer)
   useEffect(() => {
     if (onPanelData && project) {
       onPanelData({
@@ -38,7 +66,6 @@ export default function ProjectOverview({ renderMainPanel, onPanelData }) {
   }, [onPanelData, project, activeTab, tabData]);
 
   const renderTab = () => {
-    // All tab content is wrapped in the same layout container for alignment
     const contentWrapper = (children) => (
       <div className="flex-1 flex flex-col gap-6 text-white">
         {children}
@@ -71,9 +98,29 @@ export default function ProjectOverview({ renderMainPanel, onPanelData }) {
   const tabs = ["overview", "pitch", "brainstorm", "outline", "script", "revise"];
 
   if (!project) {
+    const stored = localStorage.getItem("storydirector_active_project");
+    const allProjects = localStorage.getItem("storydirector_projects");
+    let errorMsg = "Loading project...";
+    if (stored && allProjects) {
+      const parsed = JSON.parse(allProjects);
+      const found = parsed.find(
+        p => p.title.trim().toLowerCase() === stored.trim().toLowerCase()
+      );
+      if (!found) {
+        errorMsg = `No project found for: ${stored}`;
+      }
+    } else if (!stored) {
+      errorMsg = "No active project selected.";
+    }
     return (
-      <div className="w-full max-w-6xl mx-auto min-h-[80vh] px-4 py-6 text-zinc-400">
-        Loading project...
+      <div className="w-full max-w-6xl mx-auto min-h-[80vh] px-4 py-6 text-zinc-400 flex flex-col items-center justify-center gap-6">
+        <div>{errorMsg}</div>
+        <button
+          className="mt-4 px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded shadow text-base"
+          onClick={() => renderMainPanel && renderMainPanel("projects")}
+        >
+          ← Back to Projects
+        </button>
       </div>
     );
   }

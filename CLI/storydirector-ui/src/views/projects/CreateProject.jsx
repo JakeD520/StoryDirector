@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 
-export default function CreateProject({ renderMainPanel }) {
+// Addy context support: accept onPanelData prop
+export default function CreateProject({ renderMainPanel, onPanelData }) {
   const [title, setTitle] = useState("");
   const [genres, setGenres] = useState([]);
   const [selectedGenres, setSelectedGenres] = useState([]);
@@ -14,6 +15,18 @@ export default function CreateProject({ renderMainPanel }) {
       .then(data => setGenres(data))
       .catch(err => console.error("Failed to load genre glossary:", err));
   }, []);
+
+  // Send Addy context when relevant fields change
+  useEffect(() => {
+    if (typeof onPanelData === "function") {
+      onPanelData({
+        title,
+        selectedGenres,
+        tagline,
+        description
+      });
+    }
+  }, [title, selectedGenres, tagline, description, onPanelData]);
 
   const toggleGenre = (genre) => {
     setSelectedGenres(prev =>

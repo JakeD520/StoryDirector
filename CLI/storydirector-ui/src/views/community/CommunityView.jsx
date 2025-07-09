@@ -14,7 +14,9 @@ const getUniverseCanon = (id) => ({
       : "A sample description for Universe 2",
 });
 
-export default function CommunityView({ onSelect, onCreateNew }) {
+
+// Addy context support: accept onPanelData prop
+export default function CommunityView({ onSelect, onCreateNew, onPanelData }) {
   const [universes, setUniverses] = useState([]);
 
   useEffect(() => {
@@ -30,6 +32,16 @@ export default function CommunityView({ onSelect, onCreateNew }) {
     });
     setUniverses(loaded);
   }, []);
+
+  // Send Addy context when universes change
+  useEffect(() => {
+    if (typeof onPanelData === "function") {
+      onPanelData({
+        universeCount: universes.length,
+        universes: universes.map(u => ({ id: u.id, name: u.name, tagline: u.tagline }))
+      });
+    }
+  }, [universes, onPanelData]);
 
   return (
     <div className="space-y-6 w-full max-w-3xl mx-auto p-6">

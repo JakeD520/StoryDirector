@@ -10,17 +10,22 @@ export default function PitchTab({ onPanelData }) {
   const [activeElaboration, setActiveElaboration] = useState(null);
   const [elaborationText, setElaborationText] = useState("");
 
+  // Get active project title for project-specific pitch results
+  const activeProject = localStorage.getItem("storydirector_active_project");
+  const getPitchKey = () => activeProject ? `pitch_results_${activeProject}` : "pitch_results";
+
   useEffect(() => {
-    const saved = localStorage.getItem("pitch_results");
+    const key = getPitchKey();
+    const saved = localStorage.getItem(key);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
         setExtracted(parsed || null);
       } catch {
-        console.warn("⚠️ Could not parse saved pitch_results");
+        console.warn(`⚠️ Could not parse saved ${key}`);
       }
     }
-  }, []);
+  }, [activeProject]);
 
   // Expose pitch data to parent (ProjectOverview)
   useEffect(() => {
@@ -34,7 +39,8 @@ export default function PitchTab({ onPanelData }) {
   }, [onPanelData, extracted, text]);
 
   const saveToLocalStorage = (updatedExtracted) => {
-    localStorage.setItem("pitch_results", JSON.stringify(updatedExtracted));
+    const key = getPitchKey();
+    localStorage.setItem(key, JSON.stringify(updatedExtracted));
   };
 
   const handleExtract = async () => {

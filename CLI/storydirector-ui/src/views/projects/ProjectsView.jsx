@@ -11,6 +11,11 @@ export default function ProjectsView({ renderMainPanel }) {
     }
   });
 
+  useEffect(() => {
+    console.log('ProjectsView mounted');
+    return () => console.log('ProjectsView unmounted');
+  }, []);
+
   return (
     <div className="w-full max-w-6xl min-h-[80vh] mx-auto p-8 bg-gray-950 rounded-lg flex flex-col justify-start overflow-y-auto scrollbar-thin scrollbar-thumb-emerald-700 scrollbar-track-gray-800">
       <h2 className="text-2xl font-bold mb-6 text-emerald-400">Your Projects</h2>

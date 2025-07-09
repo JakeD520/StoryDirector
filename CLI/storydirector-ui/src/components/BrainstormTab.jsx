@@ -1,12 +1,29 @@
-import React, { useState } from "react";
-import { Plus, Bot, User, ThumbsUp, ThumbsDown } from "lucide-react";
+
+import React, { useState, useEffect } from "react";
+import { Bot, User, ThumbsUp, ThumbsDown } from "lucide-react";
 import callLLM from "../utils/callLLM";
 
 export default function BrainstormTab({ onPanelData }) {
-  const [ideas, setIdeas] = useState([]);
+  // Get active project title for project-specific brainstorm ideas
+  const activeProject = localStorage.getItem("storydirector_active_project");
+  const getBrainstormKey = () => activeProject ? `brainstorm_ideas_${activeProject}` : "brainstorm_ideas";
+
+  const [ideas, setIdeas] = useState(() => {
+    const key = getBrainstormKey();
+    const saved = localStorage.getItem(key);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        console.warn(`⚠️ Could not parse saved ${key}`);
+      }
+    }
+    return [];
+  });
   const [loading, setLoading] = useState(false);
   // Expose brainstorm data to parent (ProjectOverview)
-  React.useEffect(() => {
+
+  useEffect(() => {
     if (onPanelData) {
       onPanelData({
         type: "BrainstormTab",
@@ -14,6 +31,12 @@ export default function BrainstormTab({ onPanelData }) {
       });
     }
   }, [onPanelData, ideas]);
+
+  // Save ideas to localStorage whenever they change
+  useEffect(() => {
+    const key = getBrainstormKey();
+    localStorage.setItem(key, JSON.stringify(ideas));
+  }, [ideas, activeProject]);
 
   const addUserIdea = () => {
     const idea = prompt("Enter your story idea:");
@@ -31,24 +54,27 @@ export default function BrainstormTab({ onPanelData }) {
 
   const addLLMIdea = async () => {
     setLoading(true);
-    const raw = localStorage.getItem("storydirector_active_project_data");
+    // Fetch pitch data for the active project
     const apiKey = localStorage.getItem("openrouter_api_key");
-    if (!raw || !apiKey) {
-      alert("Missing project data or API key.");
+    const activeProject = localStorage.getItem("storydirector_active_project");
+    const pitchKey = activeProject ? `pitch_results_${activeProject}` : "pitch_results";
+    const pitchRaw = localStorage.getItem(pitchKey);
+    if (!pitchRaw || !apiKey) {
+      alert("Missing pitch analysis or API key.");
       setLoading(false);
       return;
     }
 
     try {
-      const data = JSON.parse(raw);
-      const {
-        title,
-        genres = [],
-        characters = [],
-        locations = [],
-        worldbuilding = "",
-        pitchIdeas = [],
-      } = data;
+      const pitch = JSON.parse(pitchRaw);
+      // Fallbacks for prompt
+      const title = activeProject || "Untitled Project";
+      const genres = pitch["genreGuesses"] || [];
+      const characters = pitch["characters"] || [];
+      const locations = pitch["locations"] || [];
+      const themes = pitch["themes"] || [];
+      const items = pitch["items"] || [];
+      const conflicts = pitch["conflicts"] || [];
 
       const messages = [
         {
@@ -58,7 +84,6 @@ You are helping a screenwriter develop modular story beats.
 
 Project Title: ${title}
 Genre: ${genres.join(", ")}
-Worldbuilding Summary: ${worldbuilding}
 
 Known Characters:
 ${characters.map((c) => `- ${c}`).join("\n")}
@@ -66,8 +91,14 @@ ${characters.map((c) => `- ${c}`).join("\n")}
 Key Locations:
 ${locations.map((l) => `- ${l}`).join("\n")}
 
-Existing Pitch Ideas:
-${pitchIdeas.map((p) => `- ${p}`).join("\n")}
+Themes:
+${themes.map((t) => `- ${t}`).join("\n")}
+
+Items:
+${items.map((i) => `- ${i}`).join("\n")}
+
+Conflicts:
+${conflicts.map((c) => `- ${c}`).join("\n")}
 
 👉 Generate 5 distinct beat-sized scene ideas (1–2 sentence summaries each).
 Focus on themes like deception, shame, identity, or redemption.
@@ -132,13 +163,15 @@ Respond with only the beat ideas in a numbered list.`.trim(),
               id: sessionId,
               timestamp: new Date().toISOString(),
               ideas,
+              project: activeProject || null,
             };
 
-            const existing = localStorage.getItem("brainstorm_sessions");
+            const sessionKey = activeProject ? `brainstorm_sessions_${activeProject}` : "brainstorm_sessions";
+            const existing = localStorage.getItem(sessionKey);
             const sessions = existing ? JSON.parse(existing) : [];
             sessions.push(sessionData);
 
-            localStorage.setItem("brainstorm_sessions", JSON.stringify(sessions));
+            localStorage.setItem(sessionKey, JSON.stringify(sessions));
             alert("✅ Session saved.");
           }}
           className="px-6 py-3 rounded-lg bg-yellow-600 hover:bg-yellow-700 text-white"

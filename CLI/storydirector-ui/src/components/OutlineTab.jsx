@@ -84,6 +84,9 @@ export default function OutlineTab({ onPanelData }) {
   const [loading, setLoading] = useState(false);
   const [structureKey, setStructureKey] = useState("three_act");
   const [structureData, setStructureData] = useState({});
+  const [activeProject, setActiveProject] = useState(null);
+  const [outlineError, setOutlineError] = useState("");
+
   // Expose outline data to parent (ProjectOverview)
   useEffect(() => {
     if (onPanelData) {
@@ -97,6 +100,7 @@ export default function OutlineTab({ onPanelData }) {
 
   const structure = structureData[structureKey] || {};
 
+  // Load active project and outline draft for that project
   useEffect(() => {
     const fetchStructures = async () => {
       try {
@@ -109,7 +113,15 @@ export default function OutlineTab({ onPanelData }) {
     };
     fetchStructures();
 
-    const saved = localStorage.getItem("storydirector_outline_draft");
+    const projectKey = localStorage.getItem("storydirector_active_project");
+    setActiveProject(projectKey);
+    if (!projectKey) {
+      setOutlineError("No active project selected. Please select or create a project to use the outline feature.");
+      setOutline(null);
+      return;
+    }
+    setOutlineError("");
+    const saved = localStorage.getItem(`storydirector_outline_draft_${projectKey}`);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -117,24 +129,72 @@ export default function OutlineTab({ onPanelData }) {
       } catch {
         console.warn("⚠️ Could not parse saved outline session");
       }
+    } else {
+      setOutline(null);
     }
   }, []);
 
+  // Save outline to project-specific key
   useEffect(() => {
-    if (outline) {
-      localStorage.setItem("storydirector_outline_draft", JSON.stringify(outline));
-    }
-  }, [outline]);
+    if (!activeProject || !outline) return;
+    localStorage.setItem(`storydirector_outline_draft_${activeProject}`, JSON.stringify(outline));
+  }, [outline, activeProject]);
 
   const generateOutline = async () => {
     setLoading(true);
+    setOutlineError(""); // Clear previous error
     try {
-      const raw = localStorage.getItem("storydirector_active_project_data");
-      const apiKey = localStorage.getItem("openrouter_api_key");
-      if (!raw || !apiKey) throw new Error("Missing project data or API key");
+      // Use project-specific key for brainstorm sessions
+      const brainstormKey = activeProject ? `brainstorm_sessions_${activeProject}` : "brainstorm_sessions";
+      const brainstormRaw = localStorage.getItem(brainstormKey);
+      const brainstormSessions = brainstormRaw ? JSON.parse(brainstormRaw) : [];
 
-      const data = JSON.parse(raw);
-      const { title, genres = [], characters = [], locations = [], worldbuilding = "", pitchIdeas = [], brainstormSessions = [] } = data;
+      // Always load project data from the project-specific key
+      if (!activeProject) {
+        setOutlineError("No active project selected.");
+        setLoading(false);
+        return;
+      }
+      const raw = localStorage.getItem(`project_data_${activeProject}`);
+      const apiKey = localStorage.getItem("openrouter_api_key");
+      let data;
+      if (raw) {
+        data = JSON.parse(raw);
+      } else {
+        // Fallback: try to find project in storydirector_projects
+        const projectsRaw = localStorage.getItem("storydirector_projects");
+        let fallback = null;
+        if (projectsRaw) {
+          try {
+            const projects = JSON.parse(projectsRaw);
+            fallback = projects.find(p => (p.title || "").toUpperCase() === (activeProject || "").toUpperCase());
+          } catch {}
+        }
+        if (fallback) {
+          data = fallback;
+          // Save for future use
+          localStorage.setItem(`project_data_${activeProject}`, JSON.stringify(fallback));
+        } else {
+          setOutlineError("Missing project data for this project. Please check your project setup or run a brainstorm session.");
+          setLoading(false);
+          return;
+        }
+      }
+      if (!apiKey) {
+        setOutlineError("Missing OpenRouter API key. Please set your API key in settings.");
+        setLoading(false);
+        return;
+      }
+
+      // If brainstorm sessions are missing, block generation
+      if (!brainstormSessions.length) {
+        setOutlineError("No brainstorm sessions found for this project. Please run a brainstorm session first.");
+        setLoading(false);
+        return;
+      }
+
+      // Use defaults for missing fields
+      const { title = activeProject, genres = [], characters = [], locations = [], worldbuilding = "", pitchIdeas = [] } = data || {};
 
       const brainstormBeats = brainstormSessions.flatMap(s => s.ideas.filter(i => i.liked !== false).map(i => `- ${i.content}`));
 
@@ -153,10 +213,10 @@ Genre(s): ${genres.join(", ")}
 World Summary: ${worldbuilding}
 
 Characters:
-${characters.map(c => `- ${c}`).join("\n")}
+${characters.map(c => `- ${c.name || c}`).join("\n")}
 
 Key Locations:
-${locations.map(l => `- ${l}`).join("\n")}
+${locations.map(l => `- ${l.name || l}`).join("\n")}
 
 Pitch Ideas:
 ${pitchIdeas.map(p => `- ${p}`).join("\n")}
@@ -173,28 +233,52 @@ Respond with the full outline organized by the selected structure. For each sect
       ];
 
       const result = await callLLM(messages, apiKey);
+      console.log("[OutlineTab] LLM result:", result);
 
       const parsed = {};
-      structure.acts?.forEach((act, idx) => {
-        const start = result.indexOf(act.label);
-        if (start !== -1) {
-          const nextAct = structure.acts[idx + 1]?.label;
-          const end = nextAct ? result.indexOf(nextAct) : result.length;
-          const section = result.substring(start, end);
-          parsed[act.id] = section
-            .split("\n")
-            .slice(1)
-            .map(s => ({ id: uuidv4(), content: s.replace(/^[-*]\s*/, "").trim() }))
-            .filter(item => item.content);
-        } else {
-          parsed[act.id] = [];
+      if (structure.acts && structure.acts.length) {
+        structure.acts.forEach((act, idx) => {
+          const start = result.indexOf(act.label);
+          if (start !== -1) {
+            const nextAct = structure.acts[idx + 1]?.label;
+            const end = nextAct ? result.indexOf(nextAct) : result.length;
+            const section = result.substring(start, end);
+            parsed[act.id] = section
+              .split("\n")
+              .slice(1)
+              .map(s => ({ id: uuidv4(), content: s.replace(/^[-*]\s*/, "").trim() }))
+              .filter(item => item.content);
+          } else {
+            // Fallback: try to extract bullet points or numbered scenes for this act
+            const regex = new RegExp(`${act.label}[\s\S]*?(?=^\w|$)`, "mi");
+            const match = result.match(regex);
+            if (match) {
+              parsed[act.id] = match[0]
+                .split("\n")
+                .slice(1)
+                .map(s => ({ id: uuidv4(), content: s.replace(/^[-*\d.]+\s*/, "").trim() }))
+                .filter(item => item.content);
+            } else {
+              parsed[act.id] = [];
+            }
+          }
+        });
+      }
+      // If all acts are empty, fallback: try to parse any bullet/numbered list in the result
+      const allEmpty = Object.values(parsed).every(arr => !arr.length);
+      if (allEmpty) {
+        const fallbackScenes = result
+          .split(/\n/)
+          .map(s => s.replace(/^[-*\d.]+\s*/, "").trim())
+          .filter(line => line.length > 0);
+        if (structure.acts && structure.acts.length) {
+          parsed[structure.acts[0].id] = fallbackScenes.map(content => ({ id: uuidv4(), content }));
         }
-      });
-
+      }
       setOutline(parsed);
     } catch (err) {
       console.error("Error generating outline:", err);
-      alert("Failed to generate outline. Check project data and API key.");
+      setOutlineError("Failed to generate outline. " + (err?.message || "Unknown error."));
     } finally {
       setLoading(false);
     }
@@ -239,6 +323,7 @@ Respond with the full outline organized by the selected structure. For each sect
           value={structureKey}
           onChange={(e) => setStructureKey(e.target.value)}
           className="bg-zinc-800 text-white px-4 py-2 rounded border border-zinc-600"
+          disabled={!!outlineError}
         >
           {Object.entries(structureData).map(([key, value]) => (
             <option key={key} value={key}>{value.name}</option>
@@ -261,16 +346,22 @@ Respond with the full outline organized by the selected structure. For each sect
           </div>
         )}
 
+        {outlineError && (
+          <div className="bg-red-900 text-red-200 border border-red-700 rounded p-4 my-2">
+            <strong>Error:</strong> {outlineError}
+          </div>
+        )}
+
         <button
           onClick={generateOutline}
-          disabled={loading}
+          disabled={loading || !!outlineError}
           className="px-6 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white"
         >
           {loading ? "⏳ Generating..." : "✨ Generate Outline"}
         </button>
       </div>
 
-      {outline && (
+      {outline && !outlineError && (
         <div className="space-y-8">
           {structure.acts?.map(act => (
             <div key={act.id} className="space-y-2">
