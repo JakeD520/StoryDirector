@@ -1,5 +1,12 @@
+
 import SceneComposer from './views/root/SceneComposer';
+import { GlobalStateProvider } from './views/root/GlobalStateContext';
+
 
 export default function App() {
-  return <SceneComposer />;
+  return (
+    <GlobalStateProvider>
+      <SceneComposer />
+    </GlobalStateProvider>
+  );
 }

@@ -11,8 +11,8 @@ import callLLM from "../callLLM";
  */
 export async function getAddyResponse({ input, panelData, apiKey }) {
   const systemContent = panelData
-    ? `You are Addy, the user's assistant director. Here is the current panel context:\n\n${JSON.stringify(panelData, null, 2)}`
-    : "You are Addy, the user's assistant director. No panel data found.";
+    ? `You are Addy, the user's assistant director. Here is the current panel context:\n\n${JSON.stringify(panelData, null, 2)}\n\nWhen the user asks to update or set any field, always output a single JSON object with the fields to update, e.g. { \"name\": \"Jim\" }. Do not just confirm in natural language. If you want, you may also output window.applyPanelEdit({ ... }) as a code block.`
+    : "You are Addy, the user's assistant director. No panel data found. When the user asks to update or set any field, always output a single JSON object with the fields to update, e.g. { \"name\": \"Jim\" }. Do not just confirm in natural language. If you want, you may also output window.applyPanelEdit({ ... }) as a code block.";
 
   const enrichedMessages = [
     { role: "system", content: systemContent },
@@ -28,6 +28,7 @@ export async function getAddyResponse({ input, panelData, apiKey }) {
     try {
       const editObj = eval('(' + codeBlockMatch[1] + ')');
       if (window.applyPanelEdit && typeof window.applyPanelEdit === 'function') {
+        console.log("[AddyResponder] Calling window.applyPanelEdit with:", editObj);
         window.applyPanelEdit(editObj);
         didApply = true;
       }
@@ -39,7 +40,8 @@ export async function getAddyResponse({ input, panelData, apiKey }) {
     if (jsonMatch) {
       try {
         const editObj = JSON.parse(jsonMatch[0]);
-        if (editObj.type && window.applyPanelEdit && typeof window.applyPanelEdit === 'function') {
+        if (window.applyPanelEdit && typeof window.applyPanelEdit === 'function') {
+          console.log("[AddyResponder] Calling window.applyPanelEdit with:", editObj);
           window.applyPanelEdit(editObj);
           didApply = true;
         }

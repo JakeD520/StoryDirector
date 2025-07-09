@@ -1,11 +1,73 @@
-import React, { useState, useEffect } from "react";
 
-export default function CharacterEditor({ character, onSave }) {
+import React, { useState, useEffect, useCallback } from "react";
+import { useFormFiller } from "../hooks/useFormFiller";
+
+// Field schema for character editor
+export const characterFields = [
+  { id: "name", label: "Name", type: "text" },
+  { id: "race", label: "Race/Species", type: "text" },
+  { id: "gender", label: "Gender", type: "text" },
+  { id: "archetype", label: "Archetype", type: "select" },
+  { id: "quirks", label: "Quirks (comma-separated)", type: "quirks" },
+  { id: "beliefs", label: "Beliefs, code, principles...", type: "textarea" },
+  { id: "voiceSample", label: "Voice Sample", type: "textarea" },
+  { id: "appearance.eyes", label: "Eyes", type: "text" },
+  { id: "appearance.hair", label: "Hair", type: "text" },
+  { id: "appearance.build", label: "Build / Posture", type: "text" },
+  { id: "backstory", label: "Backstory", type: "textarea" },
+];
+
+// Helper to get value by path (e.g., "appearance.eyes")
+function getValueByPath(obj, path) {
+  return path.split('.').reduce((acc, key) => (acc ? acc[key] : undefined), obj);
+}
+
+// Helper to set value by path (returns new object)
+function setValueByPath(obj, path, value) {
+  const keys = path.split('.');
+  const newObj = { ...obj };
+  let curr = newObj;
+  for (let i = 0; i < keys.length - 1; i++) {
+    curr[keys[i]] = { ...curr[keys[i]] };
+    curr = curr[keys[i]];
+  }
+  curr[keys[keys.length - 1]] = value;
+  return newObj;
+}
+
+
+export default function CharacterEditor({ character, onSave, onFormFillerReady }) {
   const [localCharacter, setLocalCharacter] = useState(character);
+
+  // Addy/automation form filling support (now supports nested fields)
+  const fillField = useCallback((field, value) => {
+    console.log("[CharacterEditor] fillField called:", field, value);
+    setLocalCharacter(prev => setValueByPath(prev, field, value));
+  }, []);
+  const fillFields = useCallback((fields) => {
+    console.log("[CharacterEditor] fillFields called:", fields);
+    setLocalCharacter(prev => {
+      let updated = { ...prev };
+      for (const key in fields) {
+        updated = setValueByPath(updated, key, fields[key]);
+      }
+      return updated;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (onFormFillerReady) {
+      onFormFillerReady({ fillField, fillFields });
+      console.log("[CharacterEditor] onFormFillerReady called, form filler registered.");
+    }
+  }, [fillField, fillFields, onFormFillerReady]);
 
   useEffect(() => {
     setLocalCharacter(character);
-  }, [character]);
+    console.log("[CharacterEditor] setLocalCharacter called from character prop change", character);
+    // Only update when character id changes (prevents overwriting local edits)
+    // If no id, fallback to object reference
+  }, [character?.id]);
 
   const [archetypes, setArchetypes] = useState([]);
 
@@ -22,24 +84,14 @@ export default function CharacterEditor({ character, onSave }) {
       });
   }, []);
 
+  // Generic change handler using path
   const handleChange = (field, value) => {
-    setLocalCharacter({ ...localCharacter, [field]: value });
-  };
-
-  const handleNestedChange = (section, field, value) => {
-    setLocalCharacter({
-      ...localCharacter,
-      [section]: {
-        ...localCharacter[section],
-        [field]: value,
-      },
-    });
+    setLocalCharacter(prev => setValueByPath(prev, field, value));
   };
 
   const handleSave = () => {
     if (onSave) onSave(localCharacter);
   };
-
   return (
     <div className="p-6 overflow-y-auto space-y-6">
       {/* Header Bar */}
@@ -47,115 +99,63 @@ export default function CharacterEditor({ character, onSave }) {
         🧍 {localCharacter.name || "Unnamed Character"} | Archetype: {localCharacter.archetype || "—"}
       </div>
 
-      {/* Identity Card */}
+      {/* Schema-driven form rendering */}
       <div className="border rounded-xl p-4 shadow">
-        <h2 className="text-lg font-semibold mb-2">✨ Identity</h2>
+        <h2 className="text-lg font-semibold mb-2">✨ Identity & Details</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <input
-            type="text"
-            placeholder="Name"
-            value={localCharacter.name}
-            onChange={(e) => handleChange("name", e.target.value)}
-            className="border rounded p-2"
-          />
-          <input
-            type="text"
-            placeholder="Race/Species"
-            value={localCharacter.race}
-            onChange={(e) => handleChange("race", e.target.value)}
-            className="border rounded p-2"
-          />
-          <input
-            type="text"
-            placeholder="Gender"
-            value={localCharacter.gender}
-            onChange={(e) => handleChange("gender", e.target.value)}
-            className="border rounded p-2"
-          />
-          <select
-            value={localCharacter.archetype}
-            onChange={(e) => handleChange("archetype", e.target.value)}
-            className="border rounded p-2"
-          >
-            <option value="">Select Archetype</option>
-            {archetypes.map((a, i) => (
-              <option key={i} value={a.name}>{a.name}</option>
-            ))}
-          </select>
+          {characterFields.map(field => {
+            if (field.type === "select" && field.id === "archetype") {
+              return (
+                <select
+                  key={field.id}
+                  value={getValueByPath(localCharacter, field.id) || ""}
+                  onChange={e => handleChange(field.id, e.target.value)}
+                  className="border rounded p-2"
+                >
+                  <option value="">Select Archetype</option>
+                  {archetypes.map((a, i) => (
+                    <option key={i} value={a.name}>{a.name}</option>
+                  ))}
+                </select>
+              );
+            }
+            if (field.type === "textarea") {
+              return (
+                <textarea
+                  key={field.id}
+                  placeholder={field.label}
+                  value={getValueByPath(localCharacter, field.id) || ""}
+                  onChange={e => handleChange(field.id, e.target.value)}
+                  className="border rounded p-2 w-full"
+                  rows={field.id === "backstory" ? 6 : 4}
+                />
+              );
+            }
+            if (field.type === "quirks") {
+              return (
+                <input
+                  key={field.id}
+                  type="text"
+                  placeholder={field.label}
+                  value={(getValueByPath(localCharacter, field.id) || []).join(", ")}
+                  onChange={e => handleChange(field.id, e.target.value.split(",").map(s => s.trim()))}
+                  className="border rounded p-2 w-full mb-2"
+                />
+              );
+            }
+            // Default: text input
+            return (
+              <input
+                key={field.id}
+                type="text"
+                placeholder={field.label}
+                value={getValueByPath(localCharacter, field.id) || ""}
+                onChange={e => handleChange(field.id, e.target.value)}
+                className="border rounded p-2"
+              />
+            );
+          })}
         </div>
-      </div>
-
-      {/* Philosophy & Demeanor Card */}
-      <div className="border rounded-xl p-4 shadow">
-        <h2 className="text-lg font-semibold mb-2">🧭 Philosophy & Demeanor</h2>
-        <input
-          type="text"
-          placeholder="Quirks (comma-separated)"
-          value={(localCharacter.quirks || []).join(", ")}
-          onChange={(e) => handleChange("quirks", e.target.value.split(",").map(s => s.trim()))}
-          className="border rounded p-2 w-full mb-2"
-        />
-        <textarea
-          placeholder="Beliefs, code, principles..."
-          value={localCharacter.beliefs}
-          onChange={(e) => handleChange("beliefs", e.target.value)}
-          className="border rounded p-2 w-full"
-          rows={4}
-        ></textarea>
-        <button className="mt-2 text-sm text-blue-600">🧠 Help Me Discover</button>
-      </div>
-
-      {/* Voice Sample Card */}
-      <div className="border rounded-xl p-4 shadow">
-        <h2 className="text-lg font-semibold mb-2">🧬 Voice Sample & DNA</h2>
-        <textarea
-          placeholder="Write a short journal or in-character monologue..."
-          value={localCharacter.voiceSample}
-          onChange={(e) => handleChange("voiceSample", e.target.value)}
-          className="border rounded p-2 w-full"
-          rows={4}
-        ></textarea>
-        <button className="mt-2 text-sm text-purple-600">🧪 Analyze Voice</button>
-      </div>
-
-      {/* Appearance Card */}
-      <div className="border rounded-xl p-4 shadow">
-        <h2 className="text-lg font-semibold mb-2">🖋 Appearance</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <input
-            type="text"
-            placeholder="Eyes"
-            value={localCharacter.appearance.eyes}
-            onChange={(e) => handleNestedChange("appearance", "eyes", e.target.value)}
-            className="border rounded p-2"
-          />
-          <input
-            type="text"
-            placeholder="Hair"
-            value={localCharacter.appearance.hair}
-            onChange={(e) => handleNestedChange("appearance", "hair", e.target.value)}
-            className="border rounded p-2"
-          />
-          <input
-            type="text"
-            placeholder="Build / Posture"
-            value={localCharacter.appearance.build}
-            onChange={(e) => handleNestedChange("appearance", "build", e.target.value)}
-            className="border rounded p-2"
-          />
-        </div>
-      </div>
-
-      {/* Backstory Card */}
-      <div className="border rounded-xl p-4 shadow">
-        <h2 className="text-lg font-semibold mb-2">📖 Backstory</h2>
-        <textarea
-          placeholder="Character backstory, traumas, triumphs..."
-          value={localCharacter.backstory}
-          onChange={(e) => handleChange("backstory", e.target.value)}
-          className="border rounded p-2 w-full"
-          rows={6}
-        ></textarea>
       </div>
 
       {/* Save Button */}

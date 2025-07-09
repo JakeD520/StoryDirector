@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import CharacterEditor from "../../components/CharacterEditor";
+// Store the latest form filler for Addy/automation
+let characterFormFiller = null;
+
 
 export default function CharactersView({ onPanelData }) {
   const [characters, setCharacters] = useState([]);
@@ -59,6 +62,20 @@ export default function CharactersView({ onPanelData }) {
         characters,
         selectedCharacter: characters.find(c => c.id === selectedId) || null,
         handleEdit,
+        fillCharacterField: (field, value) => {
+          if (characterFormFiller && characterFormFiller.fillField) {
+            characterFormFiller.fillField(field, value);
+            return true;
+          }
+          return false;
+        },
+        fillCharacterFields: (fields) => {
+          if (characterFormFiller && characterFormFiller.fillFields) {
+            characterFormFiller.fillFields(fields);
+            return true;
+          }
+          return false;
+        }
       });
     }
   }, [onPanelData, characters, selectedId]);
@@ -138,7 +155,11 @@ export default function CharactersView({ onPanelData }) {
       {/* Main Panel */}
       <div className="flex-1 p-6 pt-16 overflow-y-auto">
         {selected ? (
-          <CharacterEditor character={selected} onSave={handleUpdate} />
+          <CharacterEditor
+            character={selected}
+            onSave={handleUpdate}
+            onFormFillerReady={(filler) => { characterFormFiller = filler; }}
+          />
         ) : (
           <div className="text-zinc-500 italic">Select a character to edit</div>
         )}

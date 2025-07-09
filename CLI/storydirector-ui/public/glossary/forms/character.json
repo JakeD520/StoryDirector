@@ -1,0 +1,12 @@
+{
+  "fields": [
+    { "id": "name", "label": "Name", "type": "text" },
+    { "id": "race", "label": "Race/Species", "type": "text" },
+    { "id": "gender", "label": "Gender", "type": "text" },
+    { "id": "archetype", "label": "Archetype", "type": "select", "options": ["Hero", "Villain", "Mentor", "Sidekick"] },
+    { "id": "backstory", "label": "Backstory", "type": "textarea" },
+    { "id": "appearance.eyes", "label": "Eye Color", "type": "text" },
+    { "id": "appearance.hair", "label": "Hair Color", "type": "text" },
+    { "id": "appearance.build", "label": "Build / Posture", "type": "text" }
+  ]
+}
