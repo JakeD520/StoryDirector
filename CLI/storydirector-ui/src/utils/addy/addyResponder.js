@@ -10,9 +10,26 @@ import callLLM from "../callLLM";
  * @returns {Promise<{ response: string, didApply: boolean }>}
  */
 export async function getAddyResponse({ input, panelData, apiKey }) {
-  const systemContent = panelData
-    ? `You are Addy, the user's assistant director. Here is the current panel context:\n\n${JSON.stringify(panelData, null, 2)}\n\nWhen the user asks to update or set any field, always output a single JSON object with the fields to update, e.g. { \"name\": \"Jim\" }. Do not just confirm in natural language. If you want, you may also output window.applyPanelEdit({ ... }) as a code block.`
-    : "You are Addy, the user's assistant director. No panel data found. When the user asks to update or set any field, always output a single JSON object with the fields to update, e.g. { \"name\": \"Jim\" }. Do not just confirm in natural language. If you want, you may also output window.applyPanelEdit({ ... }) as a code block.";
+  // Try to get dynamic field IDs/schema from window (set by CharacterEdit or other views)
+  let schemaFields = [];
+  if (typeof window !== 'undefined' && window.currentCharacterSchema) {
+    schemaFields = window.currentCharacterSchema;
+  } else if (panelData && panelData.schemaFields) {
+    schemaFields = panelData.schemaFields;
+  }
+  const fieldIds = schemaFields.map(f => f.id);
+
+  // Build dynamic system prompt
+  let systemContent = '';
+  if (panelData) {
+    systemContent = `You are Addy, the user's assistant director. Here is the current panel context:\n\n${JSON.stringify(panelData, null, 2)}\n\n`;
+  } else {
+    systemContent = "You are Addy, the user's assistant director. No panel data found.\n\n";
+  }
+  if (fieldIds.length > 0) {
+    systemContent += `Here is the schema for the form. Only use these field IDs as keys in your JSON output:\n${JSON.stringify(fieldIds)}\n`;
+  }
+  systemContent += "When the user asks to update or set any field, always output a single JSON object with the fields to update, e.g. { \"name\": \"Jim\" }. Do not just confirm in natural language. If you want, you may also output window.applyPanelEdit({ ... }) as a code block.";
 
   const enrichedMessages = [
     { role: "system", content: systemContent },

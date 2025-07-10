@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import FormRenderer from "./FormRenderer";
 import { useFormEngine } from "../../utils/useFormEngine";
+import { useFormFiller } from "../../hooks/useFormFiller";
 
 /**
  * FormEditor - Generic form editor that loads a schema and renders a form
@@ -8,10 +9,12 @@ import { useFormEngine } from "../../utils/useFormEngine";
  * @param {Object} [initial] - Optional initial values
  * @param {Function} [onChange] - Optional callback when formData changes
  * @param {Function} [onSubmit] - Optional callback for form submission
+ * @param {Function} [onFormFillerReady] - Optional callback to expose form filler methods
  */
-export default function FormEditor({ schemaPath, initial = {}, onChange, onSubmit }) {
+export default function FormEditor({ schemaPath, initial = {}, onChange, onSubmit, onFormFillerReady }) {
   const [fields, setFields] = useState([]);
   const { formData, setFormData, updateFromAI } = useFormEngine(fields, initial);
+  const formFiller = useFormFiller(formData, setFormData);
 
   // Load schema
   useEffect(() => {
@@ -29,6 +32,15 @@ export default function FormEditor({ schemaPath, initial = {}, onChange, onSubmi
     }
     loadSchema();
   }, [schemaPath]);
+
+  // Expose form filler methods to parent (for Addy/automation)
+  useEffect(() => {
+    if (onFormFillerReady) {
+      onFormFillerReady(formFiller);
+    }
+    // Only call when formFiller or onFormFillerReady changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formFiller, onFormFillerReady]);
 
   // Notify parent on change
   useEffect(() => {

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "meg_001",
+    "document": "Meg is a sarcastic rogue raised by relic hunters. She lies better than she speaks the truth.",
+    "metadata": {
+      "character": "Meg",
+      "type": "backstory",
+      "tone": "sarcastic"
+    }
+  },
+  {
+    "id": "ed_001",
+    "document": "Ed is a nervous academic with a stutter. He believes every problem has a pattern.",
+    "metadata": {
+      "character": "Ed",
+      "type": "personality",
+      "tone": "analytical"
+    }
+  }
+]
